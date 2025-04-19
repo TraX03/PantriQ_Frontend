@@ -35,4 +35,9 @@ yarn-error.*
 # typescript
 *.tsbuildinfo
 
+# IDE/Editor Configurations
+.vscode/
+settings.json
+
 app-example
+package-lock.json
