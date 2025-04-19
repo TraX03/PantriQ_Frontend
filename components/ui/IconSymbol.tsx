@@ -1,43 +1,45 @@
-// This file is a fallback for using MaterialIcons on Android and web.
+import {
+  MaterialIcons,
+  Entypo,
+  Ionicons,
+  FontAwesome5,
+} from "@expo/vector-icons";
+import React from "react";
+import { OpaqueColorValue, StyleProp, TextStyle } from "react-native";
 
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import { SymbolWeight } from 'expo-symbols';
-import React from 'react';
-import { OpaqueColorValue, StyleProp, ViewStyle } from 'react-native';
+type IconLibraries = "MaterialIcons" | "Entypo" | "Ionicons" | "FontAwesome5";
 
-// Add your SFSymbol to MaterialIcons mappings here.
-const MAPPING = {
-  // See MaterialIcons here: https://icons.expo.fyi
-  // See SF Symbols in the SF Symbols app on Mac.
-  'house.fill': 'home',
-  'paperplane.fill': 'send',
-  'chevron.left.forwardslash.chevron.right': 'code',
-  'chevron.right': 'chevron-right',
-} as Partial<
-  Record<
-    import('expo-symbols').SymbolViewProps['name'],
-    React.ComponentProps<typeof MaterialIcons>['name']
-  >
->;
+type IconProps = {
+  library: IconLibraries;
+  name: string;
+  size?: number;
+  color?: string | OpaqueColorValue;
+  style?: StyleProp<TextStyle>;
+};
 
-export type IconSymbolName = keyof typeof MAPPING;
+const iconMap = {
+  MaterialIcons,
+  Entypo,
+  Ionicons,
+  FontAwesome5,
+};
 
-/**
- * An icon component that uses native SFSymbols on iOS, and MaterialIcons on Android and web. This ensures a consistent look across platforms, and optimal resource usage.
- *
- * Icon `name`s are based on SFSymbols and require manual mapping to MaterialIcons.
- */
-export function IconSymbol({
+export const IconSymbol = ({
+  library,
   name,
   size = 24,
   color,
   style,
-}: {
-  name: IconSymbolName;
-  size?: number;
-  color: string | OpaqueColorValue;
-  style?: StyleProp<ViewStyle>;
-  weight?: SymbolWeight;
-}) {
-  return <MaterialIcons color={color} size={size} name={MAPPING[name]} style={style} />;
-}
+}: IconProps) => {
+  const IconComponent = iconMap[library];
+
+  // Handle case where the provided icon library is not found in iconMap
+  if (!IconComponent) {
+    console.warn(`Invalid icon library: ${library}`);
+    return null;
+  }
+
+  return (
+    <IconComponent name={name as any} size={size} color={color} style={style} />
+  );
+};
