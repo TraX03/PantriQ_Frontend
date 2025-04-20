@@ -7,4 +7,4 @@ export default function ListsPage() {
       <Text>Lists</Text>
     </View>
   )
-};
+}

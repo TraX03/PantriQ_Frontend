@@ -1,45 +1,46 @@
-import {
-  MaterialIcons,
-  Entypo,
-  Ionicons,
-  FontAwesome5,
-} from "@expo/vector-icons";
+import Ionicons from "@expo/vector-icons/Ionicons";
+import { SymbolWeight } from "expo-symbols";
 import React from "react";
 import { OpaqueColorValue, StyleProp, TextStyle } from "react-native";
 
-type IconLibraries = "MaterialIcons" | "Entypo" | "Ionicons" | "FontAwesome5";
+const MAPPING = {
+  "house": "home-outline",
+  "house.fill": "home-sharp",
+  "calendar.circle": "calendar-outline",
+  "calendar.circle.fill": "calendar-sharp",
+  "list.bullet": ["list-outline", "list-sharp"],
+  "person": "person-outline",
+  "person.fill": "person-sharp",
+} as const;
 
-type IconProps = {
-  library: IconLibraries;
-  name: string;
-  size?: number;
-  color?: string | OpaqueColorValue;
-  style?: StyleProp<TextStyle>;
-};
+export type IconSymbolName = keyof typeof MAPPING;
 
-const iconMap = {
-  MaterialIcons,
-  Entypo,
-  Ionicons,
-  FontAwesome5,
-};
-
-export const IconSymbol = ({
-  library,
+export function IconSymbol({
   name,
-  size = 24,
+  size = 25,
   color,
   style,
-}: IconProps) => {
-  const IconComponent = iconMap[library];
+  selectedIcon = 0,
+}: {
+  name: IconSymbolName;
+  size?: number;
+  color: string | OpaqueColorValue;
+  style?: StyleProp<TextStyle>;
+  selectedIcon?: number;
+  weight?: SymbolWeight;
+}) {
+  const iconName = MAPPING[name];
 
-  // Handle case where the provided icon library is not found in iconMap
-  if (!IconComponent) {
-    console.warn(`Invalid icon library: ${library}`);
+  if (!iconName) {
+    console.warn(`Icon mapping for "${name}" not found.`);
     return null;
   }
 
+  const finalIconName = Array.isArray(iconName)
+    ? iconName[selectedIcon]
+    : iconName;
+
   return (
-    <IconComponent name={name as any} size={size} color={color} style={style} />
+    <Ionicons color={color} size={size} name={finalIconName} style={style} />
   );
-};
+}

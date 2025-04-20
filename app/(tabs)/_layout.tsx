@@ -1,59 +1,85 @@
-import { Tabs } from 'expo-router';
-import React from 'react';
-import { Platform } from 'react-native';
+import React from "react";
+import { Tabs } from "expo-router";
+import { Pressable, View, StyleSheet } from "react-native";
 
-import { HapticTab } from '@/components/HapticTab';
-import { IconSymbol } from '@/components/ui/IconSymbol';
-import TabBarBackground from '@/components/ui/TabBarBackground';
-import { Colors } from '@/constants/Colors';
-import { useColorScheme } from '@/hooks/useColorScheme';
+import { IconSymbol } from "@/components/ui/IconSymbol";
+import FloatingAddButton from "@/components/FloatingAddButton";
+import { Colors } from "@/constants/Colors";
+import { tabConfig } from "@/constants/tabConfig";
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
-
   return (
-    <Tabs
-      screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-        headerShown: false,
-        tabBarButton: HapticTab,
-        tabBarBackground: TabBarBackground,
-        tabBarStyle: Platform.select({
-          ios: {
-            // Use a transparent background on iOS to show the blur effect
-            position: 'absolute',
+    <>
+      <Tabs
+        screenOptions={{
+          tabBarActiveTintColor: Colors.primary,
+          tabBarInactiveTintColor: Colors.tabIconDefault,
+          headerShown: false,
+          tabBarButton: (props) => (
+            <Pressable {...props} android_ripple={null} />
+          ),
+          tabBarLabelStyle: {
+            fontFamily: "SFProDisplay",
+            fontSize: 13,
           },
-          default: {},
-        }),
-      }}>
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol library="Entypo" name="home" size={28} color={color} />,
+          tabBarStyle: {
+            height: 60,
+          },
         }}
-      />
-      <Tabs.Screen
-        name="planner"
-        options={{
-          title: 'Planner',
-          tabBarIcon: ({ color }) => <IconSymbol library="Ionicons" name="calendar-sharp" size={25} color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="lists"
-        options={{
-          title: 'Lists',
-          tabBarIcon: ({ color }) => <IconSymbol library="FontAwesome5" name="list-ul" size={22} color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="profile"
-        options={{
-          title: 'Profile',
-          tabBarIcon: ({ color }) => <IconSymbol library="FontAwesome5" name="user-alt" size={21} color={color} />,
-        }}
-      />
-    </Tabs>
+      >
+        {tabConfig.map((tab, index) => {
+          if (tab.hidden) {
+            // Hidden tab used as a placeholder for the center floating Add button
+            return (
+              <Tabs.Screen
+                key={index}
+                name={tab.name}
+                options={{
+                  tabBarButton: () => null,
+                  tabBarStyle: { display: "none" },
+                }}
+              />
+            );
+          }
+
+          return (
+            <Tabs.Screen
+              key={index}
+              name={tab.name}
+              options={{
+                title: tab.title,
+                tabBarIcon: ({ color, focused }) => (
+                  <IconSymbol
+                    name={focused ? tab.iconFocused ?? tab.icon! : tab.icon!}
+                    color={color}
+                    selectedIcon={
+                      tab.icon === "list.bullet" ? (focused ? 1 : 0) : undefined
+                    }
+                  />
+                ),
+              }}
+            />
+          );
+        })}
+      </Tabs>
+
+      {/* Nav Bar Dent */}
+      <View style={styles.dent} />
+      <FloatingAddButton />
+    </>
   );
 }
+
+const styles = StyleSheet.create({
+  dent: {
+    position: "absolute",
+    alignSelf: "center",
+    bottom: 20,
+    width: 90,
+    height: 40,
+    backgroundColor: Colors.background,
+    borderBottomLeftRadius: 10,
+    borderBottomRightRadius: 10,
+    zIndex: 1,
+  },
+});

@@ -7,4 +7,4 @@ export default function PlannerPage() {
       <Text>Planner</Text>
     </View>
   )
-};
+}

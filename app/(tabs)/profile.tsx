@@ -7,4 +7,4 @@ export default function ProfilePage() {
       <Text>Profile</Text>
     </View>
   )
-};
+}
