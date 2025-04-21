@@ -11,6 +11,12 @@ const MAPPING = {
   "list.bullet": ["list-outline", "list-sharp"],
   "person": "person-outline",
   "person.fill": "person-sharp",
+  "magnifyingglass": "search",
+  "bell": "notifications",
+  "heart": "heart-outline",
+  "heart.fill": "heart-sharp",
+  "bookmark": "bookmark-outline",
+  "bookmark.fill": "bookmark-sharp"
 } as const;
 
 export type IconSymbolName = keyof typeof MAPPING;

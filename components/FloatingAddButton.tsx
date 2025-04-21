@@ -1,7 +1,5 @@
 import React, { useMemo } from "react";
-import { LinearGradient } from "expo-linear-gradient";
 import { Image, TouchableOpacity, TouchableOpacityProps, View } from "react-native";
-import { Colors } from "@/constants/Colors";
 
 const imageSource = require("@/assets/images/add-button.png");
 
@@ -16,16 +14,11 @@ const FloatingActionButton: React.FC<TouchableOpacityProps> = (props) => {
       {...props}
     >
       <View className="overflow-hidden rounded-xl">
-        {/* <LinearGradient
-          colors={["transparent", Colors.background]}
-          className="p-1"
-        > */}
-          <Image
-            source={imageSource}
-            style={{ height: 60, aspectRatio }}
-            resizeMode="contain"
-          />
-        {/* </LinearGradient> */}
+        <Image
+          source={imageSource}
+          style={{ height: 60, aspectRatio }}
+          resizeMode="contain"
+        />
       </View>
     </TouchableOpacity>
   );

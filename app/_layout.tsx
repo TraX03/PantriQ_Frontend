@@ -17,6 +17,9 @@ export default function RootLayout() {
   const [loaded] = useFonts({
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
     SFProDisplay: require("../assets/fonts/SF-Pro-Display-Regular.otf"),
+    RobotoMedium: require("../assets/fonts/Roboto-Medium.ttf"),
+    RobotoRegular: require("../assets/fonts/Roboto-Regular.ttf"),
+    RobotoSemiCondensed: require("../assets/fonts/Roboto_SemiCondensed-Regular.ttf"),
   });
 
   useEffect(() => {

@@ -5,6 +5,9 @@
 
 export const Colors = {
   primary: "#E84A62",
+  secondary: "white",
   background: "#f2f2f2",
   tabIconDefault: "#404040",
+  inactive: "gray",
+  defaultColor: "black"
 };

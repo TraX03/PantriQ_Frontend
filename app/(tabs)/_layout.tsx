@@ -19,11 +19,12 @@ export default function TabLayout() {
             <Pressable {...props} android_ripple={null} />
           ),
           tabBarLabelStyle: {
-            fontFamily: "SFProDisplay",
+            fontFamily: "RobotoSemiCondensed",
             fontSize: 13,
           },
           tabBarStyle: {
             height: 60,
+            backgroundColor: Colors.secondary
           },
         }}
       >
@@ -74,9 +75,9 @@ const styles = StyleSheet.create({
   dent: {
     position: "absolute",
     alignSelf: "center",
-    bottom: 20,
-    width: 90,
-    height: 40,
+    bottom: 22,
+    width: 85,
+    height: 37,
     backgroundColor: Colors.background,
     borderBottomLeftRadius: 10,
     borderBottomRightRadius: 10,
