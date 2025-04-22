@@ -5,6 +5,7 @@
 
 export const Colors = {
   primary: "#E84A62",
+  lightPrimary: "#ed7285",
   secondary: "white",
   background: "#f2f2f2",
   tabIconDefault: "#404040",

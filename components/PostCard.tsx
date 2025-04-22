@@ -55,11 +55,11 @@ export default function PostCard({ post, onPress }: PostCardProps) {
               style={styles.image}
               resizeMode="cover"
             />
-            <View style={styles.content}>
+            <View className="px-2.5">
               <Text style={styles.title}>{post.title}</Text>
 
-              <View style={styles.footer}>
-                <View style={styles.userSection}>
+              <View className="flex-row items-center justify-between">
+                <View className="flex-row items-center flex-1 overflow-hidden">
                   <View style={styles.profileCircle}>
                     <Image
                       source={{ uri: post.profilePic }}
@@ -76,7 +76,7 @@ export default function PostCard({ post, onPress }: PostCardProps) {
                   </Text>
                 </View>
 
-                <View style={styles.iconSection}>
+                <View className="flex-row items-center space-x-1 pl-2.5">
                   <IconSymbol
                     name="heart"
                     color={Colors.defaultColor}
@@ -122,10 +122,6 @@ const styles = StyleSheet.create({
     fontFamily: "RobotoMedium",
     marginBottom: 8,
   },
-  communityStatsRow: {
-    flexDirection: "row",
-    justifyContent: "flex-start",
-  },
   communityText: {
     fontSize: 12,
     fontFamily: "RobotoRegular",
@@ -136,7 +132,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: 14,
     right: 14,
-    backgroundColor: "#ed7285",
+    backgroundColor: Colors.lightPrimary,
     borderColor: Colors.secondary,
     borderWidth: 0.5,
     paddingHorizontal: 18,
@@ -149,31 +145,15 @@ const styles = StyleSheet.create({
     fontFamily: "RobotoRegular",
     fontSize: 14,
   },
-  content: {
-    paddingHorizontal: 8,
-  },
   title: {
     fontSize: 14,
     fontFamily: "RobotoMedium",
     marginBottom: 10,
   },
-  footer: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  userSection: {
-    flexDirection: "row",
-    alignItems: "center",
-    flexShrink: 1,
-    flexGrow: 1,
-    overflow: "hidden",
-  },
   profileCircle: {
     width: 23,
     height: 23,
     borderRadius: 20,
-    backgroundColor: "#ccc",
     marginRight: 6,
     overflow: "hidden",
   },
@@ -188,13 +168,5 @@ const styles = StyleSheet.create({
     flexShrink: 1,
     flexGrow: 1,
     overflow: "hidden",
-  },
-  iconSection: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 3,
-    paddingLeft: 8,
-    flexShrink: 0,
-    flexGrow: 0,
   },
 });
