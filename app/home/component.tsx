@@ -1,4 +1,4 @@
-import { ScrollView, View, Text, Pressable, StyleSheet } from "react-native";
+import { ScrollView, View, Text, Pressable } from "react-native";
 import { Colors } from "@/constants/Colors";
 import PostCard, { Post } from "@/components/PostCard";
 import { IconSymbol } from "@/components/ui/IconSymbol";
@@ -21,22 +21,24 @@ export default function HomeComponent({
   filteredPosts,
 }: Props) {
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: Colors.background }}>
+    <ScrollView style={{ flex: 1, backgroundColor: Colors.ui.background }}>
       {/* Header */}
       <View
-        className="flex-row items-end justify-between px-4 h-28"
-        style={{ backgroundColor: Colors.secondary, marginBottom: 2 }}
+        className="flex-row items-end justify-between px-4 h-28 mb-[2px]"
+        style={{ backgroundColor: Colors.brand.secondary }}
       >
         <View className="flex-row pb-2">
           {["Follow", "Explore"].map((tab) => (
             <Pressable key={tab} onPress={() => setActiveTab(tab)}>
               <Text
-                style={[
-                  styles.tabText,
-                  {
-                    color: activeTab === tab ? Colors.primary : Colors.inactive,
-                  },
-                ]}
+                className="text-[23px] mr-5"
+                style={{
+                  fontFamily: "RobotoMedium",
+                  color:
+                    activeTab === tab
+                      ? Colors.brand.primary
+                      : Colors.text.faint,
+                }}
               >
                 {tab}
               </Text>
@@ -46,10 +48,10 @@ export default function HomeComponent({
 
         <View className="flex-row items-center space-x-4 pb-2">
           <Pressable className="mr-2">
-            <IconSymbol name="magnifyingglass" color={Colors.primary} />
+            <IconSymbol name="magnifyingglass" color={Colors.brand.primary} />
           </Pressable>
           <Pressable>
-            <IconSymbol name="bell" color={Colors.primary} />
+            <IconSymbol name="bell" color={Colors.brand.primary} />
           </Pressable>
         </View>
       </View>
@@ -58,8 +60,8 @@ export default function HomeComponent({
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
-        className="bg-white px-2"
-        style={{ paddingVertical: 8 }}
+        className="px-2 py-3"
+        style={{ backgroundColor: Colors.brand.secondary }}
       >
         {suggestions.map((item) => {
           const isActive = activeSuggestion === item;
@@ -67,19 +69,18 @@ export default function HomeComponent({
             <Pressable
               key={item}
               onPress={() => setActiveSuggestion(item)}
+              className="px-5 py-1.5 mr-2.5 rounded-full"
               style={{
-                paddingHorizontal: 16,
-                paddingVertical: 5,
-                marginRight: 8,
-                borderRadius: 999,
-                backgroundColor: isActive ? Colors.primary : "#f3f4f6",
+                backgroundColor: isActive
+                  ? Colors.brand.primary
+                  : Colors.ui.backgroundLight,
               }}
             >
               <Text
                 style={{
                   fontFamily: "RobotoRegular",
                   fontSize: 14,
-                  color: isActive ? Colors.secondary : "#374151",
+                  color: isActive ? Colors.brand.secondary : Colors.ui.base,
                 }}
               >
                 {item}
@@ -99,15 +100,9 @@ export default function HomeComponent({
               ))}
             </View>
           ) : (
-            <View
-              style={{
-                flexDirection: "row",
-                justifyContent: "space-between",
-                flexWrap: "wrap",
-              }}
-            >
+            <View className="flex-row justify-between flex-wrap">
               {[0, 1].map((colIndex) => (
-                <View key={colIndex} style={{ width: "48%" }}>
+                <View key={colIndex} className="w-[48%]">
                   {filteredPosts
                     .filter((_, i) => i % 2 === colIndex)
                     .map((post) => (
@@ -122,11 +117,3 @@ export default function HomeComponent({
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  tabText: {
-    fontFamily: "RobotoMedium",
-    fontSize: 23,
-    marginRight: 16,
-  },
-});

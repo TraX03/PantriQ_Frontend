@@ -44,7 +44,7 @@ export default function PostCard({ post, onPress }: PostCardProps) {
             <View className="px-4">
               <Text style={styles.communityName}>{post.title}</Text>
               <Text style={styles.communityText}>
-                {post.membersCount} members  |  {post.recipesCount} recipes
+                {post.membersCount} members | {post.recipesCount} recipes
               </Text>
             </View>
           </>
@@ -77,14 +77,10 @@ export default function PostCard({ post, onPress }: PostCardProps) {
                 </View>
 
                 <View className="flex-row items-center space-x-1 pl-2.5">
-                  <IconSymbol
-                    name="heart"
-                    color={Colors.defaultColor}
-                    size={22}
-                  />
+                  <IconSymbol name="heart" color={Colors.ui.base} size={22} />
                   <IconSymbol
                     name="bookmark"
-                    color={Colors.defaultColor}
+                    color={Colors.ui.base}
                     size={22}
                   />
                 </View>
@@ -99,7 +95,7 @@ export default function PostCard({ post, onPress }: PostCardProps) {
 
 const styles = StyleSheet.create({
   cardContainer: {
-    backgroundColor: Colors.secondary,
+    backgroundColor: Colors.brand.secondary,
     borderRadius: 12,
     paddingBottom: 12,
   },
@@ -125,15 +121,15 @@ const styles = StyleSheet.create({
   communityText: {
     fontSize: 12,
     fontFamily: "RobotoRegular",
-    color: Colors.inactive,
+    color: Colors.text.faint,
     paddingBottom: 8,
   },
   joinButton: {
     position: "absolute",
     top: 14,
     right: 14,
-    backgroundColor: Colors.lightPrimary,
-    borderColor: Colors.secondary,
+    backgroundColor: Colors.brand.primaryLight,
+    borderColor: Colors.brand.secondary,
     borderWidth: 0.5,
     paddingHorizontal: 18,
     paddingVertical: 6,
@@ -141,7 +137,7 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
   joinButtonText: {
-    color: Colors.secondary,
+    color: Colors.brand.secondary,
     fontFamily: "RobotoRegular",
     fontSize: 14,
   },
@@ -149,6 +145,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontFamily: "RobotoMedium",
     marginBottom: 10,
+    color: Colors.ui.base,
   },
   profileCircle: {
     width: 23,
@@ -164,7 +161,7 @@ const styles = StyleSheet.create({
   author: {
     fontSize: 11,
     fontFamily: "RobotoRegular",
-    color: Colors.inactive,
+    color: Colors.text.faint,
     flexShrink: 1,
     flexGrow: 1,
     overflow: "hidden",

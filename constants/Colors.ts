@@ -4,11 +4,23 @@
  */
 
 export const Colors = {
-  primary: "#E84A62",
-  lightPrimary: "#ed7285",
-  secondary: "white",
-  background: "#f2f2f2",
-  tabIconDefault: "#404040",
-  inactive: "gray",
-  defaultColor: "black"
+  brand: {
+    primary: "#E84A62",
+    primaryLight: "#ED7285",
+    primaryDark: "#D02540",
+    secondary: "#FFFFFF",
+  },
+
+  ui: {
+    background: "#F2F2F2",
+    backgroundLight: "#f3f4f6",
+    inactive: "#404040",
+    base: "#374151",
+    buttonFill: "#CC1F37",
+  },
+
+  text: {
+    faint: "gray",
+    placeholder: "#CCCCCC",
+  },
 };

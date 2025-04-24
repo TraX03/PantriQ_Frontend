@@ -1,7 +1,7 @@
 import React from "react";
 import { IconSymbolName } from "@/components/ui/IconSymbol";
 
-export type TabConfig = {
+type TabConfig = {
   name: string;
   title?: string;
   icon?: IconSymbolName;
