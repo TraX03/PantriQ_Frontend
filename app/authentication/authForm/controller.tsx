@@ -1,27 +1,56 @@
 import { router } from "expo-router";
-import useAuth from "@/app/authentication/context";
+import { useAuth } from "../../../features/authentication/context";
 import reactotron from "reactotron-react-native";
+import { AuthFormActions } from "../../../features/authentication/actions";
 
-export default function AuthFormController(mode: "sign-in" | "sign-up") {
-  const { login } = useAuth();
+type ControllerProps = {
+  mode: "sign-in" | "sign-up";
+  form: ReturnType<typeof AuthFormActions>;
+};
 
-  const handleSubmit = async (email: string, password: string) => {
+export default function AuthFormController({ mode, form }: ControllerProps) {
+  const { login, signUp } = useAuth();
+
+  const validate = () => {
+    let isValid = true;
+
+    if (!/\S+@\S+\.\S+/.test(form.email)) {
+      form.setFieldState("emailError", "* Please enter a valid email.");
+      isValid = false;
+    }
+
+    const passwordRegex =
+      /^(?=.*[A-Z])(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).{8,}$/;
+
+    if (!passwordRegex.test(form.password)) {
+      form.setFieldState(
+        "passwordError",
+        "* Password must be at least 8 characters, with one uppercase and one special character."
+      );
+      form.setFieldState("showPasswordModal", true);
+      isValid = false;
+    }
+
+    return isValid;
+  };
+
+  const handleSubmit = async () => {
+    if (!validate()) return;
+
     try {
-      await login(email, password);
-
-      // Redirect based on mode
       if (mode === "sign-up") {
-        router.replace("/");
+        await signUp(form.email, form.password, form.email.split("@")[0]);
+        router.replace("/onboarding/component");
       } else {
+        await login(form.email, form.password);
         router.replace("/");
       }
-
-      reactotron.log("Authentication successful.");
     } catch (error) {
-      reactotron.log("Authentication failed: " + error);
-      throw error;
+      reactotron.log("Authentication failed:", error);
     }
   };
 
-  return { handleSubmit };
+  return {
+    handleSubmit,
+  };
 }

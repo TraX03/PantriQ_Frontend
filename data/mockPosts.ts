@@ -1,3 +1,5 @@
+import React from "react";
+
 export const mockPosts = [
   {
     id: "1",
@@ -98,3 +100,4 @@ export const mockPosts = [
     recipesCount: 86,
   },
 ];
+

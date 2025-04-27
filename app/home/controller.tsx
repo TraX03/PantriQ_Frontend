@@ -1,17 +1,10 @@
-import { useState } from "react";
-import HomeComponent from "./component";
-import { mockPosts } from "@/app/data/mockPosts";
+import { mockPosts } from "@/data/mockPosts";
 import { Post } from "@/components/PostCard";
-import Reactotron from "reactotron-react-native";
 
-const suggestions = ["Recipe", "Tips & Advice", "Communities", "Discussions"];
-
-export default function HomeController() {
-  const [activeTab, setActiveTab] = useState("Explore");
-  const [activeSuggestion, setActiveSuggestion] = useState("Recipe");
+export default function HomeController(activeSuggestion: string) {
   const typedPosts = mockPosts as Post[];
-  Reactotron.log("HEHJEEOEKO");
-  const filteredPosts = typedPosts.filter((post) => {
+
+  return typedPosts.filter((post) => {
     switch (activeSuggestion) {
       case "Recipe":
         return post.type === "recipe";
@@ -25,15 +18,4 @@ export default function HomeController() {
         return true;
     }
   });
-
-  return (
-    <HomeComponent
-      activeTab={activeTab}
-      setActiveTab={setActiveTab}
-      activeSuggestion={activeSuggestion}
-      setActiveSuggestion={setActiveSuggestion}
-      suggestions={suggestions}
-      filteredPosts={filteredPosts}
-    />
-  );
 }

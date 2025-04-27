@@ -1,27 +1,17 @@
-import { createContext, useContext, useEffect, useState } from "react";
-import { Account, Models } from "react-native-appwrite";
+import { useEffect, useState } from "react";
+import { Account, Models, Databases } from "react-native-appwrite";
 import { client } from "@/services/appwrite";
 import { router } from "expo-router";
 import reactotron from "reactotron-react-native";
+import { appwriteConfig } from "@/constants/appwriteConfig";
 
 const account = new Account(client);
+const databases = new Databases(client);
 
-type AuthContextType = {
-  user: Models.User<{}> | null;
-  isLoggedIn: boolean;
-  loading: boolean;
-  logout: () => Promise<void>;
-  login: (email: string, password: string) => Promise<void>; // NEW
-};
-
-// Provide default context value
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+export function useProvideAuth() {
   const [user, setUser] = useState<Models.User<{}> | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Check current session on mount
   useEffect(() => {
     const checkSession = async () => {
       try {
@@ -42,9 +32,33 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       await account.createEmailPasswordSession(email, password);
       const currentUser = await account.get();
       setUser(currentUser);
-      router.replace("/"); // Navigate to app home after login
+      router.replace("/");
     } catch (error) {
       reactotron.log("Login failed:", error);
+      throw error;
+    }
+  };
+
+  const signUp = async (email: string, password: string, username: string) => {
+    try {
+      await account.create("unique()", email, password);
+      await account.createEmailPasswordSession(email, password);
+      const currentUser = await account.get();
+      setUser(currentUser);
+
+      const userId = currentUser.$id;
+      await databases.createDocument(
+        appwriteConfig.DATABASE_ID,
+        appwriteConfig.USERS_COLLECTION_ID,
+        userId,
+        {
+          user_id: userId,
+          username: username,
+          joined_at: new Date().toISOString(),
+        }
+      );
+    } catch (error) {
+      reactotron.log("SignUp failed:", error);
       throw error;
     }
   };
@@ -59,19 +73,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  return (
-    <AuthContext.Provider
-      value={{ user, isLoggedIn: !!user, loading, logout, login }}
-    >
-      {children}
-    </AuthContext.Provider>
-  );
-};
-
-export default function useAuth() {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error("useAuth must be used within an AuthProvider");
-  }
-  return context;
+  return {
+    user,
+    loading,
+    isLoggedIn: !!user,
+    login,
+    signUp,
+    logout,
+  };
 }

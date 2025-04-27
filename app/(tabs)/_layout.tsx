@@ -6,14 +6,17 @@ import { IconSymbol } from "@/components/ui/IconSymbol";
 import FloatingAddButton from "@/components/FloatingAddButton";
 import { Colors } from "@/constants/Colors";
 import { tabConfig } from "@/constants/tabConfig";
+import { useRequireLogin } from "@/hooks/useRequireLogin";
 
 export default function TabLayout() {
+  const { requireLogin } = useRequireLogin();
+
   return (
     <>
       <Tabs
         screenOptions={{
-          tabBarActiveTintColor: Colors.primary,
-          tabBarInactiveTintColor: Colors.tabIconDefault,
+          tabBarActiveTintColor: Colors.brand.primary,
+          tabBarInactiveTintColor: Colors.ui.inactive,
           headerShown: false,
           tabBarButton: (props) => (
             <Pressable {...props} android_ripple={null} />
@@ -24,7 +27,7 @@ export default function TabLayout() {
           },
           tabBarStyle: {
             height: 60,
-            backgroundColor: Colors.secondary
+            backgroundColor: Colors.brand.secondary,
           },
         }}
       >
@@ -66,10 +69,16 @@ export default function TabLayout() {
 
       {/* Nav Bar Dent */}
       <View style={styles.dent} />
-      <FloatingAddButton />
+      <FloatingAddButton
+        onPress={() => {
+          requireLogin(() => {
+            // Do nothing or proceed with add action if needed
+          });
+        }}
+      />
     </>
   );
-}
+};
 
 const styles = StyleSheet.create({
   dent: {
@@ -78,7 +87,7 @@ const styles = StyleSheet.create({
     bottom: 22,
     width: 85,
     height: 37,
-    backgroundColor: Colors.background,
+    backgroundColor: Colors.ui.background,
     borderBottomLeftRadius: 10,
     borderBottomRightRadius: 10,
     zIndex: 1,

@@ -2,24 +2,21 @@ import { ScrollView, View, Text, Pressable } from "react-native";
 import { Colors } from "@/constants/Colors";
 import PostCard, { Post } from "@/components/PostCard";
 import { IconSymbol } from "@/components/ui/IconSymbol";
+import { HomeActions } from "../../features/home/actions";
 
 type Props = {
-  activeTab: string;
-  setActiveTab: (tab: string) => void;
-  activeSuggestion: string;
-  setActiveSuggestion: (sugg: string) => void;
+  home: ReturnType<typeof HomeActions>;
   suggestions: string[];
   filteredPosts: Post[];
 };
 
 export default function HomeComponent({
-  activeTab,
-  setActiveTab,
-  activeSuggestion,
-  setActiveSuggestion,
+  home,
   suggestions,
   filteredPosts,
 }: Props) {
+  const { activeTab, activeSuggestion, setFieldState } = home;
+
   return (
     <ScrollView style={{ flex: 1, backgroundColor: Colors.ui.background }}>
       {/* Header */}
@@ -29,7 +26,10 @@ export default function HomeComponent({
       >
         <View className="flex-row pb-2">
           {["Follow", "Explore"].map((tab) => (
-            <Pressable key={tab} onPress={() => setActiveTab(tab)}>
+            <Pressable
+              key={tab}
+              onPress={() => setFieldState("activeTab", tab)}
+            >
               <Text
                 className="text-[23px] mr-5"
                 style={{
@@ -68,7 +68,7 @@ export default function HomeComponent({
           return (
             <Pressable
               key={item}
-              onPress={() => setActiveSuggestion(item)}
+              onPress={() => setFieldState("activeSuggestion", item)}
               className="px-5 py-1.5 mr-2.5 rounded-full"
               style={{
                 backgroundColor: isActive

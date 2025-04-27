@@ -11,4 +11,4 @@ export default function AuthScsreen() {
       <AuthFormContainer mode={formMode} />
     </>
   );
-}
+};

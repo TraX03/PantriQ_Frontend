@@ -18,5 +18,3 @@ export const styles = StyleSheet.create({
     backgroundColor: Colors.brand.secondary,
   },
 });
-
-export default styles;

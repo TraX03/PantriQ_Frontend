@@ -1,6 +1,7 @@
-import { View, Text, Image, Pressable, StyleSheet } from "react-native";
+import { View, Text, Image, Pressable } from "react-native";
 import { Colors } from "@/constants/Colors";
 import { IconSymbol } from "./ui/IconSymbol";
+import styles from "./_styles";
 
 export type Post =
   | {
@@ -28,16 +29,26 @@ type PostCardProps = {
 export default function PostCard({ post, onPress }: PostCardProps) {
   return (
     <Pressable onPress={onPress} className="mb-4">
-      <View style={styles.cardContainer}>
+      <View
+        className="rounded-xl pb-3.5"
+        style={{ backgroundColor: Colors.brand.secondary }}
+      >
         {post.type === "community" ? (
           <>
             <View className="relative">
               <Image
                 source={{ uri: post.image }}
-                style={styles.communityImageFull}
+                style={styles.communityImage}
                 resizeMode="cover"
               />
-              <Pressable style={styles.joinButton} onPress={() => {}}>
+              <Pressable
+                className="absolute top-3.5 right-3.5 border px-4 py-1.5 rounded-lg"
+                style={{
+                  backgroundColor: Colors.brand.primaryLight,
+                  borderColor: Colors.brand.secondary,
+                }}
+                onPress={() => {}}
+              >
                 <Text style={styles.joinButtonText}>Join</Text>
               </Pressable>
             </View>
@@ -52,11 +63,11 @@ export default function PostCard({ post, onPress }: PostCardProps) {
           <>
             <Image
               source={{ uri: post.image }}
-              style={styles.image}
+              style={styles.recipeimage}
               resizeMode="cover"
             />
             <View className="px-2.5">
-              <Text style={styles.title}>{post.title}</Text>
+              <Text style={styles.postTitle}>{post.title}</Text>
 
               <View className="flex-row items-center justify-between">
                 <View className="flex-row items-center flex-1 overflow-hidden">
@@ -78,11 +89,8 @@ export default function PostCard({ post, onPress }: PostCardProps) {
 
                 <View className="flex-row items-center space-x-1 pl-2.5">
                   <IconSymbol name="heart" color={Colors.ui.base} size={22} />
-                  <IconSymbol
-                    name="bookmark"
-                    color={Colors.ui.base}
-                    size={22}
-                  />
+                  {/* prettier-ignore */}
+                  <IconSymbol name="bookmark" color={Colors.ui.base} size={22} />
                 </View>
               </View>
             </View>
@@ -91,79 +99,4 @@ export default function PostCard({ post, onPress }: PostCardProps) {
       </View>
     </Pressable>
   );
-}
-
-const styles = StyleSheet.create({
-  cardContainer: {
-    backgroundColor: Colors.brand.secondary,
-    borderRadius: 12,
-    paddingBottom: 12,
-  },
-  image: {
-    width: "100%",
-    height: 180,
-    borderTopLeftRadius: 8,
-    borderTopRightRadius: 8,
-    marginBottom: 8,
-  },
-  communityImageFull: {
-    width: "100%",
-    height: 150,
-    borderTopLeftRadius: 12,
-    borderTopRightRadius: 12,
-    marginBottom: 8,
-  },
-  communityName: {
-    fontSize: 16,
-    fontFamily: "RobotoMedium",
-    marginBottom: 8,
-  },
-  communityText: {
-    fontSize: 12,
-    fontFamily: "RobotoRegular",
-    color: Colors.text.faint,
-    paddingBottom: 8,
-  },
-  joinButton: {
-    position: "absolute",
-    top: 14,
-    right: 14,
-    backgroundColor: Colors.brand.primaryLight,
-    borderColor: Colors.brand.secondary,
-    borderWidth: 0.5,
-    paddingHorizontal: 18,
-    paddingVertical: 6,
-    borderRadius: 10,
-    zIndex: 10,
-  },
-  joinButtonText: {
-    color: Colors.brand.secondary,
-    fontFamily: "RobotoRegular",
-    fontSize: 14,
-  },
-  title: {
-    fontSize: 14,
-    fontFamily: "RobotoMedium",
-    marginBottom: 10,
-    color: Colors.ui.base,
-  },
-  profileCircle: {
-    width: 23,
-    height: 23,
-    borderRadius: 20,
-    marginRight: 6,
-    overflow: "hidden",
-  },
-  profileImage: {
-    width: "100%",
-    height: "100%",
-  },
-  author: {
-    fontSize: 11,
-    fontFamily: "RobotoRegular",
-    color: Colors.text.faint,
-    flexShrink: 1,
-    flexGrow: 1,
-    overflow: "hidden",
-  },
-});
+};

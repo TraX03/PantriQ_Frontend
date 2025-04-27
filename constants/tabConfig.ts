@@ -1,4 +1,3 @@
-import React from "react";
 import { IconSymbolName } from "@/components/ui/IconSymbol";
 
 type TabConfig = {
