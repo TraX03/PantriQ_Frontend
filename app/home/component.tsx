@@ -19,7 +19,6 @@ export default function HomeComponent({
 
   return (
     <ScrollView style={{ flex: 1, backgroundColor: Colors.ui.background }}>
-      {/* Header */}
       <View
         className="flex-row items-end justify-between px-4 h-28 mb-[2px]"
         style={{ backgroundColor: Colors.brand.secondary }}
@@ -56,7 +55,6 @@ export default function HomeComponent({
         </View>
       </View>
 
-      {/* Suggestion Bar */}
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -90,7 +88,6 @@ export default function HomeComponent({
         })}
       </ScrollView>
 
-      {/* Post List */}
       {activeTab === "Explore" && (
         <View className="p-2">
           {activeSuggestion === "Communities" ? (

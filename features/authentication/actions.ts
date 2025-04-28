@@ -1,12 +1,20 @@
 import { useState } from "react";
 
+interface AuthFormState {
+  email: string;
+  password: string;
+  errorTitle: string;
+  errorMessage: string;
+  showErrorModal: boolean;
+}
+
 export function AuthFormActions() {
-  const [state, setState] = useState({
+  const [state, setState] = useState<AuthFormState>({
     email: "",
     password: "",
-    emailError: "",
-    passwordError: "",
-    showPasswordModal: false,
+    errorTitle: "",
+    errorMessage: "",
+    showErrorModal: false,
   });
 
   const setFieldState = (field: keyof typeof state, value: any) => {

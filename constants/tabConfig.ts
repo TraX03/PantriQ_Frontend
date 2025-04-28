@@ -1,3 +1,5 @@
+/* Below is the configuration for the app's bottom tab navigation. */
+
 import { IconSymbolName } from "@/components/ui/IconSymbol";
 
 type TabConfig = {

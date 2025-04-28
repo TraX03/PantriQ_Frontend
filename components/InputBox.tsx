@@ -13,21 +13,19 @@ type Props = TextInputProps & {
   className?: string;
 };
 
-export default function Input({
+export default function InputBox({
   icon,
   iconColor = Colors.brand.primary,
   iconSize = 20,
   containerStyle,
   style,
-  isPassword,
-  className = "mb-1.5",
+  isPassword = false,
+  className = "mb-2",
   ...props
 }: Props) {
   return (
     <View
-      className={`flex-row items-center px-4 rounded-xl border-2 ${
-        className ?? ""
-      }`}
+      className={`flex-row items-center px-4 rounded-xl border-2 ${className}`}
       style={[
         {
           backgroundColor: Colors.brand.secondary,
@@ -36,14 +34,12 @@ export default function Input({
         containerStyle,
       ]}
     >
-      {icon && (
-        <IconSymbol
-          name={icon}
-          size={iconSize}
-          color={iconColor}
-          style={{ marginRight: 8 }}
-        />
-      )}
+      <IconSymbol
+        name={icon}
+        size={iconSize}
+        color={iconColor}
+        style={{ marginRight: 8 }}
+      />
       <TextInput
         {...props}
         className="flex-1"
@@ -55,4 +51,4 @@ export default function Input({
       />
     </View>
   );
-};
+}

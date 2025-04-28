@@ -1,18 +1,17 @@
-import React from "react";
+import React, { useCallback } from "react";
 //prettier-ignore
-import { View, Text, TouchableOpacity, Image, Dimensions, StatusBar, Modal, Pressable } from "react-native";
+import { View, Text, TouchableOpacity, Image, Dimensions, StatusBar } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 
-import Input from "@/components/Input";
+import InputBox from "@/components/InputBox";
+import NotificationModal from "@/components/NotifcationModal";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { Colors } from "@/constants/Colors";
 import { styles } from "../../../features/authentication/styles";
 import { AuthFormActions } from "../../../features/authentication/actions";
 
-type SocialProvider = "google" | "facebook" | "apple";
-
-const socialProviders: Record<SocialProvider, any> = {
+const SOCIAL_PROVIDERS = {
   google: require("@/assets/images/google.png"),
   facebook: require("@/assets/images/facebook.png"),
   apple: require("@/assets/images/apple.png"),
@@ -24,34 +23,36 @@ type Props = {
   onSubmit: () => void;
 };
 
-export default function AuthFormComponent({ mode, auth: form, onSubmit }: Props) {
-  const isSignIn = mode === "signIn";
+export default function AuthFormComponent({ mode, auth, onSubmit }: Props) {
   const { width, height } = Dimensions.get("window");
   const statusBarHeight = StatusBar.currentHeight || 0;
 
+  const {
+    email,
+    password,
+    showErrorModal,
+    errorTitle,
+    errorMessage,
+    setFieldState,
+  } = auth;
+
+  const isSignIn = mode === "signIn";
+
+  const handleSocialSignIn = useCallback((provider: string) => {
+    // Handle social sign-in logic here
+  }, []);
+
   return (
     <>
-      <Modal
-        visible={!isSignIn && !!form.passwordError}
-        transparent
-        animationType="fade"
-      >
-        <View className="flex-1 justify-center items-center bg-black/40">
-          <View className="bg-white rounded-2xl p-6 w-72 shadow-lg">
-            <Text className="text-base font-semibold mb-2 text-red-600">
-              Password Error
-            </Text>
-            <Text className="text-sm text-gray-700">{form.passwordError}</Text>
-
-            <Pressable
-              onPress={() => form.setFieldState("showPasswordModal", false)}
-              className="mt-4 self-end bg-red-500 px-4 py-2 rounded-full"
-            >
-              <Text className="text-white text-sm">OK</Text>
-            </Pressable>
-          </View>
-        </View>
-      </Modal>
+      <NotificationModal
+        visible={showErrorModal}
+        errorTitle={errorTitle}
+        errorMessage={errorMessage}
+        onClose={() => {
+          setFieldState("showErrorModal", false);
+          setFieldState("errorMessage", "");
+        }}
+      />
 
       <LinearGradient
         colors={[
@@ -60,15 +61,14 @@ export default function AuthFormComponent({ mode, auth: form, onSubmit }: Props)
           Colors.brand.primaryDark,
           Colors.brand.primaryDark,
         ]}
-        locations={[0, 0.65, 0.75, 1]}
+        locations={[0, 0.66, 0.76, 1]}
         style={{
           position: "absolute",
           width,
           height: height + statusBarHeight,
         }}
       >
-        <View className="px-6 pt-[55px]">
-          {/* Back button */}
+        <View className="px-6 pt-20">
           <TouchableOpacity onPress={() => router.back()}>
             <IconSymbol
               name="chevron.left"
@@ -77,97 +77,48 @@ export default function AuthFormComponent({ mode, auth: form, onSubmit }: Props)
             />
           </TouchableOpacity>
 
-          {/* Logo */}
           <Image
             source={require("@/assets/images/pantriQ.png")}
             className="w-full h-[170px] self-center"
             resizeMode="contain"
           />
 
-          {/* Title */}
-          <Text
-            className="mt-3 mb-3 text-[20px]"
-            style={{
-              fontFamily: "SignikaNegativeSC",
-              color: Colors.brand.primaryDark,
-            }}
-          >
+          <Text className="mt-3 mb-3 text-[20px]" style={styles.titleText}>
             {isSignIn ? "Sign In" : "Sign Up"}
           </Text>
 
-          {/* Input */}
-          <View className="mb-2">
-            <Input
-              icon="person.fill"
-              placeholder="Email"
-              value={form.email}
-              onChangeText={(text) => form.setFieldState("email", text)}
-            />
-            {!isSignIn && form.emailError ? (
-              <Text
-                style={{
-                  fontFamily: "RobotoRegular",
-                  fontSize: 12,
-                  color: "#fc3030",
-                }}
-              >
-                {form.emailError}
-              </Text>
-            ) : null}
-          </View>
+          <InputBox
+            icon="person.fill"
+            placeholder="Email"
+            value={email}
+            onChangeText={(text) => setFieldState("email", text)}
+          />
 
-          <View className={isSignIn ? "mb-4" : "mb-14"}>
-            <Input
-              icon="lock.fill"
-              placeholder="Password"
-              value={form.password}
-              onChangeText={(text) => form.setFieldState("password", text)}
-              isPassword
-            />
-            {!isSignIn && form.passwordError ? (
-              <Text
-                style={{
-                  fontFamily: "RobotoRegular",
-                  fontSize: 12,
-                  color: "#fc3030",
-                }}
-              >
-                {form.passwordError}
-              </Text>
-            ) : null}
-          </View>
+          <InputBox
+            icon="lock.fill"
+            placeholder="Password"
+            value={password}
+            onChangeText={(text) => setFieldState("password", text)}
+            isPassword
+            className={isSignIn ? "mb-4" : "mb-14"}
+          />
 
-          {/* Forgot password */}
           {isSignIn && (
-            <Text
-              className="text-right mb-6"
-              style={{
-                color: Colors.brand.primaryDark,
-                fontFamily: "RobotoBold",
-              }}
-            >
+            <Text className="text-right mb-6" style={styles.forgotPasswordText}>
               Forgot Password?
             </Text>
           )}
 
-          {/* Submit button */}
           <TouchableOpacity
             className="items-center py-3 mb-24 rounded-xl"
             style={{ backgroundColor: Colors.ui.buttonFill }}
             onPress={onSubmit}
           >
-            <Text
-              className="text-lg"
-              style={{
-                fontFamily: "RobotoMedium",
-                color: Colors.brand.secondary,
-              }}
-            >
+            <Text style={styles.buttonText}>
               {isSignIn ? "Sign In" : "Sign Up"}
             </Text>
           </TouchableOpacity>
 
-          {/* Divider */}
           <View className="flex-row items-center justify-center mb-6">
             <View style={styles.dividerStyle} />
             <Text className="px-4" style={styles.darkBgTextStyle}>
@@ -176,19 +127,23 @@ export default function AuthFormComponent({ mode, auth: form, onSubmit }: Props)
             <View style={styles.dividerStyle} />
           </View>
 
-          {/* Social buttons */}
           <View className="flex-row justify-center gap-2 mb-6">
-            {["google", "facebook", "apple"].map((provider) => (
-              <Image
+            {Object.keys(SOCIAL_PROVIDERS).map((provider) => (
+              <TouchableOpacity
                 key={provider}
-                source={socialProviders[provider as SocialProvider]}
-                className="w-[60px] h-[60px]"
-                resizeMode="contain"
-              />
+                onPress={() => handleSocialSignIn(provider)}
+              >
+                <Image
+                  source={
+                    SOCIAL_PROVIDERS[provider as keyof typeof SOCIAL_PROVIDERS]
+                  }
+                  className="w-[60px] h-[60px]"
+                  resizeMode="contain"
+                />
+              </TouchableOpacity>
             ))}
           </View>
 
-          {/* Footer */}
           <View className="items-center mb-10">
             <TouchableOpacity
               onPress={() =>

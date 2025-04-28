@@ -1,7 +1,4 @@
-/**
- * Below are the colors that are used in the app. The colors are defined in the light and dark mode.
- * There are many other ways to style your app. For example, [Nativewind](https://www.nativewind.dev/), [Tamagui](https://tamagui.dev/), [unistyles](https://reactnativeunistyles.vercel.app), etc.
- */
+/* Below are the colors that are used in the app. */
 
 export const Colors = {
   brand: {
@@ -19,6 +16,7 @@ export const Colors = {
     inactive: "#404040",
     base: "#374151",
     buttonFill: "#CC1F37",
+    overlay: "rgba(0,0,0,0.4)",
   },
 
   text: {
@@ -26,5 +24,6 @@ export const Colors = {
     placeholder: "#CCCCCC",
     linkColor: "#1F73F1",
     subColor: "#3D3D3D",
+    dark: "#A81C30",
   },
 };

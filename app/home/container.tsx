@@ -1,4 +1,3 @@
-import { useState } from "react";
 import HomeController from "./controller";
 import HomeComponent from "./component";
 import { HomeActions } from "../../features/home/actions";

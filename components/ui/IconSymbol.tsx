@@ -1,7 +1,7 @@
-import Ionicons from "@expo/vector-icons/Ionicons";
-import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import React from "react";
 import { OpaqueColorValue, StyleProp, TextStyle } from "react-native";
+import Ionicons from "@expo/vector-icons/Ionicons";
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 
 const MAPPING = {
   house: { name: "home-outline", type: "Ionicons" },
@@ -23,19 +23,21 @@ const MAPPING = {
 
 export type IconSymbolName = keyof typeof MAPPING;
 
+interface IconSymbolProps {
+  name: IconSymbolName;
+  size?: number;
+  color: string | OpaqueColorValue;
+  style?: StyleProp<TextStyle>;
+  selectedIcon?: number;
+}
+
 export function IconSymbol({
   name,
   size = 25,
   color,
   style,
   selectedIcon = 0,
-}: {
-  name: IconSymbolName;
-  size?: number;
-  color: string | OpaqueColorValue;
-  style?: StyleProp<TextStyle>;
-  selectedIcon?: number;
-}) {
+}: IconSymbolProps) {
   const mapping = MAPPING[name];
 
   if (!mapping) {
@@ -44,22 +46,21 @@ export function IconSymbol({
   }
 
   const { name: iconName, type } = mapping;
+  const iconComponentMap = {
+    Ionicons: Ionicons,
+    MaterialIcons: MaterialIcons,
+  };
 
-  const finalIconName = Array.isArray(iconName)
-    ? iconName[selectedIcon]
-    : iconName;
-
-  const IconComponent =
-    type === "MaterialIcons"
-      ? MaterialIcons
-      : type === "Ionicons"
-      ? Ionicons
-      : null;
+  const IconComponent = iconComponentMap[type];
 
   if (!IconComponent) {
     console.warn(`Icon type "${type}" is not supported.`);
     return null;
   }
+
+  const finalIconName = Array.isArray(iconName)
+    ? iconName[selectedIcon]
+    : iconName;
 
   return (
     <IconComponent

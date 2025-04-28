@@ -9,7 +9,7 @@ import { tabConfig } from "@/constants/tabConfig";
 import { useRequireLogin } from "@/hooks/useRequireLogin";
 
 export default function TabLayout() {
-  const { requireLogin } = useRequireLogin();
+  const { checkLogin } = useRequireLogin();
 
   return (
     <>
@@ -71,14 +71,14 @@ export default function TabLayout() {
       <View style={styles.dent} />
       <FloatingAddButton
         onPress={() => {
-          requireLogin(() => {
+          checkLogin(() => {
             // Do nothing or proceed with add action if needed
           });
         }}
       />
     </>
   );
-};
+}
 
 const styles = StyleSheet.create({
   dent: {

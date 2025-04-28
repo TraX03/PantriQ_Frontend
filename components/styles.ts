@@ -57,6 +57,21 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     overflow: "hidden",
   },
+  errorTitle: {
+    fontFamily: "RobotoSemiBold",
+    color: Colors.text.dark,
+    fontSize: 17,
+  },
+  errorDescription: {
+    fontFamily: "RobotoRegular",
+    color: Colors.ui.base,
+    fontSize: 14,
+  },
+  buttonText: {
+    fontFamily: "RobotoMedium",
+    color: Colors.brand.secondary,
+    fontSize: 12,
+  },
 });
 
 export default styles;

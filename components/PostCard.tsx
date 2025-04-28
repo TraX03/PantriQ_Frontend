@@ -1,7 +1,7 @@
 import { View, Text, Image, Pressable } from "react-native";
 import { Colors } from "@/constants/Colors";
 import { IconSymbol } from "./ui/IconSymbol";
-import styles from "./_styles";
+import styles from "./styles";
 
 export type Post =
   | {
@@ -27,53 +27,67 @@ type PostCardProps = {
 };
 
 export default function PostCard({ post, onPress }: PostCardProps) {
+  const { type, title, image } = post;
+
+  // For community posts
+  if (type === "community") {
+    const { membersCount, recipesCount } = post;
+    return (
+      <Pressable onPress={onPress} className="mb-4">
+        <View
+          className="rounded-xl pb-3.5"
+          style={{ backgroundColor: Colors.brand.secondary }}
+        >
+          <View className="relative">
+            <Image
+              source={{ uri: image }}
+              style={styles.communityImage}
+              resizeMode="cover"
+            />
+            <Pressable
+              className="absolute top-3.5 right-3.5 border px-4 py-1.5 rounded-lg"
+              style={{
+                backgroundColor: Colors.brand.primaryLight,
+                borderColor: Colors.brand.secondary,
+              }}
+              onPress={() => {}}
+            >
+              <Text style={styles.joinButtonText}>Join</Text>
+            </Pressable>
+          </View>
+          <View className="px-4">
+            <Text style={styles.communityName}>{title}</Text>
+            <Text style={styles.communityText}>
+              {membersCount} members | {recipesCount} recipes
+            </Text>
+          </View>
+        </View>
+      </Pressable>
+    );
+  }
+
+  // For recipe, tips, or discussion posts
+  const { author, profilePic } = post;
   return (
     <Pressable onPress={onPress} className="mb-4">
       <View
         className="rounded-xl pb-3.5"
         style={{ backgroundColor: Colors.brand.secondary }}
       >
-        {post.type === "community" ? (
-          <>
-            <View className="relative">
-              <Image
-                source={{ uri: post.image }}
-                style={styles.communityImage}
-                resizeMode="cover"
-              />
-              <Pressable
-                className="absolute top-3.5 right-3.5 border px-4 py-1.5 rounded-lg"
-                style={{
-                  backgroundColor: Colors.brand.primaryLight,
-                  borderColor: Colors.brand.secondary,
-                }}
-                onPress={() => {}}
-              >
-                <Text style={styles.joinButtonText}>Join</Text>
-              </Pressable>
-            </View>
-            <View className="px-4">
-              <Text style={styles.communityName}>{post.title}</Text>
-              <Text style={styles.communityText}>
-                {post.membersCount} members | {post.recipesCount} recipes
-              </Text>
-            </View>
-          </>
-        ) : (
-          <>
-            <Image
-              source={{ uri: post.image }}
-              style={styles.recipeimage}
-              resizeMode="cover"
-            />
-            <View className="px-2.5">
-              <Text style={styles.postTitle}>{post.title}</Text>
-
-              <View className="flex-row items-center justify-between">
-                <View className="flex-row items-center flex-1 overflow-hidden">
+        <Image
+          source={{ uri: image }}
+          style={styles.recipeimage}
+          resizeMode="cover"
+        />
+        <View className="px-2.5">
+          <Text style={styles.postTitle}>{title}</Text>
+          <View className="flex-row items-center justify-between">
+            <View className="flex-row items-center flex-1 overflow-hidden">
+              {author && profilePic && (
+                <>
                   <View style={styles.profileCircle}>
                     <Image
-                      source={{ uri: post.profilePic }}
+                      source={{ uri: profilePic }}
                       style={styles.profileImage}
                       resizeMode="cover"
                     />
@@ -83,20 +97,18 @@ export default function PostCard({ post, onPress }: PostCardProps) {
                     numberOfLines={1}
                     ellipsizeMode="tail"
                   >
-                    {post.author}
+                    {author}
                   </Text>
-                </View>
-
-                <View className="flex-row items-center space-x-1 pl-2.5">
-                  <IconSymbol name="heart" color={Colors.ui.base} size={22} />
-                  {/* prettier-ignore */}
-                  <IconSymbol name="bookmark" color={Colors.ui.base} size={22} />
-                </View>
-              </View>
+                </>
+              )}
             </View>
-          </>
-        )}
+            <View className="flex-row items-center space-x-1 pl-2.5">
+              <IconSymbol name="heart" color={Colors.ui.base} size={22} />
+              <IconSymbol name="bookmark" color={Colors.ui.base} size={22} />
+            </View>
+          </View>
+        </View>
       </View>
     </Pressable>
   );
-};
+}

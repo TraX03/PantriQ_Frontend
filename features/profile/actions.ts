@@ -1,14 +1,14 @@
 import { useState } from "react";
 
-interface HomeState {
-  activeTab: string;
-  activeSuggestion: string;
+interface ProfileState {
+  profileData: any;
+  loading: boolean;
 }
 
-export function HomeActions() {
-  const [state, setState] = useState<HomeState>({
-    activeTab: "Explore",
-    activeSuggestion: "Recipe",
+export function ProfileActions() {
+  const [state, setState] = useState<ProfileState>({
+    profileData: null,
+    loading: false,
   });
 
   const setFieldState = (field: keyof typeof state, value: any) => {
@@ -23,4 +23,3 @@ export function HomeActions() {
     setFieldState,
   };
 }
-
