@@ -2,7 +2,8 @@ import { ScrollView, View, Text, Pressable } from "react-native";
 import { Colors } from "@/constants/Colors";
 import PostCard, { Post } from "@/components/PostCard";
 import { IconSymbol } from "@/components/ui/IconSymbol";
-import { HomeActions } from "../../features/home/actions";
+import { HomeActions } from "../../utility/home/actions";
+import { styles } from "@/utility/home/styles";
 
 type Props = {
   home: ReturnType<typeof HomeActions>;
@@ -18,11 +19,8 @@ export default function HomeComponent({
   const { activeTab, activeSuggestion, setFieldState } = home;
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: Colors.ui.background }}>
-      <View
-        className="flex-row items-end justify-between px-4 h-28 mb-[2px]"
-        style={{ backgroundColor: Colors.brand.secondary }}
-      >
+    <ScrollView style={styles.container}>
+      <View style={styles.header}>
         <View className="flex-row pb-2">
           {["Follow", "Explore"].map((tab) => (
             <Pressable
@@ -30,14 +28,15 @@ export default function HomeComponent({
               onPress={() => setFieldState("activeTab", tab)}
             >
               <Text
-                className="text-[23px] mr-5"
-                style={{
-                  fontFamily: "RobotoMedium",
-                  color:
-                    activeTab === tab
-                      ? Colors.brand.primary
-                      : Colors.text.faint,
-                }}
+                style={[
+                  styles.tabText,
+                  {
+                    color:
+                      activeTab === tab
+                        ? Colors.brand.primary
+                        : Colors.text.faint,
+                  },
+                ]}
               >
                 {tab}
               </Text>
@@ -58,8 +57,7 @@ export default function HomeComponent({
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
-        className="px-2 py-3"
-        style={{ backgroundColor: Colors.brand.secondary }}
+        style={styles.suggestContainer}
       >
         {suggestions.map((item) => {
           const isActive = activeSuggestion === item;
@@ -75,11 +73,12 @@ export default function HomeComponent({
               }}
             >
               <Text
-                style={{
-                  fontFamily: "RobotoRegular",
-                  fontSize: 14,
-                  color: isActive ? Colors.brand.secondary : Colors.ui.base,
-                }}
+                style={[
+                  styles.suggestText,
+                  {
+                    color: isActive ? Colors.brand.secondary : Colors.ui.base,
+                  },
+                ]}
               >
                 {item}
               </Text>

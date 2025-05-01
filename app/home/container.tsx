@@ -1,6 +1,6 @@
 import HomeController from "./controller";
 import HomeComponent from "./component";
-import { HomeActions } from "../../features/home/actions";
+import { HomeActions } from "../../utility/home/actions";
 
 const suggestions = ["Recipe", "Tips & Advice", "Communities", "Discussions"];
 

@@ -1,116 +1,85 @@
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  ActivityIndicator,
-  Image,
-  ScrollView,
-} from "react-native";
 import React from "react";
-import { useAuth } from "../../features/authentication/context";
+//prettier-ignore
+import { View, Text, TouchableOpacity, Image, ScrollView } from "react-native";
+import { useAuth } from "../../context/AuthContext";
 import { Colors } from "@/constants/Colors";
+import { getAvatarContainerStyle, styles } from "@/utility/profile/styles";
+import { IconSymbol } from "@/components/ui/IconSymbol";
+import { router } from "expo-router";
+import { ProfileDisplay } from "@/utility/profile/types";
+import ErrorScreen from "@/components/ErrorScreen";
+import { useRequireLogin } from "@/hooks/useRequireLogin";
+import { useLoading } from "@/context/LoadingContext";
 
-interface Props {
-  profileData: {
-    username: string;
-    avatarUrl: string;
-    followers_count: number;
-    following_count: number;
-  } | null;
-  loading: boolean;
-}
+export default function ProfileComponent({ profileData }: ProfileDisplay) {
+  const { logout, isLoggedIn } = useAuth();
+  const { checkLogin } = useRequireLogin();
+  const { loading } = useLoading();
 
-export default function ProfileComponent({ profileData, loading }: Props) {
-  const { logout } = useAuth();
+  if (!profileData && loading) return null;
 
-  // Show loading indicator while fetching data
-  if (loading) {
-    return <ActivityIndicator size="large" color={Colors.ui.buttonFill} />;
-  }
-
-  // If profileData is null (error case)
   if (!profileData) {
-    return <Text>Failed to load profile data</Text>;
+    return (
+      <ErrorScreen message="Something went wrong while loading your profile data. Please refresh or try again later." />
+    );
   }
 
-  const { username, avatarUrl, followers_count, following_count } = profileData;
+  const { username, avatarUrl, followersCount, followingCount } = profileData;
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: Colors.ui.background }}>
-      <View
-        style={{
-          backgroundColor: "white",
-        }}
-      >
+    <ScrollView style={styles.container}>
+      <View style={styles.profileSection}>
         <View
           style={{
-            paddingHorizontal: 20,
             flexDirection: "row",
+            justifyContent: "flex-end",
+            marginBottom: 10,
             alignItems: "center",
-            padding: 20,
-            marginBottom: 30,
-            paddingTop: 100,
+            gap: 8,
           }}
         >
-          <View
-            style={{
-              width: 90,
-              height: 90,
-              borderRadius: 50,
-              marginBottom: 10,
-              alignSelf: "center",
-              elevation: 5,
-            }}
+          <TouchableOpacity
+            onPress={() =>
+              router.push("/profile/settings/editProfile/container")
+            }
+            // onPress={ () =>
+            //   checkLogin(() => {
+            //     router.push("/profile/settings/editProfile/container");
+            //   })
           >
+            <IconSymbol
+              name="pencil.and.outline"
+              size={28}
+              color={Colors.brand.primaryLight}
+            />
+          </TouchableOpacity>
+          <IconSymbol name="ellipsis" size={27} color={Colors.brand.primary} />
+        </View>
+
+        <View className="flex-row items-center">
+          <View style={getAvatarContainerStyle(Colors.ui.overlay)}>
             <Image
               source={{
                 uri: avatarUrl,
               }}
-              style={{
-                width: 90,
-                height: 90,
-                borderRadius: 50,
-                marginBottom: 10,
-                alignSelf: "center",
-              }}
+              style={styles.avatar}
+              resizeMode="cover"
             />
           </View>
-
-          <View style={{ marginLeft: 25 }}>
-            <Text style={{ fontSize: 20, fontFamily: "RobotoSemiBold" }}>
-              {username}
-            </Text>
-
-            <View style={{ flexDirection: "row", marginTop: 10 }}>
-              <Text
-                style={{
-                  marginRight: 20,
-                  fontSize: 14,
-                  fontFamily: "RobotoRegular",
-                  color: Colors.text.faint,
-                }}
-              >
-                {followers_count} Followers | {following_count} Following
-              </Text>
+          <View className="ml-7 flex-1">
+            <View className="flex-row items-baseline">
+              <Text style={styles.username}>{username}</Text>
             </View>
+
+            <Text style={styles.followInfo}>
+              {followersCount} Followers | {followingCount} Following
+            </Text>
           </View>
         </View>
       </View>
 
-      {/* Log Out Button */}
-      <TouchableOpacity
-        onPress={logout}
-        style={{
-          backgroundColor: Colors.ui.buttonFill,
-          paddingHorizontal: 20,
-          paddingVertical: 10,
-          borderRadius: 10,
-          marginTop: 30,
-          width: 100,
-          alignSelf: "center",
-        }}
-      >
-        <Text style={{ color: "white", fontSize: 16 }}>Log Out</Text>
+      <TouchableOpacity onPress={logout} style={styles.logoutButton}>
+        <Text style={styles.logoutButtonText}>Log Out</Text>
       </TouchableOpacity>
     </ScrollView>
   );

@@ -1,72 +1,80 @@
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import { account, databases, storage } from "@/services/appwrite";
-import { appwriteConfig } from "@/constants/appwriteConfig";
-import { ProfileActions } from "@/features/profile/actions";
-import { useAuth } from "@/features/authentication/context";
+import { AppwriteConfig } from "@/constants/AppwriteConfig";
+import { ProfileActions } from "@/utility/profile/actions";
+import { useAuth } from "@/context/AuthContext";
 import reactotron from "reactotron-react-native";
+import { useLoading } from "@/context/LoadingContext";
 
 const guestProfile = {
   username: "Guest",
   avatarUrl: storage.getFileView(
-    appwriteConfig.BUCKET_ID,
+    AppwriteConfig.BUCKET_ID,
     "680778f2002d348f9b72"
   ).href,
-  followers_count: 0,
-  following_count: 0,
+  followersCount: 0,
+  followingCount: 0,
 };
 
 export function useProfileData() {
-  const { profileData, loading, setFieldState } = ProfileActions();
+  const { profileData, setFieldState } = ProfileActions();
   const { isLoggedIn } = useAuth();
+  const { setLoading } = useLoading();
+
+  const fetchProfile = useCallback(async () => {
+    setLoading(true);
+    try {
+      const user = await account.get();
+
+      const userData = await databases.getDocument(
+        AppwriteConfig.DATABASE_ID,
+        AppwriteConfig.USERS_COLLECTION_ID,
+        user.$id
+      );
+
+      let avatarUrl: string | undefined;
+      try {
+        avatarUrl = storage.getFileView(
+          AppwriteConfig.BUCKET_ID,
+          userData.avatar
+        ).href;
+      } catch (avatarError) {
+        reactotron.log("Failed to generate avatar URL.", {
+          avatarError,
+        });
+      }
+
+      const mappedProfileData = {
+        username: userData.username,
+        avatarUrl: avatarUrl,
+        bio: userData.bio,
+        gender: userData.gender,
+        birthday: userData.birthday
+          ? new Date(userData.birthday).toLocaleDateString("en-US", {
+              year: "numeric",
+              month: "short",
+              day: "numeric",
+            })
+          : "",
+        phone: userData.phone,
+        email: user.email,
+        followersCount: userData.followers_count,
+        followingCount: userData.following_count,
+      };
+
+      reactotron.log(mappedProfileData);
+      setFieldState("profileData", mappedProfileData);
+    } catch (error) {
+      reactotron.log("Failed to fetch user profile.", { error });
+      setFieldState("profileData", guestProfile);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    const fetchProfile = async () => {
-      setFieldState("loading", true);
-      try {
-        const user = await account.get();
-
-        if (!user) {
-          reactotron.log("No user found. Treating as guest.");
-          setFieldState("profileData", guestProfile);
-          return;
-        }
-
-        const userData = await databases.getDocument(
-          appwriteConfig.DATABASE_ID,
-          appwriteConfig.USERS_COLLECTION_ID,
-          user.$id
-        );
-
-        let avatarUrl: string | undefined;
-        if (userData.avatar) {
-          try {
-            avatarUrl = storage.getFileView(
-              appwriteConfig.BUCKET_ID,
-              userData.avatar
-            ).href;
-          } catch (avatarError) {
-            reactotron.log("Failed to generate avatar URL.", {
-              avatarError,
-            });
-          }
-        } else {
-          reactotron.log("No avatar found for user.");
-        }
-
-        setFieldState("profileData", {
-          ...userData,
-          avatarUrl,
-        });
-      } catch (error) {
-        reactotron.error("Failed to fetch user profile.", { error });
-        setFieldState("profileData", guestProfile);
-      } finally {
-        setFieldState("loading", false);
-      }
-    };
-
     fetchProfile();
   }, [isLoggedIn]);
 
-  return { profileData, loading };
+  return { profileData, fetchProfile };
 }

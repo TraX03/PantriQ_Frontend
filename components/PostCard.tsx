@@ -29,27 +29,20 @@ type PostCardProps = {
 export default function PostCard({ post, onPress }: PostCardProps) {
   const { type, title, image } = post;
 
-  // For community posts
   if (type === "community") {
     const { membersCount, recipesCount } = post;
     return (
       <Pressable onPress={onPress} className="mb-4">
-        <View
-          className="rounded-xl pb-3.5"
-          style={{ backgroundColor: Colors.brand.secondary }}
-        >
+        <View style={styles.container}>
           <View className="relative">
             <Image
               source={{ uri: image }}
-              style={styles.communityImage}
+              className="w-full h-[150px] rounded-tl-xl rounded-tr-xl mb-2.5"
               resizeMode="cover"
             />
             <Pressable
               className="absolute top-3.5 right-3.5 border px-4 py-1.5 rounded-lg"
-              style={{
-                backgroundColor: Colors.brand.primaryLight,
-                borderColor: Colors.brand.secondary,
-              }}
+              style={styles.joinButton}
               onPress={() => {}}
             >
               <Text style={styles.joinButtonText}>Join</Text>
@@ -66,17 +59,13 @@ export default function PostCard({ post, onPress }: PostCardProps) {
     );
   }
 
-  // For recipe, tips, or discussion posts
   const { author, profilePic } = post;
   return (
     <Pressable onPress={onPress} className="mb-4">
-      <View
-        className="rounded-xl pb-3.5"
-        style={{ backgroundColor: Colors.brand.secondary }}
-      >
+      <View style={styles.container}>
         <Image
           source={{ uri: image }}
-          style={styles.recipeimage}
+          className="w-full h-[180px] rounded-tl-lg rounded-tr-lg mb-2.5"
           resizeMode="cover"
         />
         <View className="px-2.5">
@@ -85,10 +74,10 @@ export default function PostCard({ post, onPress }: PostCardProps) {
             <View className="flex-row items-center flex-1 overflow-hidden">
               {author && profilePic && (
                 <>
-                  <View style={styles.profileCircle}>
+                  <View className="w-[23px] h-[23px] rounded-[20px] mr-2 overflow-hidden">
                     <Image
                       source={{ uri: profilePic }}
-                      style={styles.profileImage}
+                      className="w-full h-full"
                       resizeMode="cover"
                     />
                   </View>

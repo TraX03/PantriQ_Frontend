@@ -5,7 +5,6 @@ import { useProvideAuth } from "@/hooks/useProvideAuth";
 type AuthContextType = {
   user: Models.User<{}> | null;
   isLoggedIn: boolean;
-  loading: boolean;
   logout: () => Promise<void>;
   login: (email: string, password: string) => Promise<void>;
   signUp: (

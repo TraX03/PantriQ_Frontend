@@ -1,6 +1,6 @@
 import { router } from "expo-router";
-import { useAuth } from "../../../features/authentication/context";
-import { AuthFormActions } from "../../../features/authentication/actions";
+import { useAuth } from "../../../context/AuthContext";
+import { AuthFormActions } from "../../../utility/authentication/actions";
 import { ValidationErrors, AuthErrors } from "@/constants/Errors";
 
 type Props = {
@@ -26,13 +26,14 @@ export default function AuthFormController({ mode, form }: Props) {
     try {
       if (mode === "sign-up") {
         await signUp(form.email, form.password, extractUsername(form.email));
-        router.replace("/onboarding/component");
+        // router.replace("/onboarding/component");
+        router.replace("/");
       } else {
         await login(form.email, form.password);
         router.replace("/");
       }
     } catch (error: any) {
-      handleAuthError(error);
+      await handleAuthError(error);
     }
   };
 

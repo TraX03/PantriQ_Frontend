@@ -1,7 +1,7 @@
 import React from "react";
 import AuthFormComponent from "./component";
 import AuthFormController from "./controller";
-import { AuthFormActions } from "../../../features/authentication/actions";
+import { AuthFormActions } from "../../../utility/authentication/actions";
 
 type Props = {
   mode: "sign-in" | "sign-up";

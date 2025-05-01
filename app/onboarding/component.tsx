@@ -19,10 +19,9 @@ export default function OnboardingComponent() {
   return (
     <>
       <Stack.Screen options={{ headerShown: false }} />
-
       <View
-        className="flex-1 px-7 pt-24 pb-10"
-        style={{ backgroundColor: Colors.brand.secondary }}
+        className="flex-1 px-7 pb-10"
+        style={{ backgroundColor: Colors.brand.secondary, paddingTop: 65 }}
       >
         {/* Top Nav */}
         <View className="flex-row justify-between items-center mb-6">
@@ -103,7 +102,10 @@ export default function OnboardingComponent() {
                 className="px-6 py-2 rounded-full border"
                 style={{ borderColor: Colors.text.faint }}
               >
-                <Text className="text-sm" style={{ color: Colors.brand.base, fontSize: 13}}>
+                <Text
+                  className="text-sm"
+                  style={{ color: Colors.brand.base, fontSize: 13 }}
+                >
                   {item}
                 </Text>
               </View>

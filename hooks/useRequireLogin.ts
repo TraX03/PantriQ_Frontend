@@ -1,4 +1,4 @@
-import { useAuth } from "@/features/authentication/context";
+import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "expo-router";
 
 export function useRequireLogin() {

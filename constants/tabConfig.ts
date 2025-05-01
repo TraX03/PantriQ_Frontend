@@ -10,7 +10,7 @@ type TabConfig = {
   hidden?: boolean;
 };
 
-export const tabConfig: TabConfig[] = [
+export const TabConfig: TabConfig[] = [
   {
     name: "index",
     title: "Home",

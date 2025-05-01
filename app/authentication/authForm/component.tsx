@@ -8,8 +8,8 @@ import InputBox from "@/components/InputBox";
 import NotificationModal from "@/components/NotifcationModal";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { Colors } from "@/constants/Colors";
-import { styles } from "../../../features/authentication/styles";
-import { AuthFormActions } from "../../../features/authentication/actions";
+import { styles } from "../../../utility/authentication/styles";
+import { AuthFormActions } from "../../../utility/authentication/actions";
 
 const SOCIAL_PROVIDERS = {
   google: require("@/assets/images/google.png"),
@@ -83,7 +83,7 @@ export default function AuthFormComponent({ mode, auth, onSubmit }: Props) {
             resizeMode="contain"
           />
 
-          <Text className="mt-3 mb-3 text-[20px]" style={styles.titleText}>
+          <Text style={styles.titleText}>
             {isSignIn ? "Sign In" : "Sign Up"}
           </Text>
 
@@ -91,29 +91,23 @@ export default function AuthFormComponent({ mode, auth, onSubmit }: Props) {
             icon="person.fill"
             placeholder="Email"
             value={email}
-            onChangeText={(text) => setFieldState("email", text)}
+            onChangeText={(text) => setFieldState("email", text.trim())}
           />
 
           <InputBox
             icon="lock.fill"
             placeholder="Password"
             value={password}
-            onChangeText={(text) => setFieldState("password", text)}
+            onChangeText={(text) => setFieldState("password", text.trim())}
             isPassword
             className={isSignIn ? "mb-4" : "mb-14"}
           />
 
           {isSignIn && (
-            <Text className="text-right mb-6" style={styles.forgotPasswordText}>
-              Forgot Password?
-            </Text>
+            <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
           )}
 
-          <TouchableOpacity
-            className="items-center py-3 mb-24 rounded-xl"
-            style={{ backgroundColor: Colors.ui.buttonFill }}
-            onPress={onSubmit}
-          >
+          <TouchableOpacity style={styles.buttonStyle} onPress={onSubmit}>
             <Text style={styles.buttonText}>
               {isSignIn ? "Sign In" : "Sign Up"}
             </Text>
@@ -121,9 +115,7 @@ export default function AuthFormComponent({ mode, auth, onSubmit }: Props) {
 
           <View className="flex-row items-center justify-center mb-6">
             <View style={styles.dividerStyle} />
-            <Text className="px-4" style={styles.darkBgTextStyle}>
-              or sign in with
-            </Text>
+            <Text style={styles.dividerText}>or sign in with</Text>
             <View style={styles.dividerStyle} />
           </View>
 
@@ -152,7 +144,7 @@ export default function AuthFormComponent({ mode, auth, onSubmit }: Props) {
                 )
               }
             >
-              <Text style={styles.darkBgTextStyle}>
+              <Text style={styles.dividerText}>
                 {isSignIn ? (
                   <>
                     Don't have an account?{" "}

@@ -1,7 +1,6 @@
 import React from "react";
 import { OpaqueColorValue, StyleProp, TextStyle } from "react-native";
-import Ionicons from "@expo/vector-icons/Ionicons";
-import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import { Ionicons, MaterialIcons, Feather } from "@expo/vector-icons";
 
 const MAPPING = {
   house: { name: "home-outline", type: "Ionicons" },
@@ -19,6 +18,10 @@ const MAPPING = {
   "bookmark.fill": { name: "bookmark-sharp", type: "Ionicons" },
   "chevron.left": { name: "chevron-back", type: "Ionicons" },
   "lock.fill": { name: "password", type: "MaterialIcons" },
+  "pencil.and.outline": { name: "edit-3", type: "Feather" },
+  ellipsis: { name: "settings-outline", type: "Ionicons" },
+  "chevron.right": { name: "chevron-forward", type: "Ionicons" },
+  photo: { name: "image-outline", type: "Ionicons" },
 } as const;
 
 export type IconSymbolName = keyof typeof MAPPING;
@@ -49,6 +52,7 @@ export function IconSymbol({
   const iconComponentMap = {
     Ionicons: Ionicons,
     MaterialIcons: MaterialIcons,
+    Feather: Feather,
   };
 
   const IconComponent = iconComponentMap[type];

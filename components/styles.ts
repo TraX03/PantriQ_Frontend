@@ -1,20 +1,17 @@
 import { StyleSheet } from "react-native";
 import { Colors } from "@/constants/Colors";
 
+const baseTextStyle = {
+  fontFamily: "RobotoRegular",
+  color: Colors.text.faint,
+  fontSize: 12,
+};
+
 const styles = StyleSheet.create({
-  recipeimage: {
-    width: "100%",
-    height: 180,
-    borderTopLeftRadius: 8,
-    borderTopRightRadius: 8,
-    marginBottom: 8,
-  },
-  communityImage: {
-    width: "100%",
-    height: 150,
-    borderTopLeftRadius: 12,
-    borderTopRightRadius: 12,
-    marginBottom: 8,
+  container: {
+    borderRadius: 12,
+    paddingBottom: 14,
+    backgroundColor: Colors.brand.secondary,
   },
   communityName: {
     fontSize: 16,
@@ -22,14 +19,16 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   communityText: {
-    fontSize: 12,
-    fontFamily: "RobotoRegular",
-    color: Colors.text.faint,
+    ...baseTextStyle,
     paddingBottom: 8,
   },
+  joinButton: {
+    backgroundColor: Colors.brand.primaryLight,
+    borderColor: Colors.brand.secondary,
+  },
   joinButtonText: {
+    ...baseTextStyle,
     color: Colors.brand.secondary,
-    fontFamily: "RobotoRegular",
     fontSize: 14,
   },
   postTitle: {
@@ -38,21 +37,9 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     color: Colors.ui.base,
   },
-  profileCircle: {
-    width: 23,
-    height: 23,
-    borderRadius: 20,
-    marginRight: 6,
-    overflow: "hidden",
-  },
-  profileImage: {
-    width: "100%",
-    height: "100%",
-  },
   author: {
+    ...baseTextStyle,
     fontSize: 11,
-    fontFamily: "RobotoRegular",
-    color: Colors.text.faint,
     flexShrink: 1,
     flexGrow: 1,
     overflow: "hidden",
@@ -63,14 +50,13 @@ const styles = StyleSheet.create({
     fontSize: 17,
   },
   errorDescription: {
-    fontFamily: "RobotoRegular",
+    ...baseTextStyle,
     color: Colors.ui.base,
     fontSize: 14,
   },
   buttonText: {
     fontFamily: "RobotoMedium",
     color: Colors.brand.secondary,
-    fontSize: 12,
   },
 });
 

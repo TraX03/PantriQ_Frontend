@@ -3,14 +3,16 @@ import { Models } from "react-native-appwrite";
 import { account, databases } from "@/services/appwrite";
 import { router } from "expo-router";
 import reactotron from "reactotron-react-native";
-import { appwriteConfig } from "@/constants/appwriteConfig";
+import { AppwriteConfig } from "@/constants/AppwriteConfig";
+import { useLoading } from "@/context/LoadingContext";
 
 export function useProvideAuth() {
   const [user, setUser] = useState<Models.User<{}> | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { setLoading } = useLoading();
 
   const handleError = (action: string, error: unknown) => {
     reactotron.log(`${action} failed:`, error);
+    throw error;
   };
 
   useEffect(() => {
@@ -20,8 +22,6 @@ export function useProvideAuth() {
         setUser(currentUser);
       } catch (error) {
         setUser(null);
-      } finally {
-        setLoading(false);
       }
     };
 
@@ -31,8 +31,10 @@ export function useProvideAuth() {
   const login = useCallback(async (email: string, password: string) => {
     try {
       await account.createEmailPasswordSession(email, password);
+      setLoading(true);
       const currentUser = await account.get();
       setUser(currentUser);
+      setLoading(false);
       router.replace("/");
     } catch (error) {
       handleError("Login", error);
@@ -44,13 +46,14 @@ export function useProvideAuth() {
       try {
         await account.create("unique()", email, password);
         await account.createEmailPasswordSession(email, password);
+        setLoading(true);
         const currentUser = await account.get();
         setUser(currentUser);
 
         const userId = currentUser.$id;
         await databases.createDocument(
-          appwriteConfig.DATABASE_ID,
-          appwriteConfig.USERS_COLLECTION_ID,
+          AppwriteConfig.DATABASE_ID,
+          AppwriteConfig.USERS_COLLECTION_ID,
           userId,
           {
             user_id: userId,
@@ -58,6 +61,7 @@ export function useProvideAuth() {
             joined_at: new Date().toISOString(),
           }
         );
+        setLoading(false);
       } catch (error) {
         handleError("SignUp", error);
       }
@@ -77,7 +81,6 @@ export function useProvideAuth() {
 
   return {
     user,
-    loading,
     isLoggedIn: !!user,
     login,
     signUp,
