@@ -1,6 +1,6 @@
 import React from "react";
 import { OpaqueColorValue, StyleProp, TextStyle } from "react-native";
-import { Ionicons, MaterialIcons, Feather } from "@expo/vector-icons";
+import { Ionicons, MaterialIcons, Feather, Octicons } from "@expo/vector-icons";
 
 const MAPPING = {
   house: { name: "home-outline", type: "Ionicons" },
@@ -22,6 +22,7 @@ const MAPPING = {
   ellipsis: { name: "settings-outline", type: "Ionicons" },
   "chevron.right": { name: "chevron-forward", type: "Ionicons" },
   photo: { name: "image-outline", type: "Ionicons" },
+  "multiply.circle": { name: "x-circle", type: "Octicons" },
 } as const;
 
 export type IconSymbolName = keyof typeof MAPPING;
@@ -53,6 +54,7 @@ export function IconSymbol({
     Ionicons: Ionicons,
     MaterialIcons: MaterialIcons,
     Feather: Feather,
+    Octicons: Octicons,
   };
 
   const IconComponent = iconComponentMap[type];

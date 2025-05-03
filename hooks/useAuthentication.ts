@@ -1,16 +1,17 @@
-import { useEffect, useState, useCallback } from "react";
-import { Models } from "react-native-appwrite";
+import { useEffect, useCallback } from "react";
 import { account, databases } from "@/services/appwrite";
+import { useDispatch } from "react-redux";
+import { setUser } from "@/redux/slices/authSlice";
 import { router } from "expo-router";
 import reactotron from "reactotron-react-native";
 import { AppwriteConfig } from "@/constants/AppwriteConfig";
-import { useLoading } from "@/context/LoadingContext";
+import { setLoading } from "@/redux/slices/loadingSlice";
+import { AppDispatch } from "@/redux/store";
 
-export function useProvideAuth() {
-  const [user, setUser] = useState<Models.User<{}> | null>(null);
-  const { setLoading } = useLoading();
+export function useAuthentication() {
+  const dispatch = useDispatch<AppDispatch>();
 
-  const handleError = (action: string, error: unknown) => {
+  const handleError = (action: string, error: any) => {
     reactotron.log(`${action} failed:`, error);
     throw error;
   };
@@ -19,36 +20,39 @@ export function useProvideAuth() {
     const checkSession = async () => {
       try {
         const currentUser = await account.get();
-        setUser(currentUser);
+        dispatch(setUser(currentUser));
       } catch (error) {
-        setUser(null);
+        dispatch(setUser(null));
       }
     };
 
     checkSession();
-  }, []);
+  }, [dispatch]);
 
-  const login = useCallback(async (email: string, password: string) => {
-    try {
-      await account.createEmailPasswordSession(email, password);
-      setLoading(true);
-      const currentUser = await account.get();
-      setUser(currentUser);
-      setLoading(false);
-      router.replace("/");
-    } catch (error) {
-      handleError("Login", error);
-    }
-  }, []);
+  const login = useCallback(
+    async (email: string, password: string) => {
+      try {
+        await account.createEmailPasswordSession(email, password);
+        dispatch(setLoading(true));
+        const currentUser = await account.get();
+        dispatch(setUser(currentUser));
+        dispatch(setLoading(false));
+        router.replace("/");
+      } catch (error) {
+        handleError("Login", error);
+      }
+    },
+    [dispatch]
+  );
 
   const signUp = useCallback(
     async (email: string, password: string, username: string) => {
       try {
         await account.create("unique()", email, password);
         await account.createEmailPasswordSession(email, password);
-        setLoading(true);
+        dispatch(setLoading(true));
         const currentUser = await account.get();
-        setUser(currentUser);
+        dispatch(setUser(currentUser));
 
         const userId = currentUser.$id;
         await databases.createDocument(
@@ -61,27 +65,25 @@ export function useProvideAuth() {
             joined_at: new Date().toISOString(),
           }
         );
-        setLoading(false);
+        dispatch(setLoading(false));
       } catch (error) {
         handleError("SignUp", error);
       }
     },
-    []
+    [dispatch]
   );
 
   const logout = useCallback(async () => {
     try {
       await account.deleteSession("current");
-      setUser(null);
+      dispatch(setUser(null));
       router.replace("/");
     } catch (error) {
       handleError("Logout", error);
     }
-  }, []);
+  }, [dispatch]);
 
   return {
-    user,
-    isLoggedIn: !!user,
     login,
     signUp,
     logout,

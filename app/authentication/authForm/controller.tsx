@@ -1,7 +1,7 @@
 import { router } from "expo-router";
-import { useAuth } from "../../../context/AuthContext";
 import { AuthFormActions } from "../../../utility/authentication/actions";
 import { ValidationErrors, AuthErrors } from "@/constants/Errors";
+import { useAuthentication } from "@/hooks/useAuthentication";
 
 type Props = {
   mode: "sign-in" | "sign-up";
@@ -9,7 +9,7 @@ type Props = {
 };
 
 export default function AuthFormController({ mode, form }: Props) {
-  const { login, signUp } = useAuth();
+  const { login, signUp } = useAuthentication();
 
   const isValidEmail = (email: string) => /\S+@\S+\.\S+/.test(email);
 

@@ -1,28 +1,18 @@
-import { useCallback, useEffect } from "react";
+import { useCallback } from "react";
 import { account, databases, storage } from "@/services/appwrite";
 import { AppwriteConfig } from "@/constants/AppwriteConfig";
-import { ProfileActions } from "@/utility/profile/actions";
-import { useAuth } from "@/context/AuthContext";
 import reactotron from "reactotron-react-native";
-import { useLoading } from "@/context/LoadingContext";
-
-const guestProfile = {
-  username: "Guest",
-  avatarUrl: storage.getFileView(
-    AppwriteConfig.BUCKET_ID,
-    "680778f2002d348f9b72"
-  ).href,
-  followersCount: 0,
-  followingCount: 0,
-};
+import { setLoading } from "@/redux/slices/loadingSlice";
+import { setProfileData, resetProfileData } from "@/redux/slices/profileSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/redux/store";
 
 export function useProfileData() {
-  const { profileData, setFieldState } = ProfileActions();
-  const { isLoggedIn } = useAuth();
-  const { setLoading } = useLoading();
+  const dispatch = useDispatch<AppDispatch>();
+  const profileData = useSelector((state: RootState) => state.profile.userData);
 
   const fetchProfile = useCallback(async () => {
-    setLoading(true);
+    dispatch(setLoading(true));
     try {
       const user = await account.get();
 
@@ -42,6 +32,19 @@ export function useProfileData() {
         reactotron.log("Failed to generate avatar URL.", {
           avatarError,
         });
+        avatarUrl = profileData.avatarUrl;
+      }
+
+      let backgroundUrl: string | undefined;
+      try {
+        backgroundUrl = storage.getFileView(
+          AppwriteConfig.BUCKET_ID,
+          userData.profile_bg,
+        ).href;
+      } catch (avatarError) {
+        reactotron.log("Failed to generate background URL.", {
+          avatarError,
+        });
       }
 
       const mappedProfileData = {
@@ -49,32 +52,21 @@ export function useProfileData() {
         avatarUrl: avatarUrl,
         bio: userData.bio,
         gender: userData.gender,
-        birthday: userData.birthday
-          ? new Date(userData.birthday).toLocaleDateString("en-US", {
-              year: "numeric",
-              month: "short",
-              day: "numeric",
-            })
-          : "",
+        birthday: userData.birthday,
         phone: userData.phone,
         email: user.email,
         followersCount: userData.followers_count,
         followingCount: userData.following_count,
+        profileBg: backgroundUrl,
       };
-
-      reactotron.log(mappedProfileData);
-      setFieldState("profileData", mappedProfileData);
+      dispatch(setProfileData(mappedProfileData));
     } catch (error) {
       reactotron.log("Failed to fetch user profile.", { error });
-      setFieldState("profileData", guestProfile);
+      dispatch(resetProfileData());
     } finally {
-      setLoading(false);
+      dispatch(setLoading(false));
     }
   }, []);
 
-  useEffect(() => {
-    fetchProfile();
-  }, [isLoggedIn]);
-
-  return { profileData, fetchProfile };
+  return { fetchProfile };
 }

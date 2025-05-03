@@ -5,9 +5,14 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/pantriQ.png",
-    "scheme": "pantriQ",
+    "scheme": "pantriq",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/images/pantriQ.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
     "ios": {
       "supportsTablet": true
     },
@@ -15,25 +20,15 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/pantriQ.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.anonymous.pantriQ"
     },
     "web": {
       "bundler": "metro",
       "output": "static",
       "favicon": "./assets/images/pantriQ.png"
     },
-    "plugins": [
-      "expo-router",
-      [
-        "expo-splash-screen",
-        {
-          "image": "./assets/images/pantriQ.png",
-          "imageWidth": 200,
-          "resizeMode": "contain",
-          "backgroundColor": "#ffffff"
-        }
-      ]
-    ],
+    "plugins": ["expo-router"],
     "experiments": {
       "typedRoutes": true
     }

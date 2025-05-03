@@ -1,21 +1,19 @@
 import React from "react";
-//prettier-ignore
+// prettier-ignore
 import { View, Text, TouchableOpacity, Image, ScrollView } from "react-native";
-import { useAuth } from "../../context/AuthContext";
+import { useSelector } from "react-redux";
 import { Colors } from "@/constants/Colors";
 import { getAvatarContainerStyle, styles } from "@/utility/profile/styles";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { router } from "expo-router";
-import { ProfileDisplay } from "@/utility/profile/types";
 import ErrorScreen from "@/components/ErrorScreen";
-import { useRequireLogin } from "@/hooks/useRequireLogin";
-import { useLoading } from "@/context/LoadingContext";
+import { RootState } from "@/redux/store";
+import { useAuthentication } from "@/hooks/useAuthentication";
 
-export default function ProfileComponent({ profileData }: ProfileDisplay) {
-  const { logout, isLoggedIn } = useAuth();
-  const { checkLogin } = useRequireLogin();
-  const { loading } = useLoading();
-
+export default function ProfileComponent() {
+  const { logout } = useAuthentication();
+  const loading = useSelector((state: RootState) => state.loading.loading);
+  const profileData = useSelector((state: RootState) => state.profile.userData);
   if (!profileData && loading) return null;
 
   if (!profileData) {
@@ -25,6 +23,11 @@ export default function ProfileComponent({ profileData }: ProfileDisplay) {
   }
 
   const { username, avatarUrl, followersCount, followingCount } = profileData;
+
+  const handleLogout = () => {
+    logout();
+    router.replace("/");
+  };
 
   return (
     <ScrollView style={styles.container}>
@@ -42,10 +45,6 @@ export default function ProfileComponent({ profileData }: ProfileDisplay) {
             onPress={() =>
               router.push("/profile/settings/editProfile/container")
             }
-            // onPress={ () =>
-            //   checkLogin(() => {
-            //     router.push("/profile/settings/editProfile/container");
-            //   })
           >
             <IconSymbol
               name="pencil.and.outline"
@@ -78,7 +77,7 @@ export default function ProfileComponent({ profileData }: ProfileDisplay) {
         </View>
       </View>
 
-      <TouchableOpacity onPress={logout} style={styles.logoutButton}>
+      <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
         <Text style={styles.logoutButtonText}>Log Out</Text>
       </TouchableOpacity>
     </ScrollView>

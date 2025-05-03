@@ -6,8 +6,8 @@ import { useEffect } from "react";
 import "react-native-reanimated";
 import "./global.css";
 
-import { AuthProvider } from "@/context/AuthContext";
-import { LoadingProvider } from "@/context/LoadingContext";
+import { Provider } from "react-redux";
+import store from "@/redux/store";
 import LoadingScreen from "@/components/LoadingScreen";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
@@ -35,14 +35,12 @@ export default function RootLayout() {
   }
 
   return (
-    <LoadingProvider>
-      <AuthProvider>
-        <Stack>
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        </Stack>
-        <StatusBar style="auto" />
-        <LoadingScreen />
-      </AuthProvider>
-    </LoadingProvider>
+    <Provider store={store}>
+      <Stack>
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      </Stack>
+      <StatusBar style="auto" />
+      <LoadingScreen />
+    </Provider>
   );
 }

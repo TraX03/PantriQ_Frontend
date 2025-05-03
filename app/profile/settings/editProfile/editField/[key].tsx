@@ -1,19 +1,17 @@
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { Colors } from "@/constants/Colors";
 import { router, Stack, useLocalSearchParams } from "expo-router";
-import {
-  View,
-  TextInput,
-  Text,
-  TouchableOpacity,
-  Alert,
-  KeyboardAvoidingView,
-  Platform,
-} from "react-native";
-import { useState, useMemo } from "react";
-import { useLoading } from "@/context/LoadingContext";
+//prettier-ignore
+import { View, TextInput, Text, TouchableOpacity, Alert, KeyboardAvoidingView, Platform } from "react-native";
+import React, { useState, useMemo } from "react";
 import { account, databases } from "@/services/appwrite";
 import { AppwriteConfig } from "@/constants/AppwriteConfig";
+import { setLoading } from "@/redux/slices/loadingSlice";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/redux/store";
+import { useProfileData } from "@/hooks/useProfileData";
+import reactotron from "reactotron-react-native";
+import DateTimePicker from "@react-native-community/datetimepicker";
 
 const fieldLabels: Record<string, string> = {
   username: "Username",
@@ -25,8 +23,14 @@ const fieldLabels: Record<string, string> = {
 };
 
 export default function EditFieldScreen() {
-  const { key, data } = useLocalSearchParams<{ key: string; data: string }>();
-  const { setLoading } = useLoading();
+  const { key, size, data } = useLocalSearchParams<{
+    key: string;
+    size: string;
+    data: string;
+  }>();
+  const dispatch = useDispatch<AppDispatch>();
+  const { fetchProfile } = useProfileData();
+  const genderOptions = ["Female", "Male", "Prefer not to say", "Other"];
 
   const profile = useMemo(() => {
     try {
@@ -43,33 +47,31 @@ export default function EditFieldScreen() {
   const initialValue = profile[key] || "";
 
   const [value, setValue] = useState(initialValue);
+  const [showDatePicker, setShowDatePicker] = useState(false);
 
   const handleSave = async () => {
     if (!key) return;
-    setLoading(true);
+    dispatch(setLoading(true));
     try {
-      // Fetch current user ID
       const user = await account.get();
       const userId = user.$id;
 
-      // Update the specific field in Appwrite
       await databases.updateDocument(
         AppwriteConfig.DATABASE_ID,
         AppwriteConfig.USERS_COLLECTION_ID,
         userId,
         { [key]: value }
       );
-
+      fetchProfile();
       Alert.alert("Success", `${label} updated successfully.`);
       router.back();
     } catch (err) {
       Alert.alert("Error", "Failed to update. Please try again.");
       console.error(err);
     } finally {
-      setLoading(false);
+      dispatch(setLoading(false));
     }
   };
-
   return (
     <>
       <Stack.Screen options={{ headerShown: false }} />
@@ -91,14 +93,119 @@ export default function EditFieldScreen() {
           </Text>
         </View>
         <View className="flex-1 px-4">
-          <TextInput
-            placeholder={`Enter your ${label.toLowerCase()}`}
-            value={value}
-            onChangeText={setValue}
-            className="border border-gray-300 rounded-lg px-4 py-2 text-base mt-4"
-          />
+          {key === "gender" ? (
+            <View className="mt-4 space-y-3">
+              {genderOptions.map((option) => {
+                const isSelected = value === option;
+
+                return (
+                  <TouchableOpacity
+                    key={option}
+                    className="flex-row justify-between items-center px-2 py-2 rounded-lg"
+                    style={{
+                      borderColor: isSelected ? Colors.brand.primary : "#ccc",
+                      backgroundColor: isSelected
+                        ? Colors.brand.secondary
+                        : "#fff",
+                    }}
+                    onPress={() => setValue(option)}
+                  >
+                    <Text
+                      style={{
+                        fontFamily: "RobotoRegular",
+                        color: Colors.ui.base,
+                        textTransform: "capitalize",
+                        fontSize: 14,
+                      }}
+                    >
+                      {option}
+                    </Text>
+                    <View
+                      className="w-5 h-5 rounded-full border items-center justify-center"
+                      style={{
+                        borderColor: isSelected ? Colors.brand.primary : "#ccc",
+                      }}
+                    >
+                      {isSelected && (
+                        <View
+                          className="w-2.5 h-2.5 rounded-full"
+                          style={{ backgroundColor: Colors.brand.primary }}
+                        />
+                      )}
+                    </View>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          ) : key === "birthday" ? (
+            <>
+              <TouchableOpacity
+                onPress={() => setShowDatePicker(true)}
+                className="border border-gray-300 rounded-lg px-4 py-2 mt-4"
+              >
+                <Text
+                  className="text-base"
+                  style={{ fontFamily: "RobotoRegular", color: Colors.ui.base }}
+                >
+                  {value
+                    ? new Date(value).toLocaleDateString("en-US", {
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric",
+                      })
+                    : "Select your birthday"}
+                </Text>
+              </TouchableOpacity>
+              {showDatePicker && (
+                <DateTimePicker
+                  value={value ? new Date(value) : new Date()}
+                  mode="date"
+                  display="default"
+                  maximumDate={new Date()}
+                  onChange={(event, selectedDate) => {
+                    setShowDatePicker(false);
+                    if (selectedDate) {
+                      setValue(selectedDate.toISOString());
+                    }
+                  }}
+                />
+              )}
+            </>
+          ) : (
+            <>
+              <View className="relative mt-4">
+                <TextInput
+                  placeholder={`Enter your ${label.toLowerCase()}`}
+                  value={value}
+                  multiline={true}
+                  numberOfLines={4}
+                  maxLength={size ? Number(size) : undefined}
+                  onChangeText={setValue}
+                  className="border border-gray-300 rounded-lg px-4 py-2 text-base pr-14"
+                />
+                {value.length > 0 && (
+                  <TouchableOpacity
+                    onPress={() => setValue("")}
+                    className="absolute right-5 top-1/2 transform -translate-y-1/2 self-center"
+                  >
+                    <IconSymbol
+                      name="multiply.circle"
+                      color={Colors.ui.overlay}
+                      size={17}
+                    />
+                  </TouchableOpacity>
+                )}
+              </View>
+              {size && (
+                <Text className="text-right mt-2 text-sm text-gray-500">
+                  {value.length}/{size} characters
+                </Text>
+              )}
+            </>
+          )}
+
           <TouchableOpacity
-            className="mt-6 py-3 rounded-xl"
+            className="mt-7 py-3 rounded-xl w-28 self-end"
             style={{ backgroundColor: Colors.brand.primary }}
             onPress={handleSave}
           >

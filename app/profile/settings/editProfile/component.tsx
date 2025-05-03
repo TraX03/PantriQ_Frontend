@@ -10,30 +10,24 @@ import {
 import { Colors } from "@/constants/Colors";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { styles, getAvatarContainerStyle } from "@/utility/profile/styles";
-import { router } from "expo-router";
-import { ProfilePersonal } from "@/utility/profile/types";
+import { router, Stack } from "expo-router";
+import * as ImagePicker from "expo-image-picker";
 import ErrorScreen from "@/components/ErrorScreen";
 import { maskEmail } from "@/utility/mask";
-import { useLoading } from "@/context/LoadingContext";
+import { useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
+import reactotron from "reactotron-react-native";
+import { account, databases, storage } from "@/services/appwrite";
+import { AppwriteConfig } from "@/constants/AppwriteConfig";
+import { ID } from "react-native-appwrite";
+import mime from "mime";
+import * as FileSystem from "expo-file-system";
+import { useProfileData } from "@/hooks/useProfileData";
 
-const getImageBrightness = (imageUrl: string): boolean => {
-  // In a real-world scenario, use a library like react-native-image-colors or process the image data
-  // Return true for dark, false for light based on the dominant color.
-  // This is just a placeholder for actual brightness detection logic
-  return imageUrl.includes("dark") ? true : false; // Placeholder logic
-};
-
-export default function EditProfileComponent({ profileData }: ProfilePersonal) {
-  const { loading } = useLoading();
+export default function EditProfileComponent() {
+  const loading = useSelector((state: RootState) => state.loading.loading);
   const [isBackgroundDark, setIsBackgroundDark] = useState<boolean>(false);
-
-  useEffect(() => {
-    if (!profileData?.profileBg) setIsBackgroundDark(true);
-    if (profileData?.profileBg) {
-      const brightness = getImageBrightness(profileData.profileBg);
-      setIsBackgroundDark(brightness);
-    }
-  }, [profileData]);
+  const profileData = useSelector((state: RootState) => state.profile.userData);
 
   if (!profileData && loading) return null;
 
@@ -60,162 +54,264 @@ export default function EditProfileComponent({ profileData }: ProfilePersonal) {
       value: username,
       alwaysShowValue: true,
       key: "username",
+      size: 32,
     },
-    { title: "Bio", value: bio, key: "bio" },
-    { title: "Gender", value: gender, key: "gender" },
-    { title: "Birthday", value: birthday, key: "birthday" },
+    { title: "Bio", value: bio, key: "bio", size: 160 },
+    {
+      title: "Gender",
+      value: gender,
+      key: "gender",
+    },
+    {
+      title: "Birthday",
+      value: birthday
+        ? new Date(birthday).toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+          })
+        : undefined,
+      key: "birthday",
+    },
     { title: "Phone Number", value: phone, key: "phone" },
     { title: "Email", value: email, alwaysShowValue: true, key: "email" },
   ];
 
-  return (
-    <View
-      className="flex-1"
-      style={{ backgroundColor: Colors.brand.secondary, paddingTop: 65 }}
-    >
-      <View className="flex-row items-center px-4 py-3">
-        <TouchableOpacity onPress={() => router.back()}>
-          <IconSymbol
-            name="chevron.left"
-            color={Colors.brand.primaryDark}
-            size={30}
-          />
-        </TouchableOpacity>
-        <Text className="text-xl ml-4" style={{ fontFamily: "RobotoMedium" }}>
-          Edit Profile
-        </Text>
-      </View>
+  const pickImageFile = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: "images",
+      allowsEditing: true,
+      quality: 1,
+    });
 
-      <ImageBackground
-        source={{ uri: profileBg }}
-        style={{ height: 210, backgroundColor: Colors.brand.primaryDark }}
-        imageStyle={{ opacity: 0.6 }}
-        className="justify-center items-center"
+    if (!result.canceled && result.assets.length > 0) {
+      const asset = result.assets[0];
+      const mimeType = mime.getType(asset.uri) || "application/octet-stream";
+
+      const fileInfo = await FileSystem.getInfoAsync(asset.uri);
+
+      const fileSize = fileInfo.exists ? fileInfo.size ?? 0 : 0;
+
+      return {
+        name: asset.fileName || `background_${Date.now()}`,
+        type: mimeType,
+        size: fileSize,
+        uri: asset.uri,
+      };
+    }
+
+    return null;
+  };
+
+  const uploadToAppwrite = async (file: {
+    name: string;
+    type: string;
+    size: number;
+    uri: string;
+  }) => {
+    const uploadedFile = await storage.createFile(
+      AppwriteConfig.BUCKET_ID,
+      ID.unique(),
+      file
+    );
+
+    return uploadedFile.$id;
+  };
+  const { fetchProfile } = useProfileData();
+  const updateUserProfileBackground = async (fileId: string) => {
+    const user = await account.get();
+    const userId = user.$id;
+
+    const fileUrl = storage.getFileView(AppwriteConfig.BUCKET_ID, fileId).href;
+
+    await databases.updateDocument(
+      AppwriteConfig.DATABASE_ID,
+      AppwriteConfig.USERS_COLLECTION_ID,
+      userId,
+      {
+        profile_bg: fileId,
+      }
+    );
+    fetchProfile();
+    return fileUrl;
+  };
+
+  const onChangeBackgroundPress = async () => {
+    const file = await pickImageFile();
+    if (!file) return;
+
+    try {
+      const fileId = await uploadToAppwrite(file);
+      await updateUserProfileBackground(fileId);
+      console.log("Background updated successfully");
+    } catch (error) {
+      console.error("Failed to update background:", error);
+    }
+  };
+
+  return (
+    <>
+      <Stack.Screen options={{ headerShown: false }} />
+      <View
+        className="flex-1"
+        style={{ backgroundColor: Colors.brand.secondary, paddingTop: 65 }}
       >
-        <View style={getAvatarContainerStyle(Colors.brand.secondary)}>
-          <Image
-            source={{ uri: avatarUrl }}
-            style={styles.avatar}
-            resizeMode="cover"
-          />
+        <View className="flex-row items-center px-4 py-3">
+          <TouchableOpacity onPress={() => router.back()}>
+            <IconSymbol
+              name="chevron.left"
+              color={Colors.brand.primaryDark}
+              size={30}
+            />
+          </TouchableOpacity>
+          <Text className="text-xl ml-4" style={{ fontFamily: "RobotoMedium" }}>
+            Edit Profile
+          </Text>
         </View>
 
-        {/* Change Background Button */}
-        <TouchableOpacity
+        <ImageBackground
+          source={{ uri: profileBg }}
           style={{
-            position: "absolute",
-            top: 15,
-            right: 15,
-            backgroundColor: isBackgroundDark
-              ? "rgba(255,255,255,0.9)"
-              : "rgba(0,0,0,0.5)",
-            borderRadius: 50,
-            paddingHorizontal: 10,
-            paddingVertical: 5,
-            flexDirection: "row",
-            gap: 10,
-            alignItems: "center",
-            borderWidth: isBackgroundDark ? 1 : 0,
-            borderColor: isBackgroundDark
-              ? Colors.brand.primary
-              : "transparent",
+            height: 210,
+            backgroundColor: !profileBg ? Colors.brand.primaryDark : undefined,
           }}
-          onPress={() => {
-            // Handle background image change
-            console.log("Change background clicked");
-          }}
+          imageStyle={{ opacity: 0.6 }}
+          className="justify-center items-center"
         >
-          <Text
+          <View style={getAvatarContainerStyle(Colors.brand.secondary)}>
+            <Image
+              source={{ uri: avatarUrl }}
+              style={styles.avatar}
+              resizeMode="cover"
+            />
+          </View>
+
+          {/* Change Background Button */}
+          <TouchableOpacity
             style={{
-              fontFamily: "RobotoRegular",
-              fontSize: 13,
-              color: isBackgroundDark
+              position: "absolute",
+              top: 15,
+              right: 15,
+              backgroundColor: isBackgroundDark
+                ? "rgba(255,255,255,0.9)"
+                : "rgba(0,0,0,0.5)",
+              borderRadius: 50,
+              paddingHorizontal: 10,
+              paddingVertical: 5,
+              flexDirection: "row",
+              gap: 10,
+              alignItems: "center",
+              borderWidth: isBackgroundDark ? 1 : 0,
+              borderColor: isBackgroundDark
                 ? Colors.brand.primary
-                : Colors.ui.backgroundLight,
+                : "transparent",
             }}
+            onPress={onChangeBackgroundPress}
           >
-            Change Background
-          </Text>
-          <IconSymbol
-            name="photo"
-            color={
-              isBackgroundDark
-                ? Colors.brand.primary
-                : Colors.ui.backgroundLight
-            }
-            size={20}
-          />
-        </TouchableOpacity>
-      </ImageBackground>
-
-      <View style={{ backgroundColor: Colors.ui.background, flex: 1 }}>
-        {fields.map((item, index) => {
-          const rawValue = item.value;
-          const displayValue =
-            item.alwaysShowValue || rawValue
-              ? item.title === "Bio"
-                ? String(rawValue).slice(0, 22) + "..."
-                : item.title === "Email"
-                ? maskEmail(String(rawValue))
-                : String(rawValue)
-              : item.title === "Phone Number"
-              ? "Link Now"
-              : "Set Now";
-
-          const shouldHaveGapAbove =
-            item.key === "gender" || item.key === "phone";
-
-          const isSetNow =
-            displayValue === "Set Now" || displayValue === "Link Now";
-
-          return (
-            <Pressable
-              key={index}
-              onPress={() =>
-                router.push({
-                  pathname: "/profile/settings/editProfile/editField/[key]",
-                  params: {
-                    key: item.key,
-                    data: encodeURIComponent(JSON.stringify(profileData)),
-                  },
-                })
-              }
-              className="border-b"
+            <Text
               style={{
-                paddingVertical: 3,
-                backgroundColor: Colors.brand.secondary,
-                marginTop: shouldHaveGapAbove ? 20 : 0,
-                borderTopWidth: shouldHaveGapAbove ? 1 : 0,
-                borderColor: Colors.text.placeholder,
+                fontFamily: "RobotoRegular",
+                fontSize: 13,
+                color: isBackgroundDark
+                  ? Colors.brand.primary
+                  : Colors.ui.backgroundLight,
               }}
             >
-              <View className="flex-row justify-between items-center px-4 py-3">
-                <Text
-                  style={{ color: Colors.ui.base, fontFamily: "RobotoMedium" }}
-                >
-                  {item.title}
-                </Text>
-                <View className="flex-row items-center space-x-2">
+              Change Background
+            </Text>
+            <IconSymbol
+              name="photo"
+              color={
+                isBackgroundDark
+                  ? Colors.brand.primary
+                  : Colors.ui.backgroundLight
+              }
+              size={20}
+            />
+          </TouchableOpacity>
+        </ImageBackground>
+
+        <View style={{ backgroundColor: Colors.ui.background, flex: 1 }}>
+          {fields.map((item, index) => {
+            const rawValue = item.value;
+            const displayValue = (() => {
+              if (item.alwaysShowValue || rawValue) {
+                if (item.title === "Email") {
+                  return maskEmail(String(rawValue));
+                }
+                if (item.title === "Gender") {
+                  return String(rawValue);
+                }
+                return String(rawValue);
+              }
+              if (item.title === "Phone Number") {
+                return "Link Now";
+              }
+              return "Set Now";
+            })();
+
+            const shouldHaveGapAbove =
+              item.key === "gender" || item.key === "phone";
+
+            const isSetNow =
+              displayValue === "Set Now" || displayValue === "Link Now";
+
+            return (
+              <Pressable
+                key={index}
+                onPress={() =>
+                  router.push({
+                    pathname: "/profile/settings/editProfile/editField/[key]",
+                    params: {
+                      key: item.key,
+                      size: item.size,
+                      data: encodeURIComponent(JSON.stringify(profileData)),
+                    },
+                  })
+                }
+                className="border-b"
+                style={{
+                  paddingVertical: 3,
+                  backgroundColor: Colors.brand.secondary,
+                  marginTop: shouldHaveGapAbove ? 20 : 0,
+                  borderTopWidth: shouldHaveGapAbove ? 1 : 0,
+                  borderColor: Colors.text.placeholder,
+                }}
+              >
+                <View className="flex-row justify-between items-center px-4 py-3">
                   <Text
                     style={{
-                      color: isSetNow ? Colors.ui.overlay : Colors.ui.base,
-                      fontFamily: "RobotoRegular",
-                      marginRight: 10,
+                      color: Colors.ui.base,
+                      fontFamily: "RobotoMedium",
                     }}
                   >
-                    {displayValue}
+                    {item.title}
                   </Text>
-                  <IconSymbol
-                    name="chevron.right"
-                    color={Colors.ui.overlay}
-                    size={20}
-                  />
+                  <View className="flex-row items-center space-x-2">
+                    <Text
+                      style={{
+                        color: isSetNow ? Colors.ui.overlay : Colors.ui.base,
+                        fontFamily: "RobotoRegular",
+                        marginRight: 10,
+                        maxWidth: item.title === "Bio" ? 180 : undefined,
+                      }}
+                      ellipsizeMode={item.title === "Bio" ? "tail" : undefined}
+                      numberOfLines={item.title === "Bio" ? 1 : undefined}
+                    >
+                      {displayValue}
+                    </Text>
+                    <IconSymbol
+                      name="chevron.right"
+                      color={Colors.ui.overlay}
+                      size={20}
+                    />
+                  </View>
                 </View>
-              </View>
-            </Pressable>
-          );
-        })}
+              </Pressable>
+            );
+          })}
+        </View>
       </View>
-    </View>
+    </>
   );
 }
