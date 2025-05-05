@@ -29,7 +29,7 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
       >
         <View
           className="rounded-2xl p-6 w-80 shadow-lg"
-          style={{ backgroundColor: Colors.brand.secondary }}
+          style={{ backgroundColor: Colors.brand.accent }}
         >
           <Image
             source={require("@/assets/images/error-icon.png")}

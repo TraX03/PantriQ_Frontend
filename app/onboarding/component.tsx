@@ -21,7 +21,7 @@ export default function OnboardingComponent() {
       <Stack.Screen options={{ headerShown: false }} />
       <View
         className="flex-1 px-7 pb-10"
-        style={{ backgroundColor: Colors.brand.secondary, paddingTop: 65 }}
+        style={{ backgroundColor: Colors.brand.accent, paddingTop: 65 }}
       >
         {/* Top Nav */}
         <View className="flex-row justify-between items-center mb-6">
@@ -38,7 +38,7 @@ export default function OnboardingComponent() {
                 <Text
                   style={{
                     color:
-                      num === 1 ? Colors.brand.secondary : Colors.brand.base,
+                      num === 1 ? Colors.brand.accent : Colors.brand.base,
                     fontSize: 13,
                     fontFamily: "RobotoRegular",
                   }}
@@ -52,7 +52,7 @@ export default function OnboardingComponent() {
             <Text
               style={{
                 fontSize: 18,
-                color: Colors.text.linkColor,
+                color: Colors.text.link,
                 fontFamily: "RobotoSemiBold",
               }}
             >
@@ -76,7 +76,7 @@ export default function OnboardingComponent() {
           <Text
             className="w-[78%] text-[15px] mb-5"
             style={{
-              color: Colors.text.subColor,
+              color: Colors.text.secondary,
               letterSpacing: 0.25,
               lineHeight: 20,
             }}

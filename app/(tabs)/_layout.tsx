@@ -52,11 +52,14 @@ export default function TabLayout() {
     <>
       <Tabs
         screenOptions={{
-          tabBarActiveTintColor: Colors.brand.primary,
+          tabBarActiveTintColor: Colors.brand.main,
           tabBarInactiveTintColor: Colors.ui.inactive,
           headerShown: false,
           tabBarButton: (props) => (
-            <Pressable {...props} android_ripple={null} />
+            <Pressable
+              {...(props as React.ComponentProps<typeof Pressable>)}
+              android_ripple={undefined}
+            />
           ),
           tabBarLabelStyle: {
             fontFamily: "RobotoSemiCondensed",
@@ -64,7 +67,7 @@ export default function TabLayout() {
           },
           tabBarStyle: {
             height: 60,
-            backgroundColor: Colors.brand.secondary,
+            backgroundColor: Colors.brand.accent,
           },
         }}
       >

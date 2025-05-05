@@ -1,14 +1,21 @@
 import React from "react";
 import AuthFormComponent from "./component";
 import AuthFormController from "./controller";
-import { AuthFormActions } from "../../../utility/authentication/actions";
+import { useFieldState } from "@/hooks/useFieldState";
 
-type Props = {
+export type Props = {
   mode: "sign-in" | "sign-up";
 };
 
 export default function AuthFormContainer({ mode }: Props) {
-  const auth = AuthFormActions();
+  const auth = useFieldState({
+    email: "",
+    password: "",
+    errorTitle: "",
+    errorMessage: "",
+    showErrorModal: false,
+  });
+
   const controller = AuthFormController({ mode, form: auth });
 
   return (

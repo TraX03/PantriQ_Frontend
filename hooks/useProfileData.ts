@@ -3,13 +3,16 @@ import { account, databases, storage } from "@/services/appwrite";
 import { AppwriteConfig } from "@/constants/AppwriteConfig";
 import reactotron from "reactotron-react-native";
 import { setLoading } from "@/redux/slices/loadingSlice";
-import { setProfileData, resetProfileData } from "@/redux/slices/profileSlice";
+import {
+  setProfileData,
+  resetProfileData,
+  guestProfile,
+} from "@/redux/slices/profileSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/redux/store";
 
 export function useProfileData() {
   const dispatch = useDispatch<AppDispatch>();
-  const profileData = useSelector((state: RootState) => state.profile.userData);
 
   const fetchProfile = useCallback(async () => {
     dispatch(setLoading(true));
@@ -23,28 +26,33 @@ export function useProfileData() {
       );
 
       let avatarUrl: string | undefined;
-      try {
-        avatarUrl = storage.getFileView(
-          AppwriteConfig.BUCKET_ID,
-          userData.avatar
-        ).href;
-      } catch (avatarError) {
-        reactotron.log("Failed to generate avatar URL.", {
-          avatarError,
-        });
-        avatarUrl = profileData.avatarUrl;
+      if (userData.avatar) {
+        try {
+          avatarUrl = storage.getFileView(
+            AppwriteConfig.BUCKET_ID,
+            userData.avatar
+          ).href;
+        } catch (avatarError) {
+          console.warn("Failed to generate avatar URL.", { avatarError });
+          avatarUrl = guestProfile.avatarUrl;
+        }
+      } else {
+        avatarUrl = guestProfile.avatarUrl;
       }
 
       let backgroundUrl: string | undefined;
-      try {
-        backgroundUrl = storage.getFileView(
-          AppwriteConfig.BUCKET_ID,
-          userData.profile_bg,
-        ).href;
-      } catch (avatarError) {
-        reactotron.log("Failed to generate background URL.", {
-          avatarError,
-        });
+      if (userData.profile_bg) {
+        try {
+          backgroundUrl = storage.getFileView(
+            AppwriteConfig.BUCKET_ID,
+            userData.profile_bg
+          ).href;
+        } catch (bgError) {
+          console.warn("Failed to generate background URL.", { bgError });
+          backgroundUrl = undefined;
+        }
+      } else {
+        backgroundUrl = undefined;
       }
 
       const mappedProfileData = {
@@ -57,11 +65,11 @@ export function useProfileData() {
         email: user.email,
         followersCount: userData.followers_count,
         followingCount: userData.following_count,
-        profileBg: backgroundUrl,
+        profileBg: backgroundUrl || undefined,
       };
       dispatch(setProfileData(mappedProfileData));
     } catch (error) {
-      reactotron.log("Failed to fetch user profile.", { error });
+      console.warn("Failed to fetch user profile.", { error });
       dispatch(resetProfileData());
     } finally {
       dispatch(setLoading(false));

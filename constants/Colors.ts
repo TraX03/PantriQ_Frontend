@@ -2,11 +2,11 @@
 
 export const Colors = {
   brand: {
-    primary: "#E84A62",
-    primaryLight: "#ED7285",
-    primaryDark: "#D02540",
-    secondary: "#FFFFFF",
-    base: "black",
+    main: "#E84A62",
+    light: "#ED7285",
+    dark: "#D02540",
+    accent: "#FFFFFF",
+    base: "#000000",
   },
 
   ui: {
@@ -17,13 +17,17 @@ export const Colors = {
     base: "#374151",
     buttonFill: "#CC1F37",
     overlay: "rgba(0,0,0,0.4)",
+    overlayLight: "rgba(255,255,255,0.8)",
+    overlayDark: "rgba(0,0,0,0.5)",
+    border: "#D1D5DB",
   },
 
   text: {
-    faint: "gray",
+    faint: "#808080",
     placeholder: "#CCCCCC",
-    linkColor: "#1F73F1",
-    subColor: "#3D3D3D",
-    dark: "#A81C30",
+    link: "#1F73F1",
+    secondary: "#3D3D3D",
+    highlight: "#A81C30",
+    gray: "#6b7280",
   },
 };

@@ -11,7 +11,7 @@ const styles = StyleSheet.create({
   container: {
     borderRadius: 12,
     paddingBottom: 14,
-    backgroundColor: Colors.brand.secondary,
+    backgroundColor: Colors.brand.accent,
   },
   communityName: {
     fontSize: 16,
@@ -23,12 +23,12 @@ const styles = StyleSheet.create({
     paddingBottom: 8,
   },
   joinButton: {
-    backgroundColor: Colors.brand.primaryLight,
-    borderColor: Colors.brand.secondary,
+    backgroundColor: Colors.brand.light,
+    borderColor: Colors.brand.accent,
   },
   joinButtonText: {
     ...baseTextStyle,
-    color: Colors.brand.secondary,
+    color: Colors.brand.accent,
     fontSize: 14,
   },
   postTitle: {
@@ -46,7 +46,7 @@ const styles = StyleSheet.create({
   },
   errorTitle: {
     fontFamily: "RobotoSemiBold",
-    color: Colors.text.dark,
+    color: Colors.text.highlight,
     fontSize: 17,
   },
   errorDescription: {
@@ -56,7 +56,7 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     fontFamily: "RobotoMedium",
-    color: Colors.brand.secondary,
+    color: Colors.brand.accent,
   },
 });
 

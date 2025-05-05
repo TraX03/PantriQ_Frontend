@@ -1,23 +1,23 @@
 import { router } from "expo-router";
-import { AuthFormActions } from "../../../utility/authentication/actions";
 import { ValidationErrors, AuthErrors } from "@/constants/Errors";
 import { useAuthentication } from "@/hooks/useAuthentication";
+import { useFieldState } from "@/hooks/useFieldState";
+import { AuthFormState } from "./component";
+import { Props as AuthFormProps } from "./container";
 
-type Props = {
-  mode: "sign-in" | "sign-up";
-  form: ReturnType<typeof AuthFormActions>;
+type Props = AuthFormProps & {
+  form: ReturnType<typeof useFieldState<AuthFormState>>;
 };
 
 export default function AuthFormController({ mode, form }: Props) {
   const { login, signUp } = useAuthentication();
+  const { email, password, setFieldState } = form;
 
   const isValidEmail = (email: string) => /\S+@\S+\.\S+/.test(email);
-
   const isValidPassword = (password: string) =>
     /^(?=.*[A-Z])(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).{8,}$/.test(
       password
     );
-
   const extractUsername = (email: string) => email.split("@")[0];
 
   const handleSubmit = async () => {
@@ -25,11 +25,11 @@ export default function AuthFormController({ mode, form }: Props) {
 
     try {
       if (mode === "sign-up") {
-        await signUp(form.email, form.password, extractUsername(form.email));
+        await signUp(email, password, extractUsername(email));
         // router.replace("/onboarding/component");
         router.replace("/");
       } else {
-        await login(form.email, form.password);
+        await login(email, password);
         router.replace("/");
       }
     } catch (error: any) {
@@ -38,12 +38,12 @@ export default function AuthFormController({ mode, form }: Props) {
   };
 
   const validateForm = () => {
-    if (!isValidEmail(form.email)) {
+    if (!isValidEmail(email)) {
       showError(ValidationErrors.email);
       return false;
     }
 
-    if (!isValidPassword(form.password)) {
+    if (!isValidPassword(password)) {
       showError(ValidationErrors.password);
       return false;
     }
@@ -80,9 +80,9 @@ export default function AuthFormController({ mode, form }: Props) {
     title: string;
     defaultMessage: string;
   }) => {
-    form.setFieldState("errorTitle", errorConfig.title);
-    form.setFieldState("errorMessage", errorConfig.defaultMessage);
-    form.setFieldState("showErrorModal", true);
+    setFieldState("errorTitle", errorConfig.title);
+    setFieldState("errorMessage", errorConfig.defaultMessage);
+    setFieldState("showErrorModal", true);
   };
 
   return {

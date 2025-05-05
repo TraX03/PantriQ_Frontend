@@ -15,7 +15,7 @@ type Props = TextInputProps & {
 
 export default function InputBox({
   icon,
-  iconColor = Colors.brand.primary,
+  iconColor = Colors.brand.main,
   iconSize = 20,
   containerStyle,
   style,
@@ -25,11 +25,11 @@ export default function InputBox({
 }: Props) {
   return (
     <View
-      className={`flex-row items-center px-4 rounded-xl border-2 ${className}`}
+      className={`flex-row items-center px-4 py-2 rounded-xl border-2 ${className}`}
       style={[
         {
-          backgroundColor: Colors.brand.secondary,
-          borderColor: Colors.brand.primary,
+          backgroundColor: Colors.brand.accent,
+          borderColor: Colors.brand.main,
         },
         containerStyle,
       ]}

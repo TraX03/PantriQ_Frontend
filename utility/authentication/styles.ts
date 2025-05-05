@@ -3,10 +3,16 @@ import { Colors } from "@/constants/Colors";
 
 const baseTextStyle = {
   fontFamily: "RobotoRegular",
-  color: Colors.brand.primaryDark,
+  color: Colors.brand.dark,
+};
+
+const mediumText = {
+  fontFamily: "RobotoMedium",
+  color: Colors.brand.accent,
 };
 
 export const styles = StyleSheet.create({
+  // Text
   titleText: {
     ...baseTextStyle,
     marginTop: 12,
@@ -15,11 +21,26 @@ export const styles = StyleSheet.create({
     fontFamily: "SignikaNegativeSC",
   },
   forgotPasswordText: {
-    ...baseTextStyle,
+    fontFamily: "RobotoBold",
+    color: Colors.brand.dark,
     textAlign: "right",
     marginBottom: 24,
-    fontFamily: "RobotoBold",
   },
+  buttonText: {
+    ...mediumText,
+    fontSize: 16,
+    lineHeight: 25,
+  },
+  dividerText: {
+    ...mediumText,
+    fontSize: 15,
+    paddingHorizontal: 16,
+  },
+  underlineText: {
+    textDecorationLine: "underline",
+  },
+
+  // Button
   buttonStyle: {
     alignItems: "center",
     paddingVertical: 12,
@@ -27,25 +48,11 @@ export const styles = StyleSheet.create({
     borderRadius: 12,
     backgroundColor: Colors.ui.buttonFill,
   },
-  buttonText: {
-    ...baseTextStyle,
-    fontFamily: "RobotoMedium",
-    color: Colors.brand.secondary,
-    fontSize: 16,
-    lineHeight: 25,
-  },
-  dividerText: {
-    ...baseTextStyle,
-    color: Colors.brand.secondary,
-    fontSize: 15,
-    paddingHorizontal: 16,
-  },
-  underlineText: {
-    textDecorationLine: "underline",
-  },
+
+  // Divider
   dividerStyle: {
     width: 80,
     height: 1,
-    backgroundColor: Colors.brand.secondary,
+    backgroundColor: Colors.brand.accent,
   },
 });

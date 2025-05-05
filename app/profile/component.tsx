@@ -1,46 +1,36 @@
 import React from "react";
 // prettier-ignore
 import { View, Text, TouchableOpacity, Image, ScrollView } from "react-native";
-import { useSelector } from "react-redux";
 import { Colors } from "@/constants/Colors";
 import { getAvatarContainerStyle, styles } from "@/utility/profile/styles";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { router } from "expo-router";
 import ErrorScreen from "@/components/ErrorScreen";
-import { RootState } from "@/redux/store";
-import { useAuthentication } from "@/hooks/useAuthentication";
+import { ProfileData } from "@/redux/slices/profileSlice";
 
-export default function ProfileComponent() {
-  const { logout } = useAuthentication();
-  const loading = useSelector((state: RootState) => state.loading.loading);
-  const profileData = useSelector((state: RootState) => state.profile.userData);
+type Props = {
+  profileData: ProfileData | null;
+  loading: boolean;
+  onLogout: () => void;
+};
+
+export default function ProfileComponent({
+  profileData,
+  loading,
+  onLogout,
+}: Props) {
   if (!profileData && loading) return null;
-
-  if (!profileData) {
+  if (!profileData)
     return (
       <ErrorScreen message="Something went wrong while loading your profile data. Please refresh or try again later." />
     );
-  }
 
   const { username, avatarUrl, followersCount, followingCount } = profileData;
-
-  const handleLogout = () => {
-    logout();
-    router.replace("/");
-  };
 
   return (
     <ScrollView style={styles.container}>
       <View style={styles.profileSection}>
-        <View
-          style={{
-            flexDirection: "row",
-            justifyContent: "flex-end",
-            marginBottom: 10,
-            alignItems: "center",
-            gap: 8,
-          }}
-        >
+        <View className="flex-row justify-end items-center mb-[10px] gap-[8px]">
           <TouchableOpacity
             onPress={() =>
               router.push("/profile/settings/editProfile/container")
@@ -49,10 +39,10 @@ export default function ProfileComponent() {
             <IconSymbol
               name="pencil.and.outline"
               size={28}
-              color={Colors.brand.primaryLight}
+              color={Colors.brand.light}
             />
           </TouchableOpacity>
-          <IconSymbol name="ellipsis" size={27} color={Colors.brand.primary} />
+          <IconSymbol name="ellipsis" size={27} color={Colors.brand.main} />
         </View>
 
         <View className="flex-row items-center">
@@ -77,7 +67,7 @@ export default function ProfileComponent() {
         </View>
       </View>
 
-      <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
+      <TouchableOpacity onPress={onLogout} style={styles.logoutButton}>
         <Text style={styles.logoutButtonText}>Log Out</Text>
       </TouchableOpacity>
     </ScrollView>

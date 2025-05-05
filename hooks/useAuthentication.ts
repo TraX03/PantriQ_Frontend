@@ -3,16 +3,17 @@ import { account, databases } from "@/services/appwrite";
 import { useDispatch } from "react-redux";
 import { setUser } from "@/redux/slices/authSlice";
 import { router } from "expo-router";
-import reactotron from "reactotron-react-native";
 import { AppwriteConfig } from "@/constants/AppwriteConfig";
 import { setLoading } from "@/redux/slices/loadingSlice";
 import { AppDispatch } from "@/redux/store";
+import { useProfileData } from "./useProfileData";
 
 export function useAuthentication() {
   const dispatch = useDispatch<AppDispatch>();
+  const { fetchProfile } = useProfileData();
 
   const handleError = (action: string, error: any) => {
-    reactotron.log(`${action} failed:`, error);
+    console.warn(`${action} failed:`, error);
     throw error;
   };
 
@@ -78,6 +79,7 @@ export function useAuthentication() {
       await account.deleteSession("current");
       dispatch(setUser(null));
       router.replace("/");
+      fetchProfile();
     } catch (error) {
       handleError("Logout", error);
     }

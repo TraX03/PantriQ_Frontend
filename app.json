@@ -4,12 +4,12 @@
     "slug": "pantriQ",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/pantriQ.png",
+    "icon": "./assets/images/pantriQ-icon.png",
     "scheme": "pantriq",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/images/pantriQ.png",
+      "image": "./assets/images/pantriQ-logo.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -18,7 +18,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/pantriQ.png",
+        "foregroundImage": "./assets/images/pantriQ-icon.png",
         "backgroundColor": "#ffffff"
       },
       "package": "com.anonymous.pantriQ"
@@ -28,9 +28,20 @@
       "output": "static",
       "favicon": "./assets/images/pantriQ.png"
     },
-    "plugins": ["expo-router"],
+    "plugins": [
+      "expo-router",
+      "./plugins/custom-android-styles.js"
+    ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "25ea4ee0-e124-4a69-b181-ba47625c8bad"
+      }
     }
   }
 }

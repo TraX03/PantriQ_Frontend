@@ -4,7 +4,7 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 type Gender = "Male" | "Female" | "Prefer not to say" | "Other";
 
-interface ProfileData {
+export interface ProfileData {
   username: string;
   avatarUrl: string;
   bio?: string;
@@ -17,7 +17,7 @@ interface ProfileData {
   profileBg?: string;
 }
 
-const guestProfile: ProfileData = {
+export const guestProfile: ProfileData = {
   username: "Guest",
   avatarUrl: storage.getFileView(
     AppwriteConfig.BUCKET_ID,

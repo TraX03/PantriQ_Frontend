@@ -18,7 +18,7 @@ const ErrorScreen: React.FC<Props> = ({ message }) => (
         <TouchableOpacity onPress={() => router.back()}>
           <IconSymbol
             name="chevron.left"
-            color={Colors.brand.primary}
+            color={Colors.brand.main}
             size={30}
           />
         </TouchableOpacity>

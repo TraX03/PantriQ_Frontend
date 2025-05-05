@@ -9,7 +9,7 @@ import NotificationModal from "@/components/NotifcationModal";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { Colors } from "@/constants/Colors";
 import { styles } from "../../../utility/authentication/styles";
-import { AuthFormActions } from "../../../utility/authentication/actions";
+import { useFieldState } from "@/hooks/useFieldState";
 
 const SOCIAL_PROVIDERS = {
   google: require("@/assets/images/google.png"),
@@ -17,9 +17,17 @@ const SOCIAL_PROVIDERS = {
   apple: require("@/assets/images/apple.png"),
 };
 
+export interface AuthFormState {
+  email: string;
+  password: string;
+  errorTitle: string;
+  errorMessage: string;
+  showErrorModal: boolean;
+}
+
 type Props = {
   mode: "signUp" | "signIn";
-  auth: ReturnType<typeof AuthFormActions>;
+  auth: ReturnType<typeof useFieldState<AuthFormState>>;
   onSubmit: () => void;
 };
 
@@ -56,10 +64,10 @@ export default function AuthFormComponent({ mode, auth, onSubmit }: Props) {
 
       <LinearGradient
         colors={[
-          Colors.brand.secondary,
-          Colors.brand.secondary,
-          Colors.brand.primaryDark,
-          Colors.brand.primaryDark,
+          Colors.brand.accent,
+          Colors.brand.accent,
+          Colors.brand.dark,
+          Colors.brand.dark,
         ]}
         locations={[0, 0.66, 0.76, 1]}
         style={{
@@ -72,14 +80,14 @@ export default function AuthFormComponent({ mode, auth, onSubmit }: Props) {
           <TouchableOpacity onPress={() => router.back()}>
             <IconSymbol
               name="chevron.left"
-              color={Colors.brand.primaryDark}
+              color={Colors.brand.dark}
               size={30}
             />
           </TouchableOpacity>
 
           <Image
             source={require("@/assets/images/pantriQ.png")}
-            className="w-full h-[170px] self-center"
+            className="w-full h-[160px] self-center"
             resizeMode="contain"
           />
 

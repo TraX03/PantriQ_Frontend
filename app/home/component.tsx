@@ -2,19 +2,24 @@ import { ScrollView, View, Text, Pressable } from "react-native";
 import { Colors } from "@/constants/Colors";
 import PostCard, { Post } from "@/components/PostCard";
 import { IconSymbol } from "@/components/ui/IconSymbol";
-import { HomeActions } from "../../utility/home/actions";
 import { styles } from "@/utility/home/styles";
+import { useFieldState } from "@/hooks/useFieldState";
+
+interface HomeState {
+  activeTab: string;
+  activeSuggestion: string;
+}
 
 type Props = {
-  home: ReturnType<typeof HomeActions>;
   suggestions: string[];
   filteredPosts: Post[];
+  home: ReturnType<typeof useFieldState<HomeState>>;
 };
 
 export default function HomeComponent({
-  home,
   suggestions,
   filteredPosts,
+  home,
 }: Props) {
   const { activeTab, activeSuggestion, setFieldState } = home;
 
@@ -33,7 +38,7 @@ export default function HomeComponent({
                   {
                     color:
                       activeTab === tab
-                        ? Colors.brand.primary
+                        ? Colors.brand.main
                         : Colors.text.faint,
                   },
                 ]}
@@ -46,10 +51,10 @@ export default function HomeComponent({
 
         <View className="flex-row items-center space-x-4 pb-2">
           <Pressable className="mr-2">
-            <IconSymbol name="magnifyingglass" color={Colors.brand.primary} />
+            <IconSymbol name="magnifyingglass" color={Colors.brand.main} />
           </Pressable>
           <Pressable>
-            <IconSymbol name="bell" color={Colors.brand.primary} />
+            <IconSymbol name="bell" color={Colors.brand.main} />
           </Pressable>
         </View>
       </View>
@@ -68,7 +73,7 @@ export default function HomeComponent({
               className="px-5 py-1.5 mr-2.5 rounded-full"
               style={{
                 backgroundColor: isActive
-                  ? Colors.brand.primary
+                  ? Colors.brand.main
                   : Colors.ui.backgroundLight,
               }}
             >
@@ -76,7 +81,7 @@ export default function HomeComponent({
                 style={[
                   styles.suggestText,
                   {
-                    color: isActive ? Colors.brand.secondary : Colors.ui.base,
+                    color: isActive ? Colors.brand.accent : Colors.ui.base,
                   },
                 ]}
               >

@@ -39,5 +39,8 @@ yarn-error.*
 .vscode/
 settings.json
 
-app-example
+# dev build
+/android
+/ios
+
 package-lock.json
