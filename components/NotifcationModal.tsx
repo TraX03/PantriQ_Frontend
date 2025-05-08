@@ -1,6 +1,6 @@
 import { Colors } from "@/constants/Colors";
 import React from "react";
-import { Modal, View, Text, Pressable, Image, StyleSheet } from "react-native";
+import { Modal, View, Text, Pressable, Image } from "react-native";
 import styles from "./styles";
 
 interface NotificationModalProps {
@@ -23,11 +23,13 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
       animationType="fade"
       statusBarTranslucent
     >
-      <View
+      <Pressable
         className="flex-1 justify-center items-center"
         style={{ backgroundColor: Colors.ui.overlay }}
+        onPress={onClose}
       >
-        <View
+        <Pressable
+          onPress={() => {}}
           className="rounded-2xl p-6 w-80 shadow-lg"
           style={{ backgroundColor: Colors.brand.accent }}
         >
@@ -50,8 +52,8 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
           >
             <Text style={styles.buttonText}>OK</Text>
           </Pressable>
-        </View>
-      </View>
+        </Pressable>
+      </Pressable>
     </Modal>
   );
 };

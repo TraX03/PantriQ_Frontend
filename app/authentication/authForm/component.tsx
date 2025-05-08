@@ -1,9 +1,8 @@
-import React, { useCallback } from "react";
+import React from "react";
 //prettier-ignore
 import { View, Text, TouchableOpacity, Image, Dimensions, StatusBar } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
-
 import InputBox from "@/components/InputBox";
 import NotificationModal from "@/components/NotifcationModal";
 import { IconSymbol } from "@/components/ui/IconSymbol";
@@ -45,10 +44,6 @@ export default function AuthFormComponent({ mode, auth, onSubmit }: Props) {
   } = auth;
 
   const isSignIn = mode === "signIn";
-
-  const handleSocialSignIn = useCallback((provider: string) => {
-    // Handle social sign-in logic here
-  }, []);
 
   return (
     <>
@@ -123,7 +118,7 @@ export default function AuthFormComponent({ mode, auth, onSubmit }: Props) {
 
           <View className="flex-row items-center justify-center mb-6">
             <View style={styles.dividerStyle} />
-            <Text style={styles.dividerText}>or sign in with</Text>
+            <Text style={styles.dividerText}> or continue with</Text>
             <View style={styles.dividerStyle} />
           </View>
 
@@ -131,7 +126,7 @@ export default function AuthFormComponent({ mode, auth, onSubmit }: Props) {
             {Object.keys(SOCIAL_PROVIDERS).map((provider) => (
               <TouchableOpacity
                 key={provider}
-                onPress={() => handleSocialSignIn(provider)}
+                onPress={() => {}}
               >
                 <Image
                   source={

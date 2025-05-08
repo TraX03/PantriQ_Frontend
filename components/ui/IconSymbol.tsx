@@ -23,6 +23,10 @@ const MAPPING = {
   "chevron.right": { name: "chevron-forward", type: "Ionicons" },
   photo: { name: "image-outline", type: "Ionicons" },
   "multiply.circle": { name: "x-circle", type: "Octicons" },
+  pencil: { name: "pencil", type: "Octicons" },
+  clock: { name: "history", type: "MaterialIcons" },
+  plus: { name: "plus", type: "Octicons" },
+  "person.2.fill": { name: "users", type: "Feather" },
 } as const;
 
 export type IconSymbolName = keyof typeof MAPPING;

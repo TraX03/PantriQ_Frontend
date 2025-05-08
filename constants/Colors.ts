@@ -20,6 +20,9 @@ export const Colors = {
     overlayLight: "rgba(255,255,255,0.8)",
     overlayDark: "rgba(0,0,0,0.5)",
     border: "#D1D5DB",
+    shade: "rgba(94, 85, 86, 0.7)",
+    lightBlueOverlay: "rgba(217, 243, 255, 0.2)",
+    shadow: "rgba(0, 0, 0, 0.1)",
   },
 
   text: {
@@ -29,5 +32,6 @@ export const Colors = {
     secondary: "#3D3D3D",
     highlight: "#A81C30",
     gray: "#6b7280",
+    muted: "#e1e8f2",
   },
 };

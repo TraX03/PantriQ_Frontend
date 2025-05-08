@@ -1,6 +1,6 @@
 import React from "react";
 //prettier-ignore
-import { View, Text, TextInput, TouchableOpacity, Platform, KeyboardAvoidingView } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, KeyboardAvoidingView } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { router } from "expo-router";
 import { IconSymbol } from "@/components/ui/IconSymbol";
@@ -32,10 +32,7 @@ export default function EditFieldComponent({
 }: Props) {
   return (
     <>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
-        style={styles.editContainer}
-      >
+      <KeyboardAvoidingView style={styles.headerContainer}>
         <View className="flex-row items-center px-4 py-3">
           <TouchableOpacity onPress={() => router.back()}>
             <IconSymbol

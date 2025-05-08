@@ -1,11 +1,5 @@
-import { StyleSheet, ViewStyle } from "react-native";
+import { StyleSheet } from "react-native";
 import { Colors } from "@/constants/Colors";
-
-const baseButton: ViewStyle = {
-  paddingHorizontal: 20,
-  paddingVertical: 10,
-  borderRadius: 10,
-};
 
 export const styles = StyleSheet.create({
   // Layout Containers
@@ -26,10 +20,23 @@ export const styles = StyleSheet.create({
     paddingTop: 65,
     paddingBottom: 30,
   },
-  editContainer: {
+  headerContainer: {
     flex: 1,
     backgroundColor: Colors.brand.accent,
     paddingTop: 65,
+  },
+  avatarContainer: {
+    width: 88,
+    height: 88,
+    borderRadius: 56,
+    overflow: "hidden",
+    elevation: 7,
+  },
+  postListContainer: {
+    backgroundColor: Colors.ui.background,
+    borderTopLeftRadius: 10,
+    borderTopRightRadius: 10,
+    marginTop: -15,
   },
 
   // Text Styles
@@ -47,12 +54,13 @@ export const styles = StyleSheet.create({
   username: {
     fontSize: 20,
     fontFamily: "RobotoSemiBold",
+    color: Colors.brand.accent,
   },
   followInfo: {
     marginTop: 10,
     fontSize: 14,
     fontFamily: "RobotoRegular",
-    color: Colors.text.faint,
+    color: Colors.text.muted,
   },
   changeBgText: {
     fontSize: 13,
@@ -93,10 +101,33 @@ export const styles = StyleSheet.create({
     fontFamily: "RobotoMedium",
     color: Colors.brand.accent,
   },
+  bioText: {
+    color: Colors.brand.accent,
+    fontFamily: "RobotoRegular",
+    paddingTop: 25,
+  },
+  loginText: {
+    color: Colors.brand.accent,
+    fontFamily: "RobotoRegular",
+  },
+  profileTabText: {
+    color: Colors.brand.accent,
+    marginTop: 6,
+    fontSize: 13,
+    fontFamily: "RobotoRegular",
+  },
+  noPostText: {
+    color: Colors.text.faint,
+    fontFamily: "RobotoRegular",
+    alignSelf: "center",
+    marginTop: 10,
+  },
 
   // Buttons
   logoutButton: {
-    ...baseButton,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 10,
     backgroundColor: Colors.ui.buttonFill,
     marginTop: 30,
     alignSelf: "center",
@@ -119,6 +150,14 @@ export const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 10,
+    borderWidth: 1,
+  },
+  loginButton: {
+    borderRadius: 9999,
+    paddingHorizontal: 24,
+    paddingVertical: 4,
+    backgroundColor: Colors.ui.overlay,
+    marginLeft: 4,
   },
 
   // Input Fields
@@ -144,8 +183,6 @@ export const styles = StyleSheet.create({
   avatar: {
     width: "100%",
     height: "100%",
-    borderRadius: 9999,
-    alignSelf: "center",
     backgroundColor: Colors.text.placeholder,
   },
   radioButtom: {
@@ -159,15 +196,25 @@ export const styles = StyleSheet.create({
     backgroundColor: Colors.brand.accent,
     borderColor: Colors.text.placeholder,
   },
-});
-
-export const getAvatarContainerStyle = (
-  borderColor = Colors.brand.accent
-): ViewStyle => ({
-  width: 90,
-  height: 90,
-  borderRadius: 56,
-  overflow: "hidden",
-  borderWidth: 2,
-  borderColor,
+  profileTab: {
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 12,
+    borderRadius: 12,
+    backgroundColor: Colors.ui.lightBlueOverlay,
+    minWidth: 90,
+    height: 80,
+    marginRight: 12,
+  },
+  tabHeader: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    marginBottom: 16,
+    borderBottomColor: Colors.ui.border,
+    borderBottomWidth: 1,
+    paddingVertical: 13,
+    backgroundColor: Colors.brand.accent,
+    borderTopLeftRadius: 10,
+    borderTopRightRadius: 10,
+  },
 });

@@ -15,13 +15,16 @@ export interface ProfileData {
   followersCount: number;
   followingCount: number;
   profileBg?: string;
+  id?: string;
 }
+
+export const guestPicture: string = "680778f2002d348f9b72"
 
 export const guestProfile: ProfileData = {
   username: "Guest",
   avatarUrl: storage.getFileView(
     AppwriteConfig.BUCKET_ID,
-    "680778f2002d348f9b72"
+    guestPicture
   ).href,
   followersCount: 0,
   followingCount: 0,

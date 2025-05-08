@@ -1,4 +1,5 @@
-import { ScrollView, View, Text, Pressable } from "react-native";
+//prettier-ignore
+import { ScrollView, View, Text, Pressable, RefreshControl } from "react-native";
 import { Colors } from "@/constants/Colors";
 import PostCard, { Post } from "@/components/PostCard";
 import { IconSymbol } from "@/components/ui/IconSymbol";
@@ -14,17 +15,21 @@ type Props = {
   suggestions: string[];
   filteredPosts: Post[];
   home: ReturnType<typeof useFieldState<HomeState>>;
+  onRefresh: () => Promise<void>;
+  refreshing: boolean;
 };
 
 export default function HomeComponent({
   suggestions,
   filteredPosts,
   home,
+  onRefresh,
+  refreshing,
 }: Props) {
   const { activeTab, activeSuggestion, setFieldState } = home;
 
   return (
-    <ScrollView style={styles.container}>
+    <View style={styles.container}>
       <View style={styles.header}>
         <View className="flex-row pb-2">
           {["Follow", "Explore"].map((tab) => (
@@ -37,9 +42,7 @@ export default function HomeComponent({
                   styles.tabText,
                   {
                     color:
-                      activeTab === tab
-                        ? Colors.brand.main
-                        : Colors.text.faint,
+                      activeTab === tab ? Colors.brand.main : Colors.text.faint,
                   },
                 ]}
               >
@@ -60,61 +63,76 @@ export default function HomeComponent({
       </View>
 
       <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        style={styles.suggestContainer}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={[Colors.brand.main]}
+          />
+        }
       >
-        {suggestions.map((item) => {
-          const isActive = activeSuggestion === item;
-          return (
-            <Pressable
-              key={item}
-              onPress={() => setFieldState("activeSuggestion", item)}
-              className="px-5 py-1.5 mr-2.5 rounded-full"
-              style={{
-                backgroundColor: isActive
-                  ? Colors.brand.main
-                  : Colors.ui.backgroundLight,
-              }}
-            >
-              <Text
-                style={[
-                  styles.suggestText,
-                  {
-                    color: isActive ? Colors.brand.accent : Colors.ui.base,
-                  },
-                ]}
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={styles.suggestContainer}
+        >
+          {suggestions.map((item) => {
+            const isActive = activeSuggestion === item;
+            return (
+              <Pressable
+                key={item}
+                onPress={() => setFieldState("activeSuggestion", item)}
+                className="px-5 py-1.5 mr-2.5 rounded-full"
+                style={{
+                  backgroundColor: isActive
+                    ? Colors.brand.main
+                    : Colors.ui.backgroundLight,
+                }}
               >
-                {item}
-              </Text>
-            </Pressable>
-          );
-        })}
-      </ScrollView>
+                <Text
+                  style={[
+                    styles.suggestText,
+                    {
+                      color: isActive ? Colors.brand.accent : Colors.ui.base,
+                    },
+                  ]}
+                >
+                  {item}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </ScrollView>
 
-      {activeTab === "Explore" && (
-        <View className="p-2">
-          {activeSuggestion === "Communities" ? (
-            <View>
-              {filteredPosts.map((post) => (
-                <PostCard key={post.id} post={post} onPress={() => {}} />
-              ))}
-            </View>
-          ) : (
-            <View className="flex-row justify-between flex-wrap">
-              {[0, 1].map((colIndex) => (
-                <View key={colIndex} className="w-[48%]">
-                  {filteredPosts
-                    .filter((_, i) => i % 2 === colIndex)
-                    .map((post) => (
-                      <PostCard key={post.id} post={post} onPress={() => {}} />
-                    ))}
-                </View>
-              ))}
-            </View>
-          )}
-        </View>
-      )}
-    </ScrollView>
+        {activeTab === "Explore" && (
+          <View className="p-2">
+            {activeSuggestion === "Communities" ? (
+              <View>
+                {filteredPosts.map((post) => (
+                  <PostCard key={post.id} post={post} onPress={() => {}} />
+                ))}
+              </View>
+            ) : (
+              <View className="flex-row justify-between flex-wrap">
+                {[0, 1].map((colIndex) => (
+                  <View key={colIndex} className="w-[48%]">
+                    {filteredPosts
+                      .filter((_, i) => i % 2 === colIndex)
+                      .map((post) => (
+                        <PostCard
+                          key={post.id}
+                          post={post}
+                          onPress={() => {}}
+                        />
+                      ))}
+                  </View>
+                ))}
+              </View>
+            )}
+          </View>
+        )}
+      </ScrollView>
+    </View>
   );
 }

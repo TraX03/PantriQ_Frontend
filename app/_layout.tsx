@@ -7,7 +7,8 @@ import "react-native-reanimated";
 import "./global.css";
 
 import { Provider } from "react-redux";
-import store from "@/redux/store";
+import { PersistGate } from "redux-persist/integration/react";
+import { store, persistor } from "@/redux/store";
 import LoadingScreen from "@/components/LoadingScreen";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
@@ -36,11 +37,13 @@ export default function RootLayout() {
 
   return (
     <Provider store={store}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-      </Stack>
-      <StatusBar style="auto" />
-      <LoadingScreen />
+      <PersistGate loading={null} persistor={persistor}>
+        <Stack>
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        </Stack>
+        <StatusBar style="auto" />
+        <LoadingScreen />
+      </PersistGate>
     </Provider>
   );
 }

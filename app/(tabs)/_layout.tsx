@@ -1,15 +1,16 @@
-import React from "react";
+import React, { useState } from "react";
 import { Tabs } from "expo-router";
 import { Pressable, View, StyleSheet } from "react-native";
-
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import FloatingAddButton from "@/components/FloatingAddButton";
 import { Colors } from "@/constants/Colors";
 import { TabConfig } from "@/constants/TabConfig";
 import { useRequireLogin } from "@/hooks/useRequireLogin";
+import AddModal from "@/components/AddModal";
 
 export default function TabLayout() {
   const { checkLogin } = useRequireLogin();
+  const [showModal, setShowModal] = useState(false);
 
   const renderTabScreen = (tab: any, index: number) => {
     const { name, hidden, icon, iconFocused, title } = tab;
@@ -43,6 +44,10 @@ export default function TabLayout() {
               }
             />
           ),
+          tabBarStyle: {
+            height: 60,
+            zIndex: 1,
+          },
         }}
       />
     );
@@ -77,12 +82,9 @@ export default function TabLayout() {
       <View style={styles.dent} />
 
       <FloatingAddButton
-        onPress={() =>
-          checkLogin(() => {
-            // Proceed with add action or nothing
-          })
-        }
+        onPress={() => checkLogin(() => setShowModal((prev) => !prev))}
       />
+      <AddModal isVisible={showModal} onClose={() => setShowModal(false)} />
     </>
   );
 }

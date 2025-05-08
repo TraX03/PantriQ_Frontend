@@ -1,6 +1,7 @@
+import { Post } from "@/components/PostCard";
 import React from "react";
 
-export const mockPosts = [
+export const mockPosts: Post[] = [
   {
     id: "1",
     type: "recipe",
@@ -43,6 +44,56 @@ export const mockPosts = [
   },
   {
     id: "5",
+    type: "discussion",
+    title: "Best Meatless Monday Recipes",
+    image:
+      "https://images.unsplash.com/photo-1590775184359-d6e9259fc90f?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    author: "Meatless Lovers",
+    profilePic:
+      "https://images.unsplash.com/photo-1497316730643-415fac54a2af?q=80&w=2400&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+  },
+  {
+    id: "11",
+    type: "discussion",
+    title: "Best Meatless Monday Recipes",
+    image:
+      "https://images.unsplash.com/photo-1590775184359-d6e9259fc90f?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    author: "Meatless Lovers",
+    profilePic:
+      "https://images.unsplash.com/photo-1497316730643-415fac54a2af?q=80&w=2400&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+  },
+  {
+    id: "12",
+    type: "discussion",
+    title: "Best Meatless Monday Recipes",
+    image:
+      "https://images.unsplash.com/photo-1590775184359-d6e9259fc90f?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    author: "Meatless Lovers",
+    profilePic:
+      "https://images.unsplash.com/photo-1497316730643-415fac54a2af?q=80&w=2400&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+  },
+  {
+    id: "13",
+    type: "discussion",
+    title: "Best Meatless Monday Recipes",
+    image:
+      "https://images.unsplash.com/photo-1590775184359-d6e9259fc90f?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    author: "Meatless Lovers",
+    profilePic:
+      "https://images.unsplash.com/photo-1497316730643-415fac54a2af?q=80&w=2400&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+  },
+  {
+    id: "14",
+    type: "discussion",
+    title: "Best Meatless Monday Recipes",
+    image:
+      "https://images.unsplash.com/photo-1590775184359-d6e9259fc90f?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    author: "Meatless Lovers",
+    profilePic:
+      "https://images.unsplash.com/photo-1497316730643-415fac54a2af?q=80&w=2400&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+  },
+  {
+    id: "15",
     type: "discussion",
     title: "Best Meatless Monday Recipes",
     image:
@@ -100,4 +151,3 @@ export const mockPosts = [
     recipesCount: 86,
   },
 ];
-

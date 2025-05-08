@@ -1,4 +1,4 @@
-import { router } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { ValidationErrors, AuthErrors } from "@/constants/Errors";
 import { useAuthentication } from "@/hooks/useAuthentication";
 import { useFieldState } from "@/hooks/useFieldState";
@@ -9,8 +9,10 @@ type Props = AuthFormProps & {
   form: ReturnType<typeof useFieldState<AuthFormState>>;
 };
 
-export default function AuthFormController({ mode, form }: Props) {
+const AuthFormController = ({ mode, form }: Props) => {
   const { login, signUp } = useAuthentication();
+  const router = useRouter();
+  const { redirect } = useLocalSearchParams();
   const { email, password, setFieldState } = form;
 
   const isValidEmail = (email: string) => /\S+@\S+\.\S+/.test(email);
@@ -30,7 +32,8 @@ export default function AuthFormController({ mode, form }: Props) {
         router.replace("/");
       } else {
         await login(email, password);
-        router.replace("/");
+        const redirectTo = typeof redirect === "string" ? redirect : "/";
+        router.replace(redirectTo as never);
       }
     } catch (error: any) {
       await handleAuthError(error);
@@ -88,4 +91,6 @@ export default function AuthFormController({ mode, form }: Props) {
   return {
     handleSubmit,
   };
-}
+};
+
+export default AuthFormController;

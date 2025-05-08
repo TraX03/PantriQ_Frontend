@@ -15,11 +15,13 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 16,
     marginBottom: 2,
     backgroundColor: Colors.brand.accent,
+    zIndex: 10,
   },
   suggestContainer: {
     paddingHorizontal: 8,
     paddingVertical: 12,
     backgroundColor: Colors.brand.accent,
+    zIndex: 9,
   },
 
   // Text

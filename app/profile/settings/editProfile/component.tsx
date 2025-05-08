@@ -3,7 +3,7 @@ import React, { useMemo } from "react";
 import { View, Text, TouchableOpacity, ImageBackground, Image, Pressable } from "react-native";
 import { Colors } from "@/constants/Colors";
 import { IconSymbol } from "@/components/ui/IconSymbol";
-import { styles, getAvatarContainerStyle } from "@/utility/profile/styles";
+import { styles } from "@/utility/profile/styles";
 import { router, Stack } from "expo-router";
 import ErrorScreen from "@/components/ErrorScreen";
 import { maskEmail } from "@/utility/mask";
@@ -13,14 +13,14 @@ type Props = {
   profileData: ProfileData | null;
   loading: boolean;
   isBackgroundDark: boolean;
-  onChangeBackgroundPress: () => void;
+  onChangeImagePress: (fieldKey: "profile_bg" | "avatar") => Promise<void>
 };
 
 export default function EditProfileComponent({
   profileData,
   loading,
   isBackgroundDark,
-  onChangeBackgroundPress,
+  onChangeImagePress,
 }: Props) {
   if (!profileData && loading) return null;
   if (!profileData) {
@@ -47,7 +47,7 @@ export default function EditProfileComponent({
         value: username,
         alwaysShowValue: true,
         key: "username",
-        size: 32,
+        size: 20,
       },
       { title: "Bio", value: bio, key: "bio", size: 160 },
       { title: "Gender", value: gender, key: "gender" },
@@ -84,7 +84,7 @@ export default function EditProfileComponent({
   return (
     <>
       <Stack.Screen options={{ headerShown: false }} />
-      <View style={styles.editContainer}>
+      <View style={styles.headerContainer}>
         <View className="flex-row items-center px-4 py-3">
           <TouchableOpacity onPress={() => router.back()}>
             <IconSymbol
@@ -104,14 +104,38 @@ export default function EditProfileComponent({
           imageStyle={{ opacity: 0.8 }}
           className="justify-center items-center h-[210px]"
         >
-          <View style={getAvatarContainerStyle(Colors.brand.accent)}>
-            <Image
-              source={{ uri: avatarUrl }}
-              style={styles.avatar}
-              resizeMode="cover"
-            />
+          <View className="relative">
+            <View style={styles.avatarContainer}>
+              <Image
+                source={{ uri: avatarUrl }}
+                style={styles.avatar}
+                resizeMode="cover"
+              />
+            </View>
+            <TouchableOpacity
+              className="absolute -bottom-1 -right-1 rounded-full p-2 w-9 h-9 justify-center items-center"
+              style={{
+                backgroundColor: isBackgroundDark
+                  ? Colors.ui.overlayLight
+                  : Colors.ui.overlayDark,
+                borderColor: isBackgroundDark
+                  ? Colors.ui.buttonFill
+                  : "transparent",
+                borderWidth: 1.5,
+              }}
+              onPress={() => onChangeImagePress("avatar")}
+            >
+              <IconSymbol
+                name="pencil"
+                color={
+                  isBackgroundDark
+                    ? Colors.ui.buttonFill
+                    : Colors.ui.backgroundLight
+                }
+                size={16}
+              />
+            </TouchableOpacity>
           </View>
-
           <TouchableOpacity
             style={[
               styles.changeBgButton,
@@ -124,7 +148,7 @@ export default function EditProfileComponent({
                   : "transparent",
               },
             ]}
-            onPress={onChangeBackgroundPress}
+            onPress={() => onChangeImagePress("profile_bg")}
           >
             <Text
               style={[
@@ -141,9 +165,7 @@ export default function EditProfileComponent({
             <IconSymbol
               name="photo"
               color={
-                isBackgroundDark
-                  ? Colors.brand.main
-                  : Colors.ui.backgroundLight
+                isBackgroundDark ? Colors.brand.main : Colors.ui.backgroundLight
               }
               size={20}
             />

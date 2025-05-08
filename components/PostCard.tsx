@@ -3,23 +3,16 @@ import { Colors } from "@/constants/Colors";
 import { IconSymbol } from "./ui/IconSymbol";
 import styles from "./styles";
 
-export type Post =
-  | {
-      id: string;
-      type: "recipe" | "tips" | "discussion";
-      title: string;
-      image: string;
-      author: string;
-      profilePic: string;
-    }
-  | {
-      id: string;
-      type: "community";
-      title: string;
-      image: string;
-      membersCount: number;
-      recipesCount: number;
-    };
+export type Post = {
+  id: string;
+  type: "recipe" | "tips" | "discussion" | "community";
+  title: string;
+  image: string;
+  author?: string;
+  profilePic?: string;
+  membersCount?: number;
+  recipesCount?: number;
+};
 
 type PostCardProps = {
   post: Post;

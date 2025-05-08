@@ -6,11 +6,14 @@ export function useRequireLogin() {
   const isLoggedIn = useSelector((state: RootState) => state.auth.isLoggedIn);
   const router = useRouter();
 
-  const checkLogin = (onAuthenticated: () => void) => {
+  const checkLogin = (next: string | (() => void)) => {
     if (isLoggedIn) {
-      onAuthenticated();
+      typeof next === "function" ? next() : router.push(next as never);
     } else {
-      router.push("/authentication/sign-in");
+      const redirectTo = typeof next === "string" ? next : "/";
+      router.push(
+        `/authentication/sign-in?redirect=${encodeURIComponent(redirectTo)}`
+      );
     }
   };
 

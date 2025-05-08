@@ -1,30 +1,17 @@
 import { account, databases } from "@/services/appwrite";
 import { AppwriteConfig } from "@/constants/AppwriteConfig";
 import { setLoading } from "@/redux/slices/loadingSlice";
-import { useDispatch } from "react-redux";
-import { AppDispatch } from "@/redux/store";
-import { useProfileData } from "@/hooks/useProfileData";
 import { Alert } from "react-native";
 import { router } from "expo-router";
-import { useFieldState } from "@/hooks/useFieldState";
 
-interface EditState {
-  value: string;
-  showDatePicker: boolean;
-}
-
-type Props = {
-  key: string;
-  label: string;
-  edit: ReturnType<typeof useFieldState<EditState>>;
-};
-
-export default function EditFieldController({ key, label, edit }: Props) {
-  const dispatch = useDispatch<AppDispatch>();
-  const { fetchProfile } = useProfileData();
-  const { value, showDatePicker, setFieldState } = edit;
-
-  const handleSave = async () => {
+const EditFieldController = {
+  async handleSave(
+    key: string,
+    value: string,
+    label: string,
+    dispatch: any,
+    fetchProfile: () => Promise<void>
+  ) {
     if (!key) return;
     dispatch(setLoading(true));
     try {
@@ -47,21 +34,21 @@ export default function EditFieldController({ key, label, edit }: Props) {
     } finally {
       dispatch(setLoading(false));
     }
-  };
+  },
 
-  const toggleDatePicker = (isVisible: boolean) => {
+  toggleDatePicker(
+    setFieldState: (key: keyof any, value: any) => void,
+    isVisible: boolean
+  ) {
     setFieldState("showDatePicker", isVisible);
-  };
+  },
 
-  const setValue = (newValue: string) => {
+  setValue(
+    setFieldState: (key: keyof any, value: any) => void,
+    newValue: string
+  ) {
     setFieldState("value", newValue);
-  };
+  },
+};
 
-  return {
-    value,
-    setValue,
-    handleSave,
-    showDatePicker,
-    toggleDatePicker,
-  };
-}
+export default EditFieldController;

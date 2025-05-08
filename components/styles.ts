@@ -1,4 +1,4 @@
-import { StyleSheet } from "react-native";
+import { StatusBar, StyleSheet } from "react-native";
 import { Colors } from "@/constants/Colors";
 
 const baseTextStyle = {
@@ -57,6 +57,22 @@ const styles = StyleSheet.create({
   buttonText: {
     fontFamily: "RobotoMedium",
     color: Colors.brand.accent,
+  },
+  addModalSheet: {
+    backgroundColor: "white",
+    borderRadius: 16,
+    padding: 16,
+    height: 150,
+    width: 270,
+    alignSelf: "center",
+    borderColor: Colors.ui.shadow,
+    borderWidth: 1.5,
+    zIndex: 1,
+    marginBottom: StatusBar.currentHeight || 0,
+  },
+  addModalText: {
+    fontSize: 16,
+    fontFamily: "RobotoRegular",
   },
 });
 

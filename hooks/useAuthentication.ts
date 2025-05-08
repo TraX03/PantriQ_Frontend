@@ -38,7 +38,6 @@ export function useAuthentication() {
         const currentUser = await account.get();
         dispatch(setUser(currentUser));
         dispatch(setLoading(false));
-        router.replace("/");
       } catch (error) {
         handleError("Login", error);
       }

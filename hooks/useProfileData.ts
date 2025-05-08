@@ -1,15 +1,11 @@
 import { useCallback } from "react";
 import { account, databases, storage } from "@/services/appwrite";
 import { AppwriteConfig } from "@/constants/AppwriteConfig";
-import reactotron from "reactotron-react-native";
 import { setLoading } from "@/redux/slices/loadingSlice";
-import {
-  setProfileData,
-  resetProfileData,
-  guestProfile,
-} from "@/redux/slices/profileSlice";
-import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch, RootState } from "@/redux/store";
+//prettier-ignore
+import { setProfileData, resetProfileData, guestProfile } from "@/redux/slices/profileSlice";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/redux/store";
 
 export function useProfileData() {
   const dispatch = useDispatch<AppDispatch>();
@@ -57,6 +53,7 @@ export function useProfileData() {
 
       const mappedProfileData = {
         username: userData.username,
+        id: userData.user_id,
         avatarUrl: avatarUrl,
         bio: userData.bio,
         gender: userData.gender,

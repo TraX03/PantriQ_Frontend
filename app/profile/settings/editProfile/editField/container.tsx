@@ -3,6 +3,9 @@ import { useLocalSearchParams } from "expo-router";
 import EditFieldController from "./controller";
 import EditFieldComponent from "./component";
 import { useFieldState } from "@/hooks/useFieldState";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/redux/store";
+import { useProfileData } from "@/hooks/useProfileData";
 
 const fieldLabels: Record<string, string> = {
   username: "Username",
@@ -14,6 +17,9 @@ const fieldLabels: Record<string, string> = {
 };
 
 export default function EditFieldContainer() {
+  const dispatch = useDispatch<AppDispatch>();
+  const { fetchProfile } = useProfileData();
+
   const { key, size, data } = useLocalSearchParams<{
     key: string;
     size: string;
@@ -40,7 +46,25 @@ export default function EditFieldContainer() {
     showDatePicker: false,
   });
 
-  const controller = EditFieldController({ key, label, edit });
+  const controller = {
+    value: edit.value,
+    setValue: (newValue: string) => {
+      edit.setFieldState("value", newValue);
+    },
+    handleSave: () => {
+      EditFieldController.handleSave(
+        key,
+        edit.value,
+        label,
+        dispatch,
+        fetchProfile
+      );
+    },
+    showDatePicker: edit.showDatePicker,
+    toggleDatePicker: (isVisible: boolean) => {
+      edit.setFieldState("showDatePicker", isVisible);
+    },
+  };
 
   return (
     <EditFieldComponent
