@@ -2,43 +2,40 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { ValidationErrors, AuthErrors } from "@/constants/Errors";
 import { useAuthentication } from "@/hooks/useAuthentication";
 import { useFieldState } from "@/hooks/useFieldState";
-import { AuthFormState } from "./component";
-import { Props as AuthFormProps } from "./container";
 
-type Props = AuthFormProps & {
-  form: ReturnType<typeof useFieldState<AuthFormState>>;
-};
+export interface AuthFormState {
+  email: string;
+  password: string;
+  errorTitle: string;
+  errorMessage: string;
+  showErrorModal: boolean;
+}
 
-const AuthFormController = ({ mode, form }: Props) => {
+export type AuthMode = "signUp" | "signIn";
+
+export const useAuthController = (mode: AuthMode) => {
   const { login, signUp } = useAuthentication();
   const router = useRouter();
   const { redirect } = useLocalSearchParams();
-  const { email, password, setFieldState } = form;
+
+  const authForm = useFieldState<AuthFormState>({
+    email: "",
+    password: "",
+    errorTitle: "",
+    errorMessage: "",
+    showErrorModal: false,
+  });
+
+  const { email, password, setFieldState } = authForm;
 
   const isValidEmail = (email: string) => /\S+@\S+\.\S+/.test(email);
+
   const isValidPassword = (password: string) =>
     /^(?=.*[A-Z])(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).{8,}$/.test(
       password
     );
+
   const extractUsername = (email: string) => email.split("@")[0];
-
-  const handleSubmit = async () => {
-    if (mode === "sign-up" && !validateForm()) return;
-
-    try {
-      if (mode === "sign-up") {
-        await signUp(email, password, extractUsername(email));
-        // router.replace("/onboarding/component");
-        router.replace("/");
-      } else {
-        await login(email, password);
-        const redirectTo = typeof redirect === "string" ? redirect : "/";
-        router.replace(redirectTo as never);
-      }
-    } catch (error: any) {
-      await handleAuthError(error);
-    }
-  };
 
   const validateForm = () => {
     if (!isValidEmail(email)) {
@@ -88,9 +85,38 @@ const AuthFormController = ({ mode, form }: Props) => {
     setFieldState("showErrorModal", true);
   };
 
+  const closeErrorModal = () => {
+    setFieldState("showErrorModal", false);
+    setFieldState("errorMessage", "");
+  };
+
+  const handleSubmit = async () => {
+    if (mode === "signUp" && !validateForm()) return;
+
+    try {
+      if (mode === "signUp") {
+        await signUp(email, password, extractUsername(email));
+        router.replace("/");
+      } else {
+        await login(email, password);
+        const redirectTo = typeof redirect === "string" ? redirect : "/";
+        router.replace(redirectTo as never);
+      }
+    } catch (error: any) {
+      await handleAuthError(error);
+    }
+  };
+
+  const updateField = (field: keyof AuthFormState, value: string) => {
+    setFieldState(field, value);
+  };
+
   return {
+    authForm,
     handleSubmit,
+    updateField,
+    closeErrorModal,
   };
 };
 
-export default AuthFormController;
+export default useAuthController;

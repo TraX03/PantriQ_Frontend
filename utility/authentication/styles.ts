@@ -55,4 +55,17 @@ export const styles = StyleSheet.create({
     height: 1,
     backgroundColor: Colors.brand.accent,
   },
+
+  //misc
+  input: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 12,
+    borderWidth: 2,
+    marginBottom: 6,
+    backgroundColor: Colors.brand.accent,
+    borderColor: Colors.brand.main,
+  },
 });

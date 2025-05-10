@@ -41,6 +41,7 @@ export default function ProfileComponent({
     );
 
   const { activeTab, posts, setFieldState } = profile;
+
   const {
     username,
     avatarUrl,
@@ -134,7 +135,9 @@ export default function ProfileComponent({
           {["Posts", "Collections", "Likes"].map((tab) => (
             <Pressable
               key={tab}
-              onPress={() => setFieldState("activeTab", tab)}
+              onPress={() =>
+                setFieldState("activeTab", tab as ProfileState["activeTab"])
+              }
             >
               <Text
                 style={{

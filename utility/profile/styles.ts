@@ -23,7 +23,7 @@ export const styles = StyleSheet.create({
   headerContainer: {
     flex: 1,
     backgroundColor: Colors.brand.accent,
-    paddingTop: 65,
+    paddingTop: 60,
   },
   avatarContainer: {
     width: 88,
@@ -172,7 +172,7 @@ export const styles = StyleSheet.create({
   input: {
     paddingHorizontal: 16,
     paddingVertical: 8,
-    paddingRight: 56,
+    paddingRight: 45,
     fontSize: 14,
     borderRadius: 8,
     borderWidth: 1,

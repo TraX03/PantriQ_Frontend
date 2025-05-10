@@ -1,6 +1,12 @@
 import React, { useMemo } from "react";
-//prettier-ignore
-import { View, Text, TouchableOpacity, ImageBackground, Image, Pressable } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  ImageBackground,
+  Image,
+  Pressable,
+} from "react-native";
 import { Colors } from "@/constants/Colors";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { styles } from "@/utility/profile/styles";
@@ -8,12 +14,13 @@ import { router, Stack } from "expo-router";
 import ErrorScreen from "@/components/ErrorScreen";
 import { maskEmail } from "@/utility/mask";
 import { ProfileData } from "@/redux/slices/profileSlice";
+import HeaderBar from "@/components/HeaderBar";
 
 type Props = {
   profileData: ProfileData | null;
   loading: boolean;
   isBackgroundDark: boolean;
-  onChangeImagePress: (fieldKey: "profile_bg" | "avatar") => Promise<void>
+  onChangeImagePress: (fieldKey: "profile_bg" | "avatar") => Promise<void>;
 };
 
 export default function EditProfileComponent({
@@ -85,17 +92,7 @@ export default function EditProfileComponent({
     <>
       <Stack.Screen options={{ headerShown: false }} />
       <View style={styles.headerContainer}>
-        <View className="flex-row items-center px-4 py-3">
-          <TouchableOpacity onPress={() => router.back()}>
-            <IconSymbol
-              name="chevron.left"
-              color={Colors.brand.dark}
-              size={30}
-            />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>Edit Profile</Text>
-        </View>
-
+        <HeaderBar title="Edit Profile" />
         <ImageBackground
           source={{ uri: profileBg }}
           style={{

@@ -1,6 +1,6 @@
 import { Colors } from "@/constants/Colors";
 import React from "react";
-import { Modal, View, Text, Pressable, Image } from "react-native";
+import { Modal, Text, Pressable, Image } from "react-native";
 import styles from "./styles";
 
 interface NotificationModalProps {

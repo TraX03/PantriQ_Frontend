@@ -1,149 +1,147 @@
 import React from "react";
-//prettier-ignore
-import { View, Text, TextInput, TouchableOpacity, Image, ScrollView } from "react-native";
-import { router, Stack } from "expo-router";
-import { IconSymbol } from "@/components/ui/IconSymbol";
-import { Colors } from "@/constants/Colors";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  ScrollView,
+  TouchableWithoutFeedback,
+  Keyboard,
+} from "react-native";
+import { Stack } from "expo-router";
 import { styles as profileStyles } from "@/utility/profile/styles";
 import { styles as editStyles } from "@/utility/profile/styles";
 import { styles } from "@/utility/create/styles";
 import { useFieldState } from "@/hooks/useFieldState";
-
-export interface CreateFormState {
-  title: string;
-  content: string;
-  images: string[];
-  postType: "discussion" | "tips";
-}
+import HeaderBar from "@/components/HeaderBar";
+import InputBox from "@/components/InputBox";
+import ImageUploader from "@/components/ImageUploader";
+import IngredientsForm from "@/components/IngredientsForm";
+import PostTypeSelector from "@/components/PostTypeSelector";
+import { CreateFormState } from "./controller";
 
 type Props = {
   create: ReturnType<typeof useFieldState<CreateFormState>>;
-  handlePickImage: () => void;
-  handleSubmit: () => void;
+  controller: {
+    handlePickImage: () => void;
+    handleSubmit: () => void;
+    updateIngredient: (
+      index: number,
+      field: "name" | "quantity",
+      value: string
+    ) => void;
+    addIngredient: () => void;
+    removeIngredient: (index: number) => void;
+    selectSuggestion: (index: number, suggestion: string) => void;
+  };
 };
 
-export default function CreateFormComponent({
-  create,
-  handlePickImage,
-  handleSubmit,
-}: Props) {
-  const { title, content, images, postType, setFieldState } = create;
+export default function CreateFormComponent({ create, controller }: Props) {
+  const { setFieldState } = create;
+  const { title, content, images, postType, ingredients } = create;
 
   return (
     <>
       <Stack.Screen options={{ headerShown: false }} />
-      <ScrollView style={profileStyles.headerContainer}>
-        <View className="flex-row items-center px-4 py-3">
-          <TouchableOpacity onPress={() => router.back()}>
-            <IconSymbol
-              name="chevron.left"
-              color={Colors.brand.dark}
-              size={30}
+      <TouchableWithoutFeedback
+        onPress={() => {
+          Keyboard.dismiss();
+          setFieldState("focusedIndex", null);
+        }}
+        accessible={false}
+      >
+        <ScrollView
+          keyboardShouldPersistTaps="handled"
+          style={profileStyles.headerContainer}
+        >
+          <HeaderBar
+            title={
+              postType === "recipe"
+                ? "Create New Recipe"
+                : postType === "community"
+                ? "Create New Community"
+                : "Create New Post"
+            }
+          />
+
+          <View className="px-4 py-2">
+            <ImageUploader
+              images={images}
+              onPickImage={controller.handlePickImage}
             />
-          </TouchableOpacity>
-          <Text style={profileStyles.headerTitle}>Create New Post</Text>
-        </View>
-        <View className="px-4 py-2">
-          <Text style={styles.inputTitle}>Image</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            <View
-              style={{
-                flexDirection: "row",
-                alignItems: "center",
-                marginBottom: 16,
-              }}
+
+            {postType === "recipe" && (
+              <IngredientsForm create={create} controller={controller} />
+            )}
+
+            {(postType === "tips" || postType === "discussion") && (
+              <PostTypeSelector
+                postType={postType}
+                setPostType={(type) => setFieldState("postType", type)}
+              />
+            )}
+
+            <Text style={styles.inputTitle}>
+              {postType === "community" ? "Community Name" : "Title"}
+            </Text>
+            <InputBox
+              placeholder={
+                postType === "community"
+                  ? "Enter community name"
+                  : "Enter post title"
+              }
+              value={title}
+              onChangeText={(text) => setFieldState("title", text)}
+              inputStyle={profileStyles.input}
+              limit={50}
+              isMultiline
+            />
+
+            <Text style={styles.inputTitle}>
+              {postType === "community" || postType === "recipe"
+                ? "Description"
+                : "Content"}
+            </Text>
+            <InputBox
+              placeholder={
+                postType === "community"
+                  ? "Briefly introduce your community"
+                  : postType === "recipe"
+                  ? "Add a short description of your recipe"
+                  : "Share your thoughts or ask a question"
+              }
+              value={content}
+              onChangeText={(text) => setFieldState("content", text)}
+              inputStyle={profileStyles.input}
+              limit={
+                postType === "community" || postType === "recipe" ? 160 : 2000
+              }
+              isMultiline
+            />
+
+            <TouchableOpacity
+              style={[
+                editStyles.saveButton,
+                {
+                  opacity:
+                    !title ||
+                    !content ||
+                    (postType === "recipe" && ingredients.length === 0)
+                      ? 0.8
+                      : 1,
+                },
+              ]}
+              onPress={controller.handleSubmit}
+              disabled={
+                !title ||
+                !content ||
+                (postType === "recipe" && ingredients.length === 0)
+              }
             >
-              {images.map((uri, index) => (
-                <Image
-                  key={index}
-                  source={{ uri }}
-                  className="w-32 h-32 rounded mr-3"
-                  resizeMode="cover"
-                />
-              ))}
-
-              {images.length < 5 && (
-                <TouchableOpacity
-                  onPress={handlePickImage}
-                  className="w-32 h-32 rounded items-center justify-center mr-3"
-                  style={{
-                    backgroundColor: Colors.ui.border,
-                    opacity: 0.3,
-                    elevation: 2,
-                  }}
-                >
-                  <IconSymbol
-                    name="plus"
-                    color={Colors.text.secondary}
-                    size={30}
-                  />
-                </TouchableOpacity>
-              )}
-            </View>
-          </ScrollView>
-
-          <Text style={styles.inputTitle}>Post Type</Text>
-          <View className="flex-row mb-4 gap-3">
-            {["discussion", "tips"].map((type) => (
-              <TouchableOpacity
-                key={type}
-                onPress={() =>
-                  setFieldState("postType", type as "discussion" | "tips")
-                }
-                className={`flex-row items-center px-4 py-2 rounded-full border`}
-                style={{
-                  borderColor:
-                    postType === type
-                      ? Colors.brand.main
-                      : Colors.text.placeholder,
-                }}
-              >
-                <View
-                  className="w-5 h-5 rounded-full border items-center justify-center mr-2"
-                  style={{
-                    borderColor:
-                      postType === type
-                        ? Colors.brand.main
-                        : Colors.text.placeholder,
-                  }}
-                >
-                  {postType === type && (
-                    <View style={profileStyles.radioButtom} />
-                  )}
-                </View>
-
-                <Text className="capitalize">
-                  {type === "tips" ? "Tips & Advice" : type}
-                </Text>
-              </TouchableOpacity>
-            ))}
+              <Text style={editStyles.saveButtonText}>Submit</Text>
+            </TouchableOpacity>
           </View>
-
-          <Text style={styles.inputTitle}>Title</Text>
-          <TextInput
-            value={title}
-            onChangeText={(text) => setFieldState("title", text)}
-            placeholder="Enter post title"
-            className="border border-gray-300 rounded p-2 mb-4"
-          />
-
-          <Text style={styles.inputTitle}>Content</Text>
-          <TextInput
-            value={content}
-            onChangeText={(text) => setFieldState("content", text)}
-            placeholder="Enter post content"
-            multiline
-            className="border border-gray-300 rounded p-2 mb-4 text-base"
-          />
-
-          <TouchableOpacity
-            style={editStyles.saveButton}
-            onPress={handleSubmit}
-          >
-            <Text style={editStyles.saveButtonText}>Submit</Text>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
+        </ScrollView>
+      </TouchableWithoutFeedback>
     </>
   );
 }

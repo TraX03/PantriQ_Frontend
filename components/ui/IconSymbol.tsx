@@ -27,6 +27,7 @@ const MAPPING = {
   clock: { name: "history", type: "MaterialIcons" },
   plus: { name: "plus", type: "Octicons" },
   "person.2.fill": { name: "users", type: "Feather" },
+  "multiply.circle.fill": { name: "x-circle-fill", type: "Octicons" }
 } as const;
 
 export type IconSymbolName = keyof typeof MAPPING;

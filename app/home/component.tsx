@@ -1,15 +1,16 @@
-//prettier-ignore
-import { ScrollView, View, Text, Pressable, RefreshControl } from "react-native";
+import {
+  ScrollView,
+  View,
+  Text,
+  Pressable,
+  RefreshControl,
+} from "react-native";
 import { Colors } from "@/constants/Colors";
 import PostCard, { Post } from "@/components/PostCard";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { styles } from "@/utility/home/styles";
 import { useFieldState } from "@/hooks/useFieldState";
-
-interface HomeState {
-  activeTab: string;
-  activeSuggestion: string;
-}
+import { HomeState } from "./controller";
 
 type Props = {
   suggestions: string[];
@@ -26,7 +27,36 @@ export default function HomeComponent({
   onRefresh,
   refreshing,
 }: Props) {
-  const { activeTab, activeSuggestion, setFieldState } = home;
+  const { activeTab, activeSuggestion } = home;
+  const { setFieldState } = home;
+
+  const renderPosts = () => {
+    if (activeTab !== "Explore") return null;
+
+    if (activeSuggestion === "Communities") {
+      return (
+        <View>
+          {filteredPosts.map((post) => (
+            <PostCard key={post.id} post={post} onPress={() => {}} />
+          ))}
+        </View>
+      );
+    }
+
+    return (
+      <View className="flex-row justify-between flex-wrap">
+        {[0, 1].map((colIndex) => (
+          <View key={colIndex} className="w-[48%]">
+            {filteredPosts
+              .filter((_, i) => i % 2 === colIndex)
+              .map((post) => (
+                <PostCard key={post.id} post={post} onPress={() => {}} />
+              ))}
+          </View>
+        ))}
+      </View>
+    );
+  };
 
   return (
     <View style={styles.container}>
@@ -35,7 +65,9 @@ export default function HomeComponent({
           {["Follow", "Explore"].map((tab) => (
             <Pressable
               key={tab}
-              onPress={() => setFieldState("activeTab", tab)}
+              onPress={() =>
+                setFieldState("activeTab", tab as HomeState["activeTab"])
+              }
             >
               <Text
                 style={[
@@ -105,33 +137,7 @@ export default function HomeComponent({
           })}
         </ScrollView>
 
-        {activeTab === "Explore" && (
-          <View className="p-2">
-            {activeSuggestion === "Communities" ? (
-              <View>
-                {filteredPosts.map((post) => (
-                  <PostCard key={post.id} post={post} onPress={() => {}} />
-                ))}
-              </View>
-            ) : (
-              <View className="flex-row justify-between flex-wrap">
-                {[0, 1].map((colIndex) => (
-                  <View key={colIndex} className="w-[48%]">
-                    {filteredPosts
-                      .filter((_, i) => i % 2 === colIndex)
-                      .map((post) => (
-                        <PostCard
-                          key={post.id}
-                          post={post}
-                          onPress={() => {}}
-                        />
-                      ))}
-                  </View>
-                ))}
-              </View>
-            )}
-          </View>
-        )}
+        <View className="p-2">{renderPosts()}</View>
       </ScrollView>
     </View>
   );

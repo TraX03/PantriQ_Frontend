@@ -1,28 +1,24 @@
 import React from "react";
 import AuthFormComponent from "./component";
-import AuthFormController from "./controller";
-import { useFieldState } from "@/hooks/useFieldState";
+import { useAuthController, AuthMode } from "./controller";
 
 export type Props = {
   mode: "sign-in" | "sign-up";
 };
 
 export default function AuthFormContainer({ mode }: Props) {
-  const auth = useFieldState({
-    email: "",
-    password: "",
-    errorTitle: "",
-    errorMessage: "",
-    showErrorModal: false,
-  });
+  const authMode: AuthMode = mode === "sign-up" ? "signUp" : "signIn";
 
-  const controller = AuthFormController({ mode, form: auth });
+  const { authForm, handleSubmit, updateField, closeErrorModal } =
+    useAuthController(authMode);
 
   return (
     <AuthFormComponent
-      mode={mode === "sign-up" ? "signUp" : "signIn"}
-      auth={auth}
-      onSubmit={controller.handleSubmit}
+      mode={authMode}
+      auth={authForm}
+      onSubmit={handleSubmit}
+      updateField={updateField}
+      closeErrorModal={closeErrorModal}
     />
   );
 }
