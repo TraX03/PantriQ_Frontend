@@ -1,16 +1,13 @@
-import { fetchIngredients } from "@/services/api";
+import { fetchIngredients } from "@/services/MealDbApi";
 import { useEffect, useState } from "react";
 
 export const useIngredientSuggestions = () => {
   const [allIngredients, setAllIngredients] = useState<string[]>([]);
-  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const loadIngredients = async () => {
-      setLoading(true);
       const list = await fetchIngredients();
       setAllIngredients(list);
-      setLoading(false);
     };
 
     loadIngredients();
@@ -23,5 +20,5 @@ export const useIngredientSuggestions = () => {
       .slice(0, 5);
   };
 
-  return { getSuggestions, loading };
+  return { getSuggestions };
 };

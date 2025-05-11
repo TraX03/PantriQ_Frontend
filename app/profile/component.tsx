@@ -1,6 +1,14 @@
 import React from "react";
-// prettier-ignore
-import { View, Text, TouchableOpacity, Image, ScrollView, ImageBackground, StyleSheet, Pressable } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Image,
+  ScrollView,
+  ImageBackground,
+  StyleSheet,
+  Pressable,
+} from "react-native";
 import { Colors } from "@/constants/Colors";
 import { styles } from "@/utility/profile/styles";
 import { IconSymbol, IconSymbolName } from "@/components/ui/IconSymbol";

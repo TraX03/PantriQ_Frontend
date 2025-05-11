@@ -18,14 +18,11 @@ export interface ProfileData {
   id?: string;
 }
 
-export const guestPicture: string = "680778f2002d348f9b72"
+export const guestPicture: string = "6820391600141fa25422";
 
 export const guestProfile: ProfileData = {
   username: "Guest",
-  avatarUrl: storage.getFileView(
-    AppwriteConfig.BUCKET_ID,
-    guestPicture
-  ).href,
+  avatarUrl: storage.getFileView(AppwriteConfig.BUCKET_ID, guestPicture).href,
   followersCount: 0,
   followingCount: 0,
 };

@@ -4,7 +4,7 @@ import { databases, storage } from "@/services/appwrite";
 import { Query } from "react-native-appwrite";
 import { useFieldState } from "@/hooks/useFieldState";
 import { useEffect, useCallback } from "react";
-import { mockPosts } from "@/data/mockPosts";
+import { fetchSampleMeals } from "@/services/MealDbApi";
 
 export interface HomeState {
   activeTab: "Follow" | "Explore";
@@ -32,19 +32,17 @@ export const useHomeController = () => {
 
   const fetchPosts = useCallback(async (): Promise<Post[]> => {
     try {
+      // Fetch posts (recipe, tips, discussion)
       const postRes = await databases.listDocuments(
         AppwriteConfig.DATABASE_ID,
         AppwriteConfig.POSTS_COLLECTION_ID
       );
-
       const postsRaw = postRes.documents;
 
-      if (postsRaw.length === 0) {
-        return [];
-      }
-
-      const authorIds = [...new Set(postsRaw.map((doc) => doc.author_id))];
-
+      // Fetch user info
+      const authorIds = [
+        ...new Set(postRes.documents.map((doc) => doc.author_id)),
+      ];
       const usersRes = await databases.listDocuments(
         AppwriteConfig.DATABASE_ID,
         AppwriteConfig.USERS_COLLECTION_ID,
@@ -61,14 +59,14 @@ export const useHomeController = () => {
         ])
       );
 
-      return postsRaw.map((doc) => {
+      const appwritePosts: Post[] = postsRaw.map((doc) => {
         const author = usersMap.get(doc.author_id);
-
         return {
           id: doc.$id,
           type: doc.type,
           title: doc.title,
-          image: storage.getFileView(AppwriteConfig.BUCKET_ID, doc.image).href,
+          image: storage.getFileView(AppwriteConfig.BUCKET_ID, doc.image[0])
+            .href,
           author: author?.name,
           profilePic: storage.getFileView(
             AppwriteConfig.BUCKET_ID,
@@ -76,6 +74,26 @@ export const useHomeController = () => {
           ).href,
         };
       });
+
+      // Fetch community posts
+      const communityRes = await databases.listDocuments(
+        AppwriteConfig.DATABASE_ID,
+        AppwriteConfig.COMMUNITIES_COLLECTION_ID
+      );
+
+      const communityPosts: Post[] = communityRes.documents.map((doc) => ({
+        id: doc.$id,
+        type: "community",
+        title: doc.name,
+        image: storage.getFileView(AppwriteConfig.BUCKET_ID, doc.image).href,
+        membersCount: doc.members_count,
+        recipesCount: doc.recipes_count,
+      }));
+
+      // Sample meals
+      const mealPosts = await fetchSampleMeals();
+
+      return [...appwritePosts, ...communityPosts, ...mealPosts];
     } catch (error) {
       console.error("Failed to fetch home posts", error);
       return [];
@@ -84,44 +102,29 @@ export const useHomeController = () => {
 
   const refreshPosts = useCallback(async () => {
     setFieldState("refreshing", true);
-    try {
-      // const fetchedPosts = await fetchPosts();
-      // setFieldState("posts", fetchedPosts);
-
-      setFieldState("posts", mockPosts);
-    } catch (error) {
-      console.error("Error refreshing posts:", error);
-    } finally {
-      setFieldState("refreshing", false);
-    }
-  }, []);
+    const fetchedPosts = await fetchPosts();
+    setFieldState("posts", fetchedPosts);
+    setFieldState("refreshing", false);
+  }, [fetchPosts]);
 
   const filterPosts = useCallback(
-    (posts: Post[], activeSuggestion: string): Post[] => {
-      return posts.filter((post) => {
-        switch (activeSuggestion) {
-          case "Recipe":
-            return post.type === "recipe";
-          case "Tips & Advice":
-            return post.type === "tips";
-          case "Communities":
-            return post.type === "community";
-          case "Discussions":
-            return post.type === "discussion";
-          default:
-            return true;
-        }
-      });
+    (posts: Post[], suggestion: string): Post[] => {
+      const typeMap: Record<string, Post["type"]> = {
+        Recipe: "recipe",
+        "Tips & Advice": "tips",
+        Communities: "community",
+        Discussions: "discussion",
+      };
+      return posts.filter((post) => post.type === typeMap[suggestion]);
     },
     []
   );
 
+  const filteredPosts = filterPosts(posts, activeSuggestion);
+
   useEffect(() => {
     refreshPosts();
   }, [refreshPosts]);
-
-  // const filteredPosts = filterPosts(posts, activeSuggestion);
-  const filteredPosts = filterPosts(mockPosts, activeSuggestion);
 
   return {
     home,

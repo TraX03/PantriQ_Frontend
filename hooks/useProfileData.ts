@@ -2,8 +2,11 @@ import { useCallback } from "react";
 import { account, databases, storage } from "@/services/appwrite";
 import { AppwriteConfig } from "@/constants/AppwriteConfig";
 import { setLoading } from "@/redux/slices/loadingSlice";
-//prettier-ignore
-import { setProfileData, resetProfileData, guestProfile } from "@/redux/slices/profileSlice";
+import {
+  setProfileData,
+  resetProfileData,
+  guestProfile,
+} from "@/redux/slices/profileSlice";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/redux/store";
 

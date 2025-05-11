@@ -74,6 +74,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: "RobotoRegular",
   },
+  modalContainer: {
+    flex: 1,
+    backgroundColor: Colors.ui.overlayDark,
+    justifyContent: "center",
+    alignItems: "center",
+  },
 });
 
 export default styles;

@@ -21,7 +21,7 @@ export const styles = StyleSheet.create({
   // Text
   inputTitle: {
     fontFamily: "RobotoMedium",
-    fontSize: 16,
+    fontSize: 18,
     marginBottom: 8,
   },
   linkText: {
@@ -29,12 +29,36 @@ export const styles = StyleSheet.create({
     fontFamily: "RobotoRegular",
     marginBottom: 8,
   },
+  stepText: {
+    fontFamily: "RobotoMedium",
+    color: Colors.brand.main,
+    marginBottom: 8,
+    marginTop: 4,
+    fontSize: 16,
+  },
+  stepButtonText: {
+    textAlign: "center",
+    fontFamily: "RobotoRegular",
+    color: Colors.brand.accent,
+  },
 
   // Button
   addImageButton: {
-    backgroundColor: Colors.ui.border,
-    opacity: 0.3,
+    backgroundColor: Colors.ui.grayButtonFill,
     elevation: 2,
+  },
+  removeButton: {
+    position: "absolute",
+    top: -8,
+    right: -8,
+    borderRadius: 9999,
+    backgroundColor: Colors.ui.overlayLight,
+  },
+  addStepButton: {
+    backgroundColor: Colors.brand.main,
+    padding: 10,
+    borderRadius: 10,
+    marginBottom: 20,
   },
 
   // Misc

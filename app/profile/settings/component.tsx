@@ -1,15 +1,27 @@
 import React from "react";
-// prettier-ignore
-import { Text, TouchableOpacity, ScrollView, View } from "react-native";
+import { Text, TouchableOpacity, ScrollView, View, Image } from "react-native";
 import { styles } from "@/utility/profile/styles";
-import { Stack } from "expo-router";
+import { router, Stack } from "expo-router";
 import HeaderBar from "@/components/HeaderBar";
+import { Colors } from "@/constants/Colors";
+import { ProfileData } from "@/redux/slices/profileSlice";
+import ErrorScreen from "@/components/ErrorScreen";
+import { IconSymbol } from "@/components/ui/IconSymbol";
 
 type Props = {
+  profileData: ProfileData | null;
   onLogout: () => void;
 };
 
-export default function SettingsComponent({ onLogout }: Props) {
+export default function SettingsComponent({ profileData, onLogout }: Props) {
+  if (!profileData) {
+    return (
+      <ErrorScreen message="Something went wrong while loading your profile data. Please refresh or try again later." />
+    );
+  }
+
+  const { avatarUrl, username } = profileData;
+
   return (
     <>
       <Stack.Screen options={{ headerShown: false }} />
@@ -18,7 +30,36 @@ export default function SettingsComponent({ onLogout }: Props) {
         contentContainerStyle={{ flexGrow: 1 }}
       >
         <HeaderBar title="Settings" />
-        <View className="items-center px-4 py-3 justify-center flex-1 bg-slate-400">
+        <TouchableOpacity
+          onPress={() => router.push("/profile/settings/editProfile/container")}
+        >
+          <View style={styles.settingsTab}>
+            <View
+              style={[
+                styles.avatarContainer,
+                { width: 70, height: 70, elevation: 4 },
+              ]}
+            >
+              <Image
+                source={{ uri: avatarUrl }}
+                style={styles.avatar}
+                resizeMode="cover"
+              />
+            </View>
+
+            <View className="flex-1 flex-col ml-6">
+              <Text className="mb-3 font-semibold text-[16px]">{username}</Text>
+              <Text>Edit Profile</Text>
+            </View>
+
+            <IconSymbol
+              name="chevron.right"
+              color={Colors.ui.overlay}
+              size={20}
+            />
+          </View>
+        </TouchableOpacity>
+        <View className="items-center px-4 py-3 justify-center flex-1">
           <TouchableOpacity onPress={onLogout} style={styles.logoutButton}>
             <Text style={styles.logoutButtonText}>Log Out</Text>
           </TouchableOpacity>

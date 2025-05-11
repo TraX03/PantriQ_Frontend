@@ -10,7 +10,7 @@ import { useFieldState } from "@/hooks/useFieldState";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/redux/store";
 import { useLocalSearchParams, router } from "expo-router";
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 
 export interface CreateFormState {
   title: string;
@@ -19,6 +19,10 @@ export interface CreateFormState {
   postType: "recipe" | "tips" | "discussion" | "community";
   ingredients: { name: string; quantity: string }[];
   focusedIndex: number | null;
+  instructions: {
+    image?: string;
+    text: string;
+  }[];
 }
 
 export const useCreateFormController = () => {
@@ -34,13 +38,14 @@ export const useCreateFormController = () => {
     postType: initialPostType,
     ingredients: [],
     focusedIndex: null,
+    instructions: [{ text: "", image: undefined }],
   });
 
   const handlePickImage = useCallback(async () => {
     if (create.images.length >= 5) return;
 
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      mediaTypes: "images",
       allowsEditing: true,
       quality: 1,
     });
@@ -88,22 +93,27 @@ export const useCreateFormController = () => {
   };
 
   const handleSubmit = useCallback(async () => {
-    const { title, content, postType, images } = create;
-
-    if (!title || !content || !postType) {
-      Alert.alert("Error", "Please fill out all fields.");
-      return;
-    }
-
-    if (postType === "recipe" && create.ingredients.length === 0) {
-      Alert.alert(
-        "Error",
-        "Please add at least one ingredient for your recipe."
-      );
-      return;
-    }
-
+    const { title, content, postType, images, ingredients, instructions } =
+      create;
     dispatch(setLoading(true));
+
+    const getSuccessMessage = () =>
+      `${
+        postType === "community"
+          ? "Community"
+          : postType === "recipe"
+          ? "Recipe"
+          : "Post"
+      } created successfully!`;
+
+    const getErrorMessage = () =>
+      `Failed to create ${
+        postType === "community"
+          ? "community"
+          : postType === "recipe"
+          ? "recipe"
+          : "post"
+      }. Please try again.`;
 
     try {
       const user = await account.get();
@@ -113,36 +123,74 @@ export const useCreateFormController = () => {
         await Promise.all(images.map((uri) => uploadImage(uri, userId)))
       ).filter((id): id is string => id !== null);
 
-      const newPost = {
-        type: postType,
-        title,
-        content,
+      const baseData = {
         image: uploadedImageIds,
-        author_id: userId,
         created_at: new Date().toISOString(),
-        ingredients: postType === "recipe" ? create.ingredients : undefined,
       };
 
-      await databases.createDocument(
-        AppwriteConfig.DATABASE_ID,
-        AppwriteConfig.POSTS_COLLECTION_ID,
-        ID.unique(),
-        newPost,
-        [
-          Permission.read(Role.user(userId)),
-          Permission.write(Role.user(userId)),
-        ]
-      );
+      if (postType === "community") {
+        const communityData = {
+          ...baseData,
+          name: title,
+          description: content,
+          image: uploadedImageIds[0],
+          creator_id: userId,
+        };
 
-      Alert.alert("Success", "Post created successfully!");
+        await databases.createDocument(
+          AppwriteConfig.DATABASE_ID,
+          AppwriteConfig.COMMUNITIES_COLLECTION_ID,
+          ID.unique(),
+          communityData,
+          [Permission.read(Role.any()), Permission.write(Role.user(userId))]
+        );
+      } else {
+        const postData = {
+          ...baseData,
+          title,
+          content,
+          type: postType,
+          author_id: userId,
+          ...(postType === "recipe" && {
+            ingredients: ingredients.map((item) =>
+              `${item.quantity} ${item.name}`.trim()
+            ),
+            instructions: instructions.map((item) => item.text.trim()),
+          }),
+        };
+
+        await databases.createDocument(
+          AppwriteConfig.DATABASE_ID,
+          AppwriteConfig.POSTS_COLLECTION_ID,
+          ID.unique(),
+          postData,
+          [Permission.read(Role.any()), Permission.write(Role.user(userId))]
+        );
+      }
+
+      Alert.alert("Success", getSuccessMessage());
       router.back();
     } catch (error) {
       console.error("Error creating post:", error);
-      Alert.alert("Error", "Failed to create post. Please try again.");
+      Alert.alert("Error", getErrorMessage());
     } finally {
       dispatch(setLoading(false));
     }
   }, [create, dispatch]);
+
+  const isFormValid = useMemo(() => {
+    const isRecipeValid =
+      create.title.trim() &&
+      create.ingredients.length > 0 &&
+      create.ingredients.every((i) => i.name.trim() && i.quantity.trim()) &&
+      create.instructions.length > 0 &&
+      create.instructions.every((i) => i.text.trim());
+
+    const isCommonValid =
+      create.title.trim() && create.content.trim() && create.images.length > 0;
+
+    return create.postType === "recipe" ? isRecipeValid : isCommonValid;
+  }, [create]);
 
   const updateIngredient = useCallback(
     (index: number, field: "name" | "quantity", value: string) => {
@@ -153,17 +201,16 @@ export const useCreateFormController = () => {
     [create]
   );
 
-  const addIngredient = useCallback(() => {
-    create.setFieldState("ingredients", [
-      ...create.ingredients,
-      { name: "", quantity: "" },
-    ]);
-  }, [create]);
-
-  const removeIngredient = useCallback(
-    (index: number) => {
+  const modifyIngredient = useCallback(
+    (action: "add" | "remove", index?: number) => {
       const updated = [...create.ingredients];
-      updated.splice(index, 1);
+
+      if (action === "add") {
+        updated.push({ name: "", quantity: "" });
+      } else if (action === "remove" && index !== undefined) {
+        updated.splice(index, 1);
+      }
+
       create.setFieldState("ingredients", updated);
     },
     [create]
@@ -180,15 +227,67 @@ export const useCreateFormController = () => {
     [create]
   );
 
+  const modifyInstruction = useCallback(
+    (action: "add" | "remove", index?: number) => {
+      const updated = [...create.instructions];
+
+      if (action === "add") {
+        updated.push({ text: "", image: undefined });
+      } else if (action === "remove" && index !== undefined) {
+        updated.splice(index, 1);
+      }
+
+      create.setFieldState("instructions", updated);
+    },
+    [create]
+  );
+
+  const updateInstruction = useCallback(
+    (index: number, text: string) => {
+      const updated = [...create.instructions];
+      updated[index].text = text;
+      create.setFieldState("instructions", updated);
+    },
+    [create]
+  );
+
+  const updateInstructionImage = useCallback(
+    async (index: number, shouldRemove = false) => {
+      const updated = [...create.instructions];
+
+      if (shouldRemove) {
+        updated[index].image = undefined;
+        create.setFieldState("instructions", updated);
+        return;
+      }
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: "images",
+        allowsEditing: true,
+        quality: 1,
+      });
+
+      if (!result.canceled && result.assets.length > 0) {
+        const uri = result.assets[0].uri;
+        updated[index].image = uri;
+        create.setFieldState("instructions", updated);
+      }
+    },
+    [create]
+  );
+
   return {
     create,
     controller: {
       handlePickImage,
       handleSubmit,
       updateIngredient,
-      addIngredient,
-      removeIngredient,
+      modifyIngredient,
       selectSuggestion,
+      modifyInstruction,
+      updateInstruction,
+      updateInstructionImage,
+      isFormValid,
     },
   };
 };

@@ -4,7 +4,7 @@ import { Colors } from "@/constants/Colors";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { styles } from "@/utility/create/styles";
 import { useIngredientSuggestions } from "@/hooks/useIngredientSuggestions";
-import { CreateFormState } from "@/app/create/createForm/component";
+import { CreateFormState } from "@/app/create/createForm/controller";
 
 type Props = {
   create: ReturnType<
@@ -16,8 +16,7 @@ type Props = {
       field: "name" | "quantity",
       value: string
     ) => void;
-    removeIngredient: (index: number) => void;
-    addIngredient: () => void;
+    modifyIngredient: (action: "add" | "remove", index?: number) => void;
     selectSuggestion: (index: number, suggestion: string) => void;
   };
 };
@@ -62,7 +61,7 @@ export default function IngredientsForm({ create, controller }: Props) {
                 style={styles.inputQuantity}
               />
               <TouchableOpacity
-                onPress={() => controller.removeIngredient(index)}
+                onPress={() => controller.modifyIngredient("remove", index)}
               >
                 <IconSymbol
                   name="multiply.circle.fill"
@@ -92,8 +91,8 @@ export default function IngredientsForm({ create, controller }: Props) {
       })}
 
       <TouchableOpacity
-        onPress={controller.addIngredient}
-        className="mb-5 mt-2"
+        onPress={() => controller.modifyIngredient("add")}
+        className="mb-6 mt-2"
       >
         <Text style={{ color: Colors.brand.main }}>+ Add Ingredient</Text>
       </TouchableOpacity>

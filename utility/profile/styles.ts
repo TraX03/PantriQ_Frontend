@@ -138,7 +138,7 @@ export const styles = StyleSheet.create({
     borderRadius: 12,
     width: 100,
     alignSelf: "flex-end",
-    backgroundColor: Colors.brand.main,
+    backgroundColor: Colors.ui.buttonFill,
   },
   changeBgButton: {
     position: "absolute",
@@ -216,5 +216,13 @@ export const styles = StyleSheet.create({
     backgroundColor: Colors.brand.accent,
     borderTopLeftRadius: 10,
     borderTopRightRadius: 10,
+  },
+  settingsTab: {
+    borderColor: Colors.ui.border,
+    borderTopWidth: 1.2,
+    borderBottomWidth: 1.2,
+    padding: 25,
+    alignItems: "center",
+    flexDirection: "row",
   },
 });

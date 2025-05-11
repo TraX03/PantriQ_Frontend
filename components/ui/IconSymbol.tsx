@@ -1,6 +1,12 @@
 import React from "react";
 import { OpaqueColorValue, StyleProp, TextStyle } from "react-native";
-import { Ionicons, MaterialIcons, Feather, Octicons } from "@expo/vector-icons";
+import {
+  Ionicons,
+  MaterialIcons,
+  Feather,
+  Octicons,
+  MaterialCommunityIcons,
+} from "@expo/vector-icons";
 
 const MAPPING = {
   house: { name: "home-outline", type: "Ionicons" },
@@ -27,7 +33,12 @@ const MAPPING = {
   clock: { name: "history", type: "MaterialIcons" },
   plus: { name: "plus", type: "Octicons" },
   "person.2.fill": { name: "users", type: "Feather" },
-  "multiply.circle.fill": { name: "x-circle-fill", type: "Octicons" }
+  "multiply.circle.fill": { name: "x-circle-fill", type: "Octicons" },
+  "arrow.up.left.and.arrow.down.right": {
+    name: "fullscreen",
+    type: "MaterialCommunityIcons",
+  },
+  trash: { name: "trash-can-outline", type: "MaterialCommunityIcons" },
 } as const;
 
 export type IconSymbolName = keyof typeof MAPPING;
@@ -60,6 +71,7 @@ export function IconSymbol({
     MaterialIcons: MaterialIcons,
     Feather: Feather,
     Octicons: Octicons,
+    MaterialCommunityIcons: MaterialCommunityIcons,
   };
 
   const IconComponent = iconComponentMap[type];

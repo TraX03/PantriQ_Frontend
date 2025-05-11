@@ -2,11 +2,7 @@ import ProfileComponent from "./component";
 import SettingsController from "./controller";
 
 export default function SettingsContainer() {
-  const { handleLogout } = SettingsController();
+  const { profileData, handleLogout } = SettingsController();
 
-  return (
-    <ProfileComponent
-      onLogout={handleLogout}
-    />
-  );
+  return <ProfileComponent profileData={profileData} onLogout={handleLogout} />;
 }

@@ -109,7 +109,11 @@ export const useEditProfileController = () => {
 
     const oldFileId = userDoc[fieldKey];
     if (oldFileId && oldFileId !== guestPicture) {
-      await storage.deleteFile(AppwriteConfig.BUCKET_ID, oldFileId);
+      try {
+        await storage.deleteFile(AppwriteConfig.BUCKET_ID, oldFileId);
+      } catch (err) {
+        console.warn("Failed to delete old file:", err);
+      }
     }
 
     const uploaded = await storage.createFile(

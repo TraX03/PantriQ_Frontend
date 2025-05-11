@@ -16,7 +16,7 @@ export default function PostTypeSelector({ postType, setPostType }: Props) {
   return (
     <>
       <Text style={styles.inputTitle}>Post Type</Text>
-      <View className="flex-row mb-4 gap-3">
+      <View className="flex-row mb-6 gap-3">
         {options.map((type) => (
           <TouchableOpacity
             key={type}
