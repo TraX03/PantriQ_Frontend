@@ -18,7 +18,7 @@ export default function LoadingScreen() {
       <View style={styles.centeredContainer}>
         <Image
           source={require("@/assets/animations/fancy-loading.gif")}
-          style={{ width: 280, height: 280 }}
+          style={{ width: 240, height: 240 }}
         />
       </View>
     </Modal>

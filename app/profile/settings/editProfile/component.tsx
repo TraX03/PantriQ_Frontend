@@ -12,7 +12,7 @@ import { IconSymbol } from "@/components/ui/IconSymbol";
 import { styles } from "@/utility/profile/styles";
 import { router, Stack } from "expo-router";
 import ErrorScreen from "@/components/ErrorScreen";
-import { maskEmail } from "@/utility/mask";
+import { maskEmail } from "@/utility/maskUtils";
 import { ProfileData } from "@/redux/slices/profileSlice";
 import HeaderBar from "@/components/HeaderBar";
 

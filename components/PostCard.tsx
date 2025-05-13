@@ -3,9 +3,11 @@ import { Colors } from "@/constants/Colors";
 import { IconSymbol } from "./ui/IconSymbol";
 import styles from "./styles";
 
+export type PostType = "recipe" | "tips" | "discussion" | "community";
+
 export type Post = {
   id: string;
-  type: "recipe" | "tips" | "discussion" | "community";
+  type: PostType;
   title: string;
   image: string;
   author?: string;

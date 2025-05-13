@@ -15,7 +15,7 @@ export const styles = StyleSheet.create({
   // Text
   titleText: {
     ...baseTextStyle,
-    marginTop: 12,
+    marginTop: 16,
     marginBottom: 12,
     fontSize: 20,
     fontFamily: "SignikaNegativeSC",
@@ -44,7 +44,7 @@ export const styles = StyleSheet.create({
   buttonStyle: {
     alignItems: "center",
     paddingVertical: 12,
-    marginBottom: 96,
+    marginBottom: 65,
     borderRadius: 12,
     backgroundColor: Colors.ui.buttonFill,
   },

@@ -29,10 +29,12 @@ export const guestProfile: ProfileData = {
 
 interface ProfileState {
   userData: ProfileData;
+  refreshProfile: boolean;
 }
 
 const initialState: ProfileState = {
   userData: guestProfile,
+  refreshProfile: false,
 };
 
 export const userSlice = createSlice({
@@ -45,8 +47,12 @@ export const userSlice = createSlice({
     resetProfileData: (state) => {
       state.userData = guestProfile;
     },
+    setRefreshProfile: (state, action: PayloadAction<boolean>) => {
+      state.refreshProfile = action.payload;
+    },
   },
 });
 
-export const { setProfileData, resetProfileData } = userSlice.actions;
+export const { setProfileData, resetProfileData, setRefreshProfile } =
+  userSlice.actions;
 export default userSlice.reducer;

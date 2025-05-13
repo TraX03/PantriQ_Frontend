@@ -62,7 +62,7 @@ export const styles = StyleSheet.create({
   },
 
   // Misc
-  inputIngredient: {
+  inputValue: {
     ...BaseInputBox,
     flex: 1,
   },
@@ -74,7 +74,6 @@ export const styles = StyleSheet.create({
     position: "absolute",
     top: "100%",
     left: 0,
-    width: "69%",
     backgroundColor: Colors.brand.accent,
     borderWidth: 1,
     borderColor: Colors.ui.border,

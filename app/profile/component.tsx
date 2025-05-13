@@ -8,6 +8,7 @@ import {
   ImageBackground,
   StyleSheet,
   Pressable,
+  ActivityIndicator,
 } from "react-native";
 import { Colors } from "@/constants/Colors";
 import { styles } from "@/utility/profile/styles";
@@ -17,14 +18,13 @@ import ErrorScreen from "@/components/ErrorScreen";
 import { ProfileData } from "@/redux/slices/profileSlice";
 import { LinearGradient } from "expo-linear-gradient";
 import { useFieldState } from "@/hooks/useFieldState";
-import { AppwriteConfig } from "@/constants/AppwriteConfig";
-import { storage } from "@/services/appwrite";
 import PostCard from "@/components/PostCard";
 import { ProfileState } from "./controller";
+import { getImageUrl } from "@/utility/imageUtils";
 
 type Props = {
   profileData: ProfileData | null;
-  loading: boolean;
+  isLoading: boolean;
   isLoggedIn: boolean;
   checkLogin: (intendedPage: string) => void;
   profile: ReturnType<typeof useFieldState<ProfileState>>;
@@ -37,18 +37,24 @@ const tabs: { title: string; icon: IconSymbolName }[] = [
 
 export default function ProfileComponent({
   profileData,
-  loading,
+  isLoading,
   isLoggedIn,
   checkLogin,
   profile,
 }: Props) {
-  if (!profileData && loading) return null;
+  if (!profileData && isLoading) return null;
   if (!profileData)
     return (
       <ErrorScreen message="Something went wrong while loading your profile data. Please refresh or try again later." />
     );
 
-  const { activeTab, posts, setFieldState } = profile;
+  const {
+    activeTab,
+    posts,
+    subTab: postSubTab,
+    setFieldState,
+    postLoading,
+  } = profile;
 
   const {
     username,
@@ -162,43 +168,80 @@ export default function ProfileComponent({
           ))}
         </View>
 
+        <View style={styles.subTabHeader}>
+          {["Recipe", "Tips", "Discussion"].map((sub) => (
+            <Pressable
+              key={sub}
+              onPress={() =>
+                setFieldState("subTab", sub as ProfileState["subTab"])
+              }
+            >
+              <Text
+                style={{
+                  fontSize: 15,
+                  color:
+                    postSubTab === sub ? Colors.brand.main : Colors.text.faint,
+                  fontFamily:
+                    postSubTab === sub ? "RobotoBold" : "RobotoRegular",
+                }}
+              >
+                {sub}
+              </Text>
+            </Pressable>
+          ))}
+        </View>
+
         {activeTab === "Posts" && (
           <View className="px-[6px]">
-            {posts.length === 0 ? (
-              <Text style={styles.noPostText}>No posts to display.</Text>
-            ) : (
-              <View className="flex-row justify-between flex-wrap">
-                {[0, 1].map((colIndex) => (
-                  <View key={colIndex} className="w-[48%]">
-                    {posts
-                      .slice()
-                      .sort(
-                        (a, b) =>
-                          new Date(b.created_at).getTime() -
-                          new Date(a.created_at).getTime()
-                      )
-                      .filter((_, i) => i % 2 === colIndex)
-                      .map((post) => (
-                        <PostCard
-                          key={post.$id}
-                          post={{
-                            id: post.$id,
-                            type: post.type,
-                            title: post.title,
-                            image: storage.getFileView(
-                              AppwriteConfig.BUCKET_ID,
-                              post.image[0]
-                            ).href,
-                            author: username,
-                            profilePic: avatarUrl,
-                          }}
-                          onPress={() => {}}
-                        />
-                      ))}
+            {(() => {
+              if (postLoading) {
+                return (
+                  <View style={styles.loadingContianer}>
+                    <ActivityIndicator size="large" color={Colors.brand.main} />
                   </View>
-                ))}
-              </View>
-            )}
+                );
+              }
+
+              const filteredPosts = posts.filter((p) => {
+                if (postSubTab === "Recipe") return p.type === "recipe";
+                return p.type === "tip" || p.type === "discussion"
+                  ? p.type.toLowerCase() === postSubTab.toLowerCase()
+                  : false;
+              });
+
+              return filteredPosts.length === 0 ? (
+                <Text style={styles.noPostText}>No posts to display.</Text>
+              ) : (
+                <View className="flex-row justify-between flex-wrap">
+                  {[0, 1].map((colIndex) => (
+                    <View key={colIndex} className="w-[48%]">
+                      {filteredPosts
+                        .slice()
+                        .sort(
+                          (a, b) =>
+                            new Date(b.created_at).getTime() -
+                            new Date(a.created_at).getTime()
+                        )
+                        .filter((_, i) => i % 2 === colIndex)
+                        .map((post) => (
+                          <PostCard
+                            key={post.$id}
+                            post={{
+                              id: post.$id,
+                              type: post.type,
+                              title: post.title,
+                              image: getImageUrl(post.image?.[0]),
+                              author: username,
+                              profilePic: avatarUrl,
+                            }}
+                            onPress={() => {}}
+                          />
+                        ))}
+                    </View>
+                  ))}
+                </View>
+              );
+            })()}
           </View>
         )}
       </View>

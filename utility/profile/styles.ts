@@ -38,6 +38,12 @@ export const styles = StyleSheet.create({
     borderTopRightRadius: 10,
     marginTop: -15,
   },
+  loadingContianer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 30,
+  },
 
   // Text Styles
   headerTitle: {
@@ -209,8 +215,7 @@ export const styles = StyleSheet.create({
   tabHeader: {
     flexDirection: "row",
     justifyContent: "space-around",
-    marginBottom: 16,
-    borderBottomColor: Colors.ui.border,
+    borderBottomColor: Colors.text.faint,
     borderBottomWidth: 1,
     paddingVertical: 13,
     backgroundColor: Colors.brand.accent,
@@ -224,5 +229,16 @@ export const styles = StyleSheet.create({
     padding: 25,
     alignItems: "center",
     flexDirection: "row",
+  },
+  subTabHeader: {
+    flexDirection: "row",
+    marginBottom: 16,
+    paddingHorizontal: 10,
+    backgroundColor: Colors.brand.accent,
+    height: 40,
+    alignItems: "center",
+    borderBottomColor: Colors.ui.border,
+    borderBottomWidth: 1,
+    gap: 20,
   },
 });

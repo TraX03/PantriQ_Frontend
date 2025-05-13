@@ -14,25 +14,37 @@ import { styles } from "@/utility/create/styles";
 import { useFieldState } from "@/hooks/useFieldState";
 import HeaderBar from "@/components/HeaderBar";
 import InputBox from "@/components/InputBox";
-import IngredientsForm from "@/components/IngredientsForm";
 import PostTypeSelector from "@/components/PostTypeSelector";
 import { CreateFormState } from "./controller";
 import InstructionsForm from "@/components/InstructionsForm";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { Colors } from "@/constants/Colors";
+import EntryListForm from "@/components/EntryListForm";
 
-type Props = {
+export type EntryController = {
+  updateEntry: (
+    type: keyof CreateFormState,
+    index: number,
+    field: "name" | "quantity",
+    value: string
+  ) => void;
+  modifyEntry: (
+    type: keyof CreateFormState,
+    action: "add" | "remove",
+    index?: number
+  ) => void;
+  selectSuggestion: (
+    type: keyof CreateFormState,
+    index: number,
+    suggestion: string
+  ) => void;
+};
+
+type CreateFormProps = {
   create: ReturnType<typeof useFieldState<CreateFormState>>;
-  controller: {
+  controller: EntryController & {
     handlePickImage: () => void;
     handleSubmit: () => void;
-    updateIngredient: (
-      index: number,
-      field: "name" | "quantity",
-      value: string
-    ) => void;
-    modifyIngredient: (action: "add" | "remove", index?: number) => void;
-    selectSuggestion: (index: number, suggestion: string) => void;
     updateInstruction: (index: number, text: string) => void;
     updateInstructionImage: (index: number) => void;
     modifyInstruction: (action: "add" | "remove", index?: number) => void;
@@ -40,9 +52,15 @@ type Props = {
   };
 };
 
-export default function CreateFormComponent({ create, controller }: Props) {
-  const { setFieldState } = create;
-  const { title, content, images, postType } = create;
+export default function CreateFormComponent({
+  create,
+  controller,
+}: CreateFormProps) {
+  const { setFieldState, title, content, images, postType } = create;
+
+  const isRecipe = postType === "recipe";
+  const isCommunity = postType === "community";
+  const isTipsOrDiscussion = postType === "tips" || postType === "discussion";
 
   return (
     <>
@@ -51,7 +69,11 @@ export default function CreateFormComponent({ create, controller }: Props) {
       <TouchableWithoutFeedback
         onPress={() => {
           Keyboard.dismiss();
-          setFieldState("focusedIndex", null);
+          setFieldState("focusedIndex", {
+            ingredient: null,
+            category: null,
+            area: null,
+          });
         }}
         accessible={false}
       >
@@ -63,9 +85,9 @@ export default function CreateFormComponent({ create, controller }: Props) {
         >
           <HeaderBar
             title={
-              postType === "recipe"
+              isRecipe
                 ? "Create New Recipe"
-                : postType === "community"
+                : isCommunity
                 ? "Create New Community"
                 : "Create New Post"
             }
@@ -83,12 +105,12 @@ export default function CreateFormComponent({ create, controller }: Props) {
                       resizeMode="cover"
                     />
                     <TouchableOpacity
-                      onPress={() => {
-                        const updatedImages = images.filter(
-                          (_, i) => i !== index
-                        );
-                        setFieldState("images", updatedImages);
-                      }}
+                      onPress={() =>
+                        setFieldState(
+                          "images",
+                          images.filter((_, i) => i !== index)
+                        )
+                      }
                       style={styles.removeButton}
                     >
                       <IconSymbol
@@ -99,8 +121,8 @@ export default function CreateFormComponent({ create, controller }: Props) {
                     </TouchableOpacity>
                   </View>
                 ))}
-                {(postType !== "community" && images.length < 5) ||
-                (postType === "community" && images.length === 0) ? (
+                {((!isCommunity && images.length < 5) ||
+                  (isCommunity && images.length === 0)) && (
                   <TouchableOpacity
                     onPress={controller.handlePickImage}
                     className="w-32 h-32 rounded items-center justify-center mr-3"
@@ -112,15 +134,35 @@ export default function CreateFormComponent({ create, controller }: Props) {
                       size={30}
                     />
                   </TouchableOpacity>
-                ) : null}
+                )}
               </View>
             </ScrollView>
 
-            {postType === "recipe" && (
-              <IngredientsForm create={create} controller={controller} />
+            {isRecipe && (
+              <View className="mb-4">
+                <EntryListForm
+                  type="ingredient"
+                  create={create}
+                  controller={controller}
+                  placeholder="Ingredient"
+                  label="Ingredients"
+                />
+                <EntryListForm
+                  type="category"
+                  create={create}
+                  controller={controller}
+                  placeholder="Category"
+                />
+                <EntryListForm
+                  type="area"
+                  create={create}
+                  controller={controller}
+                  placeholder="e.g. Italian, Japanese"
+                />
+              </View>
             )}
 
-            {(postType === "tips" || postType === "discussion") && (
+            {isTipsOrDiscussion && (
               <PostTypeSelector
                 postType={postType}
                 setPostType={(type) => setFieldState("postType", type)}
@@ -128,13 +170,11 @@ export default function CreateFormComponent({ create, controller }: Props) {
             )}
 
             <Text style={styles.inputTitle}>
-              {postType === "community" ? "Community Name" : "Title"}
+              {isCommunity ? "Community Name" : "Title"}
             </Text>
             <InputBox
               placeholder={
-                postType === "community"
-                  ? "Enter community name"
-                  : "Enter post title"
+                isCommunity ? "Enter community name" : "Enter post title"
               }
               value={title}
               onChangeText={(text) => setFieldState("title", text)}
@@ -144,28 +184,24 @@ export default function CreateFormComponent({ create, controller }: Props) {
             />
 
             <Text style={styles.inputTitle}>
-              {postType === "community" || postType === "recipe"
-                ? "Description"
-                : "Content"}
+              {isCommunity || isRecipe ? "Description" : "Content"}
             </Text>
             <InputBox
               placeholder={
-                postType === "community"
+                isCommunity
                   ? "Briefly introduce your community"
-                  : postType === "recipe"
+                  : isRecipe
                   ? "Add a short description of your recipe"
                   : "Share your thoughts or ask a question"
               }
               value={content}
               onChangeText={(text) => setFieldState("content", text)}
               inputStyle={profileStyles.input}
-              limit={
-                postType === "community" || postType === "recipe" ? 160 : 2000
-              }
+              limit={isCommunity || isRecipe ? 160 : 2000}
               isMultiline
             />
 
-            {postType === "recipe" && (
+            {isRecipe && (
               <InstructionsForm
                 instructions={create.instructions}
                 modifyInstruction={controller.modifyInstruction}

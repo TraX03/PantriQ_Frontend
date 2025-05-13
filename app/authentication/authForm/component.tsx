@@ -4,10 +4,11 @@ import {
   Text,
   TouchableOpacity,
   Image,
+  ImageBackground,
   Dimensions,
+  ScrollView,
   StatusBar,
 } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import InputBox from "@/components/InputBox";
 import NotificationModal from "@/components/NotifcationModal";
@@ -38,11 +39,9 @@ export default function AuthFormComponent({
   updateField,
   closeErrorModal,
 }: Props) {
+  const { email, password, showErrorModal, errorTitle, errorMessage } = auth;
   const { width, height } = Dimensions.get("window");
   const statusBarHeight = StatusBar.currentHeight || 0;
-
-  const { email, password, showErrorModal, errorTitle, errorMessage } = auth;
-
   const isSignIn = mode === "signIn";
 
   return (
@@ -54,21 +53,23 @@ export default function AuthFormComponent({
         onClose={closeErrorModal}
       />
 
-      <LinearGradient
-        colors={[
-          Colors.brand.accent,
-          Colors.brand.accent,
-          Colors.brand.dark,
-          Colors.brand.dark,
-        ]}
-        locations={[0, 0.66, 0.76, 1]}
+      <ImageBackground
+        source={require("@/assets/images/gradient.png")}
         style={{
           position: "absolute",
-          width,
+          top: 0,
+          left: 0,
+          width: width,
           height: height + statusBarHeight,
         }}
+        resizeMode="cover"
+      />
+
+      <ScrollView
+        contentContainerStyle={{ flexGrow: 1 }}
+        keyboardShouldPersistTaps="handled"
       >
-        <View className="px-6 pt-20">
+        <View className="px-6 pt-16">
           <TouchableOpacity onPress={() => router.back()}>
             <IconSymbol
               name="chevron.left"
@@ -79,7 +80,7 @@ export default function AuthFormComponent({
 
           <Image
             source={require("@/assets/images/pantriQ.png")}
-            className="w-full h-[160px] self-center"
+            className="w-full h-[150px] self-center"
             resizeMode="contain"
           />
 
@@ -163,7 +164,7 @@ export default function AuthFormComponent({
             </TouchableOpacity>
           </View>
         </View>
-      </LinearGradient>
+      </ScrollView>
     </>
   );
 }

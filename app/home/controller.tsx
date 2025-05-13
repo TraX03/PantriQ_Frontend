@@ -4,7 +4,8 @@ import { databases, storage } from "@/services/appwrite";
 import { Query } from "react-native-appwrite";
 import { useFieldState } from "@/hooks/useFieldState";
 import { useEffect, useCallback } from "react";
-import { fetchSampleMeals } from "@/services/MealDbApi";
+import { getImageUrl } from "@/utility/imageUtils";
+import { fetchAllDocuments, safeFetch } from "@/utility/fetchUtils";
 
 export interface HomeState {
   activeTab: "Follow" | "Explore";
@@ -31,69 +32,73 @@ export const useHomeController = () => {
   const { activeSuggestion, setFieldState, refreshing, posts } = home;
 
   const fetchPosts = useCallback(async (): Promise<Post[]> => {
-    try {
-      // Fetch posts (recipe, tips, discussion)
-      const postRes = await databases.listDocuments(
-        AppwriteConfig.DATABASE_ID,
-        AppwriteConfig.POSTS_COLLECTION_ID
-      );
-      const postsRaw = postRes.documents;
+    // Fisher-Yates Shuffle for randomness
+    const shuffleArray = <T,>(array: T[]): T[] =>
+      array
+        .map((value) => ({ value, sort: Math.random() }))
+        .sort((a, b) => a.sort - b.sort)
+        .map(({ value }) => value);
 
-      // Fetch user info
-      const authorIds = [
-        ...new Set(postRes.documents.map((doc) => doc.author_id)),
-      ];
-      const usersRes = await databases.listDocuments(
+    try {
+      const [postDocs, recipeDocs, communityDocs] = await Promise.all([
+        safeFetch(() => fetchAllDocuments(AppwriteConfig.POSTS_COLLECTION_ID)),
+        safeFetch(() =>
+          fetchAllDocuments(AppwriteConfig.RECIPES_COLLECTION_ID)
+        ),
+        safeFetch(() =>
+          fetchAllDocuments(AppwriteConfig.COMMUNITIES_COLLECTION_ID)
+        ),
+      ]);
+
+      const authorIds = Array.from(
+        new Set([...postDocs, ...recipeDocs].map((doc) => doc.author_id))
+      );
+
+      const { documents: userDocs } = await databases.listDocuments(
         AppwriteConfig.DATABASE_ID,
         AppwriteConfig.USERS_COLLECTION_ID,
         [Query.equal("$id", authorIds)]
       );
 
       const usersMap = new Map(
-        usersRes.documents.map((user) => [
+        userDocs.map((user) => [
           user.$id,
-          {
-            name: user.username,
-            profilePic: user.avatar,
-          },
+          { name: user.username, profilePic: user.avatar },
         ])
       );
 
-      const appwritePosts: Post[] = postsRaw.map((doc) => {
+      const mapPost = (doc: any): Post => {
         const author = usersMap.get(doc.author_id);
         return {
           id: doc.$id,
-          type: doc.type,
+          type: doc.type || "recipe",
           title: doc.title,
-          image: storage.getFileView(AppwriteConfig.BUCKET_ID, doc.image[0])
-            .href,
+          image: getImageUrl(doc.image?.[0]),
           author: author?.name,
-          profilePic: storage.getFileView(
-            AppwriteConfig.BUCKET_ID,
-            author?.profilePic
-          ).href,
+          profilePic: getImageUrl(author?.profilePic),
         };
-      });
+      };
 
-      // Fetch community posts
-      const communityRes = await databases.listDocuments(
-        AppwriteConfig.DATABASE_ID,
-        AppwriteConfig.COMMUNITIES_COLLECTION_ID
-      );
+      const recipes = shuffleArray(recipeDocs.map(mapPost)).slice(0, 100);
+      const tips = shuffleArray(
+        postDocs.filter((d) => d.type === "tip").map(mapPost)
+      ).slice(0, 100);
+      const discussions = shuffleArray(
+        postDocs.filter((d) => d.type === "discussion").map(mapPost)
+      ).slice(0, 100);
 
-      const communityPosts: Post[] = communityRes.documents.map((doc) => ({
-        id: doc.$id,
-        type: "community",
-        title: doc.name,
-        image: storage.getFileView(AppwriteConfig.BUCKET_ID, doc.image).href,
-        membersCount: doc.members_count,
-        recipesCount: doc.recipes_count,
-      }));
+      const communities: Post[] = shuffleArray(
+        communityDocs.map((doc) => ({
+          id: doc.$id,
+          type: "community" as const,
+          title: doc.name,
+          image: getImageUrl(doc.image),
+          membersCount: doc.members_count,
+          recipesCount: doc.recipes_count,
+        }))
+      ).slice(0, 100);
 
-      // Sample meals
-      const mealPosts = await fetchSampleMeals();
-
-      return [...appwritePosts, ...communityPosts, ...mealPosts];
+      return [...recipes, ...tips, ...discussions, ...communities];
     } catch (error) {
       console.error("Failed to fetch home posts", error);
       return [];

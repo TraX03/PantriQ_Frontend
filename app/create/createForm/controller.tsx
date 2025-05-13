@@ -11,34 +11,38 @@ import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/redux/store";
 import { useLocalSearchParams, router } from "expo-router";
 import { useCallback, useMemo } from "react";
+import { PostType } from "@/components/PostCard";
+import { EntryType } from "@/components/EntryListForm";
+import { setRefreshProfile } from "@/redux/slices/profileSlice";
 
 export interface CreateFormState {
   title: string;
   content: string;
   images: string[];
-  postType: "recipe" | "tips" | "discussion" | "community";
-  ingredients: { name: string; quantity: string }[];
-  focusedIndex: number | null;
-  instructions: {
-    image?: string;
-    text: string;
-  }[];
+  postType: PostType;
+  ingredient: { name: string; quantity: string }[];
+  instructions: { image?: string; text: string }[];
+  category: { name: string }[];
+  area: string;
+  focusedIndex: {
+    [K in EntryType]?: number | null;
+  };
 }
 
 export const useCreateFormController = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { type } = useLocalSearchParams<{ type: string }>();
 
-  const initialPostType = (type || "discussion") as CreateFormState["postType"];
-
   const create = useFieldState<CreateFormState>({
     title: "",
     content: "",
     images: [],
-    postType: initialPostType,
-    ingredients: [],
-    focusedIndex: null,
+    postType: (type || "discussion") as PostType,
+    ingredient: [],
     instructions: [{ text: "", image: undefined }],
+    category: [],
+    area: "",
+    focusedIndex: { ingredient: null, category: null, area: null },
   });
 
   const handlePickImage = useCallback(async () => {
@@ -50,36 +54,27 @@ export const useCreateFormController = () => {
       quality: 1,
     });
 
-    if (!result.canceled && result.assets.length > 0) {
-      create.setFieldState("images", [...create.images, result.assets[0].uri]);
+    if (!result.canceled) {
+      const uri = result.assets[0].uri;
+      create.setFieldState("images", [...create.images, uri]);
     }
-  }, [create.images]);
+  }, [create]);
 
   const uploadImage = async (
     uri: string,
     userId: string
   ): Promise<string | null> => {
     const fileInfo = await FileSystem.getInfoAsync(uri, { size: true });
-    if (!fileInfo.exists || !fileInfo.size) {
-      console.warn(`Skipping file at ${uri}: could not retrieve size.`);
-      return null;
-    }
+    if (!fileInfo.exists || !fileInfo.size) return null;
 
     const fileName = uri.split("/").pop() || `image-${Date.now()}`;
     const mimeType = mime.getType(uri) || "image/jpeg";
-
-    const file = {
-      uri,
-      name: fileName,
-      type: mimeType,
-      size: fileInfo.size,
-    };
 
     try {
       const uploaded = await storage.createFile(
         AppwriteConfig.BUCKET_ID,
         ID.unique(),
-        file,
+        { uri, name: fileName, type: mimeType, size: fileInfo.size },
         [
           Permission.read(Role.user(userId)),
           Permission.write(Role.user(userId)),
@@ -93,27 +88,17 @@ export const useCreateFormController = () => {
   };
 
   const handleSubmit = useCallback(async () => {
-    const { title, content, postType, images, ingredients, instructions } =
-      create;
+    const {
+      title,
+      content,
+      postType,
+      images,
+      ingredient,
+      instructions,
+      category,
+      area,
+    } = create;
     dispatch(setLoading(true));
-
-    const getSuccessMessage = () =>
-      `${
-        postType === "community"
-          ? "Community"
-          : postType === "recipe"
-          ? "Recipe"
-          : "Post"
-      } created successfully!`;
-
-    const getErrorMessage = () =>
-      `Failed to create ${
-        postType === "community"
-          ? "community"
-          : postType === "recipe"
-          ? "recipe"
-          : "post"
-      }. Please try again.`;
 
     try {
       const user = await account.get();
@@ -121,107 +106,178 @@ export const useCreateFormController = () => {
 
       const uploadedImageIds = (
         await Promise.all(images.map((uri) => uploadImage(uri, userId)))
-      ).filter((id): id is string => id !== null);
+      ).filter((id): id is string => !!id);
 
       const baseData = {
         image: uploadedImageIds,
         created_at: new Date().toISOString(),
       };
 
-      if (postType === "community") {
-        const communityData = {
+      const basePostData = {
+        ...baseData,
+        title,
+        content,
+        type: postType,
+        author_id: userId,
+      };
+
+      const payloadMap = {
+        community: {
           ...baseData,
           name: title,
           description: content,
           image: uploadedImageIds[0],
           creator_id: userId,
-        };
-
-        await databases.createDocument(
-          AppwriteConfig.DATABASE_ID,
-          AppwriteConfig.COMMUNITIES_COLLECTION_ID,
-          ID.unique(),
-          communityData,
-          [Permission.read(Role.any()), Permission.write(Role.user(userId))]
-        );
-      } else {
-        const postData = {
+        },
+        recipe: {
           ...baseData,
           title,
-          content,
-          type: postType,
+          description: content,
           author_id: userId,
-          ...(postType === "recipe" && {
-            ingredients: ingredients.map((item) =>
-              `${item.quantity} ${item.name}`.trim()
-            ),
-            instructions: instructions.map((item) => item.text.trim()),
-          }),
-        };
+          ingredients: ingredient.map((i) => `${i.name} - ${i.quantity}`),
+          instructions: await Promise.all(
+            instructions.map(async ({ image, text }) => {
+              if (image?.startsWith("file://")) {
+                const uploadedId = await uploadImage(image, userId);
+                return uploadedId ? `${uploadedId} - ${text}` : text;
+              }
+              return image ? `${image} - ${text}` : text;
+            })
+          ),
+          category: category.map((c) => c.name),
+          area,
+        },
+        discussion: basePostData,
+        tips: basePostData,
+      };
 
-        await databases.createDocument(
-          AppwriteConfig.DATABASE_ID,
-          AppwriteConfig.POSTS_COLLECTION_ID,
-          ID.unique(),
-          postData,
-          [Permission.read(Role.any()), Permission.write(Role.user(userId))]
-        );
-      }
+      const collectionId: Record<PostType, string> = {
+        recipe: AppwriteConfig.RECIPES_COLLECTION_ID,
+        discussion: AppwriteConfig.POSTS_COLLECTION_ID,
+        tips: AppwriteConfig.POSTS_COLLECTION_ID,
+        community: AppwriteConfig.COMMUNITIES_COLLECTION_ID,
+      };
 
-      Alert.alert("Success", getSuccessMessage());
+      await databases.createDocument(
+        AppwriteConfig.DATABASE_ID,
+        collectionId[postType],
+        ID.unique(),
+        payloadMap[postType],
+        [Permission.read(Role.any()), Permission.write(Role.user(userId))]
+      );
+
+      Alert.alert(
+        "Success",
+        `${postType[0].toUpperCase() + postType.slice(1)} created successfully!`
+      );
       router.back();
     } catch (error) {
       console.error("Error creating post:", error);
-      Alert.alert("Error", getErrorMessage());
+      Alert.alert("Error", `Failed to create ${postType}. Please try again.`);
     } finally {
+      dispatch(setRefreshProfile(true));
       dispatch(setLoading(false));
     }
   }, [create, dispatch]);
 
   const isFormValid = useMemo(() => {
-    const isRecipeValid =
-      create.title.trim() &&
-      create.ingredients.length > 0 &&
-      create.ingredients.every((i) => i.name.trim() && i.quantity.trim()) &&
-      create.instructions.length > 0 &&
-      create.instructions.every((i) => i.text.trim());
+    const {
+      title,
+      content,
+      images,
+      ingredient,
+      instructions,
+      area,
+      category,
+      postType,
+    } = create;
 
-    const isCommonValid =
-      create.title.trim() && create.content.trim() && create.images.length > 0;
+    const hasTitle = title.trim().length > 0;
+    const hasContent = content.trim().length > 0;
+    const hasImages = images.length > 0;
+    const hasArea = area.trim().length > 0;
 
-    return create.postType === "recipe" ? isRecipeValid : isCommonValid;
+    const filledIngredients =
+      ingredient.length > 0 &&
+      ingredient.every((i) => i.name.trim() && i.quantity.trim());
+
+    const filledInstructions =
+      instructions.length > 0 && instructions.every((i) => i.text.trim());
+
+    const hasCategory =
+      category.length > 0 && category.every((c) => c.name.trim());
+
+    const isCommonValid = hasTitle && hasContent && hasImages;
+
+    if (postType === "recipe") {
+      return (
+        hasTitle &&
+        filledIngredients &&
+        filledInstructions &&
+        hasArea &&
+        hasCategory
+      );
+    }
+
+    return isCommonValid;
   }, [create]);
 
-  const updateIngredient = useCallback(
-    (index: number, field: "name" | "quantity", value: string) => {
-      const updated = [...create.ingredients];
+  const updateEntry = useCallback(
+    (
+      type: keyof CreateFormState,
+      index: number,
+      field: "name" | "quantity",
+      value: string
+    ) => {
+      if (type === "area" && field === "name") {
+        create.setFieldState("area", value.trim());
+        return;
+      }
+      const updated = [...(create[type] as any[])];
+      if (field === "quantity" && !(updated[index]?.quantity !== undefined))
+        return;
       updated[index][field] = value.trim();
-      create.setFieldState("ingredients", updated);
+      create.setFieldState(type, updated);
     },
     [create]
   );
 
-  const modifyIngredient = useCallback(
-    (action: "add" | "remove", index?: number) => {
-      const updated = [...create.ingredients];
+  const modifyEntry = useCallback(
+    (type: keyof CreateFormState, action: "add" | "remove", index?: number) => {
+      if (type === "area") return;
 
+      const updated = [...(create[type] as any[])];
       if (action === "add") {
-        updated.push({ name: "", quantity: "" });
+        const newItem: any = { name: "" };
+        if (type === "ingredient") newItem.quantity = "";
+        updated.push(newItem);
       } else if (action === "remove" && index !== undefined) {
         updated.splice(index, 1);
       }
-
-      create.setFieldState("ingredients", updated);
+      create.setFieldState(type, updated);
     },
     [create]
   );
 
   const selectSuggestion = useCallback(
-    (index: number, suggestion: string) => {
-      const updated = [...create.ingredients];
+    (type: keyof CreateFormState, index: number, suggestion: string) => {
+      if (type === "area") {
+        create.setFieldState("area", suggestion);
+        create.setFieldState("focusedIndex", {
+          ...create.focusedIndex,
+          [type]: null,
+        });
+        Keyboard.dismiss();
+        return;
+      }
+
+      const updated = [...(create[type] as any[])];
       updated[index].name = suggestion;
-      create.setFieldState("ingredients", updated);
-      create.setFieldState("focusedIndex", null);
+      create.setFieldState(type, updated);
+      create.setFieldState("focusedIndex", {
+        ...create.focusedIndex,
+        [type]: null,
+      });
       Keyboard.dismiss();
     },
     [create]
@@ -281,8 +337,8 @@ export const useCreateFormController = () => {
     controller: {
       handlePickImage,
       handleSubmit,
-      updateIngredient,
-      modifyIngredient,
+      updateEntry,
+      modifyEntry,
       selectSuggestion,
       modifyInstruction,
       updateInstruction,

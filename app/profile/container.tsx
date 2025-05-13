@@ -9,7 +9,7 @@ export default function ProfileContainer() {
   return (
     <ProfileComponent
       profileData={profileData}
-      loading={isLoading}
+      isLoading={isLoading}
       isLoggedIn={isLoggedIn}
       checkLogin={checkLogin}
       profile={profile}
