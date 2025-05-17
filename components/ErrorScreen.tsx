@@ -6,11 +6,11 @@ import { router, Stack } from "expo-router";
 import { IconSymbol } from "./ui/IconSymbol";
 import { Colors } from "@/constants/Colors";
 
-type Props = {
+type ErrorScreenProps = {
   message: string;
 };
 
-const ErrorScreen: React.FC<Props> = ({ message }) => (
+const ErrorScreen: React.FC<ErrorScreenProps> = ({ message }) => (
   <>
     <Stack.Screen options={{ headerShown: false }} />
     <View style={styles.centeredContainer}>

@@ -1,7 +1,8 @@
-import { View, Text, Image, Pressable } from "react-native";
+import { View, Text, Image, Pressable, TouchableOpacity } from "react-native";
 import { Colors } from "@/constants/Colors";
 import { IconSymbol } from "./ui/IconSymbol";
 import styles from "./styles";
+import { router } from "expo-router";
 
 export type PostType = "recipe" | "tips" | "discussion" | "community";
 
@@ -18,16 +19,18 @@ export type Post = {
 
 type PostCardProps = {
   post: Post;
-  onPress: () => void;
 };
 
-export default function PostCard({ post, onPress }: PostCardProps) {
-  const { type, title, image } = post;
+export default function PostCard({ post }: PostCardProps) {
+  const { type, title, image, id } = post;
 
   if (type === "community") {
     const { membersCount, recipesCount } = post;
     return (
-      <Pressable onPress={onPress} className="mb-4">
+      <TouchableOpacity
+        onPress={() => router.push(`/posts/${id}`)}
+        className="mb-4"
+      >
         <View style={styles.container}>
           <View className="relative">
             <Image
@@ -50,13 +53,16 @@ export default function PostCard({ post, onPress }: PostCardProps) {
             </Text>
           </View>
         </View>
-      </Pressable>
+      </TouchableOpacity>
     );
   }
 
   const { author, profilePic } = post;
   return (
-    <Pressable onPress={onPress} className="mb-4">
+    <TouchableOpacity
+      onPress={() => router.push(`/posts/${id}`)}
+      className="mb-4"
+    >
       <View style={styles.container}>
         <Image
           source={{ uri: image }}
@@ -93,6 +99,6 @@ export default function PostCard({ post, onPress }: PostCardProps) {
           </View>
         </View>
       </View>
-    </Pressable>
+    </TouchableOpacity>
   );
 }

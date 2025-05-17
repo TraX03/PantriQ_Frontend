@@ -13,7 +13,7 @@ import { IconSymbol, IconSymbolName } from "@/components/ui/IconSymbol";
 import { Colors } from "@/constants/Colors";
 import { styles as profileStyles } from "@/utility/profile/styles";
 
-type Props = TextInputProps & {
+type InputBoxProps = TextInputProps & {
   icon?: IconSymbolName;
   iconColor?: string;
   iconSize?: number;
@@ -40,7 +40,7 @@ export default function InputBox({
   value,
   onChangeText,
   ...props
-}: Props) {
+}: InputBoxProps) {
   return (
     <>
       <View style={containerStyle} className="relative">

@@ -1,6 +1,5 @@
-import { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch, RootState } from "@/redux/store";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/redux/store";
 import { useFieldState } from "@/hooks/useFieldState";
 import { useProfileData } from "@/hooks/useProfileData";
 import { account, databases, storage } from "@/services/appwrite";
@@ -9,12 +8,10 @@ import { ID, Permission, Role } from "react-native-appwrite";
 import * as ImagePicker from "expo-image-picker";
 import * as FileSystem from "expo-file-system";
 import mime from "mime";
-import ImageColors from "react-native-image-colors";
-import { Colors } from "@/constants/Colors";
 import { guestPicture } from "@/redux/slices/profileSlice";
 import { setLoading } from "@/redux/slices/loadingSlice";
 
-export interface EditProfileState {
+interface EditProfileState {
   isBackgroundDark: boolean;
 }
 
@@ -22,58 +19,9 @@ export const useEditProfileController = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { fetchProfile } = useProfileData();
 
-  const profileData = useSelector((state: RootState) => state.profile.userData);
-  const loading = useSelector((state: RootState) => state.loading.loading);
-
   const profile = useFieldState<EditProfileState>({
     isBackgroundDark: false,
   });
-
-  const { setFieldState } = profile;
-
-  useEffect(() => {
-    fetchProfile();
-  }, []);
-
-  useEffect(() => {
-    if (profileData?.profileBg) {
-      detectBackgroundDarkness(profileData.profileBg);
-    }
-  }, [profileData?.profileBg]);
-
-  const isColorDark = (hex: string) => {
-    const rgb = parseInt(hex.substring(1), 16);
-    const r = (rgb >> 16) & 255;
-    const g = (rgb >> 8) & 255;
-    const b = rgb & 255;
-    const luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b;
-    return luminance < 128;
-  };
-
-  const detectBackgroundDarkness = async (profileBg: string) => {
-    if (!profileBg) return;
-    dispatch(setLoading(true));
-
-    try {
-      const result = await ImageColors.getColors(profileBg, {
-        fallback: Colors.brand.base,
-        cache: true,
-        key: profileBg,
-      });
-
-      const dominantColor =
-        result.platform === "android" ? result.dominant : Colors.brand.base;
-
-      setFieldState(
-        "isBackgroundDark",
-        isColorDark(dominantColor ?? Colors.brand.base)
-      );
-    } catch (error) {
-      console.warn("Failed to get image colors", error);
-    } finally {
-      dispatch(setLoading(false));
-    }
-  };
 
   const pickImageFile = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -149,9 +97,7 @@ export const useEditProfileController = () => {
   };
 
   return {
-    profileData,
-    loading,
-    isBackgroundDark: profile.isBackgroundDark,
+    profile,
     onChangeImagePress,
   };
 };

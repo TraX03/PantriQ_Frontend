@@ -234,7 +234,6 @@ export default function ProfileComponent({
                               author: username,
                               profilePic: avatarUrl,
                             }}
-                            onPress={() => {}}
                           />
                         ))}
                     </View>

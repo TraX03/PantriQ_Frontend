@@ -16,7 +16,7 @@ export default function EditFieldContainer() {
 
   const maxLength = size ? parseInt(size) : undefined;
 
-  const controllerProps = useEditFieldController(key, data, maxLength);
+  const controller = useEditFieldController(key, data, maxLength);
 
-  return <EditFieldComponent {...controllerProps} />;
+  return <EditFieldComponent {...controller} />;
 }

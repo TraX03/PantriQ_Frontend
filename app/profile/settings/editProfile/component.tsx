@@ -15,6 +15,7 @@ import ErrorScreen from "@/components/ErrorScreen";
 import { maskEmail } from "@/utility/maskUtils";
 import { ProfileData } from "@/redux/slices/profileSlice";
 import HeaderBar from "@/components/HeaderBar";
+import { getOverlayStyle } from "@/utility/imageColorUtils";
 
 type Props = {
   profileData: ProfileData | null;
@@ -111,15 +112,7 @@ export default function EditProfileComponent({
             </View>
             <TouchableOpacity
               className="absolute -bottom-1 -right-1 rounded-full p-2 w-9 h-9 justify-center items-center"
-              style={{
-                backgroundColor: isBackgroundDark
-                  ? Colors.ui.overlayLight
-                  : Colors.ui.overlayDark,
-                borderColor: isBackgroundDark
-                  ? Colors.ui.buttonFill
-                  : "transparent",
-                borderWidth: 1.5,
-              }}
+              style={[getOverlayStyle(isBackgroundDark), { borderWidth: 1.5 }]}
               onPress={() => onChangeImagePress("avatar")}
             >
               <IconSymbol
@@ -134,27 +127,13 @@ export default function EditProfileComponent({
             </TouchableOpacity>
           </View>
           <TouchableOpacity
-            style={[
-              styles.changeBgButton,
-              {
-                backgroundColor: isBackgroundDark
-                  ? Colors.ui.overlayLight
-                  : Colors.ui.overlayDark,
-                borderColor: isBackgroundDark
-                  ? Colors.brand.main
-                  : "transparent",
-              },
-            ]}
+            style={[styles.changeBgButton, getOverlayStyle(isBackgroundDark)]}
             onPress={() => onChangeImagePress("profile_bg")}
           >
             <Text
               style={[
                 styles.changeBgText,
-                {
-                  color: isBackgroundDark
-                    ? Colors.brand.main
-                    : Colors.ui.backgroundLight,
-                },
+                getOverlayStyle(isBackgroundDark, true),
               ]}
             >
               Change Background

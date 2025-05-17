@@ -37,7 +37,7 @@ export default function HomeComponent({
       return (
         <View>
           {filteredPosts.map((post) => (
-            <PostCard key={post.id} post={post} onPress={() => {}} />
+            <PostCard key={post.id} post={post}/>
           ))}
         </View>
       );
@@ -50,7 +50,7 @@ export default function HomeComponent({
             {filteredPosts
               .filter((_, i) => i % 2 === colIndex)
               .map((post) => (
-                <PostCard key={post.id} post={post} onPress={() => {}} />
+                <PostCard key={post.id} post={post}/>
               ))}
           </View>
         ))}

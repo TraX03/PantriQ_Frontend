@@ -58,7 +58,7 @@ const styles = StyleSheet.create({
     fontFamily: "RobotoMedium",
     color: Colors.brand.accent,
   },
-  addModalSheet: {
+  SlideModalSheet: {
     backgroundColor: "white",
     borderRadius: 16,
     padding: 16,
@@ -67,8 +67,7 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     borderColor: Colors.ui.shadow,
     borderWidth: 1.5,
-    zIndex: 1,
-    marginBottom: StatusBar.currentHeight || 0,
+    marginBottom: (StatusBar.currentHeight ?? 0) - 5,
   },
   addModalText: {
     fontSize: 16,
@@ -79,6 +78,11 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.ui.overlayDark,
     justifyContent: "center",
     alignItems: "center",
+  },
+  fullImage: {
+    width: "100%",
+    height: "100%",
+    resizeMode: "contain",
   },
 });
 

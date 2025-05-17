@@ -5,9 +5,9 @@ import { Colors } from "@/constants/Colors";
 import { styles as profileStyles } from "@/utility/profile/styles";
 import InputBox from "./InputBox";
 import { IconSymbol } from "./ui/IconSymbol";
-import styles from "./styles";
+import FullscreenImageViewer from "./FullscreenImageViewer";
 
-type Props = {
+type InstructionsFormProps = {
   instructions: { image?: string; text: string }[];
   modifyInstruction: (action: "add" | "remove", index?: number) => void;
   updateInstruction: (index: number, text: string) => void;
@@ -19,23 +19,15 @@ export default function InstructionsForm({
   modifyInstruction,
   updateInstruction,
   updateInstructionImage,
-}: Props) {
+}: InstructionsFormProps) {
   const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
 
   return (
     <>
-      <Modal visible={!!fullscreenImage} transparent>
-        <TouchableOpacity
-          style={styles.modalContainer}
-          onPress={() => setFullscreenImage(null)}
-        >
-          <Image
-            source={{ uri: fullscreenImage! }}
-            style={{ width: "100%", height: "100%", resizeMode: "contain" }}
-          />
-        </TouchableOpacity>
-      </Modal>
-
+      <FullscreenImageViewer
+        imageUri={fullscreenImage}
+        onClose={() => setFullscreenImage(null)}
+      />
       <View className="mt-4 space-y-4">
         <Text style={createStyles.inputTitle}>Instructions</Text>
         {instructions.map((step, index) => (

@@ -1,12 +1,12 @@
 import React, { useState } from "react";
-import { Tabs } from "expo-router";
+import { router, Tabs } from "expo-router";
 import { Pressable, View, StyleSheet } from "react-native";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import FloatingAddButton from "@/components/FloatingAddButton";
 import { Colors } from "@/constants/Colors";
 import { TabConfig } from "@/constants/TabConfig";
 import { useRequireLogin } from "@/hooks/useRequireLogin";
-import AddModal from "@/components/AddModal";
+import BottomSheetModal from "@/components/BottomSheetModal";
 
 export default function TabLayout() {
   const { checkLogin } = useRequireLogin();
@@ -84,7 +84,37 @@ export default function TabLayout() {
       <FloatingAddButton
         onPress={() => checkLogin(() => setShowModal((prev) => !prev))}
       />
-      <AddModal isVisible={showModal} onClose={() => setShowModal(false)} />
+
+      <BottomSheetModal
+        isVisible={showModal}
+        onClose={() => setShowModal(false)}
+        options={[
+          {
+            key: "recipe",
+            label: "Create new recipe",
+            onPress: () => {
+              setShowModal(false);
+              router.push("/create/recipe");
+            },
+          },
+          {
+            key: "tips",
+            label: "Create new post",
+            onPress: () => {
+              setShowModal(false);
+              router.push("/create/tips");
+            },
+          },
+          {
+            key: "community",
+            label: "Create new community",
+            onPress: () => {
+              setShowModal(false);
+              router.push("/create/community");
+            },
+          },
+        ]}
+      />
     </>
   );
 }

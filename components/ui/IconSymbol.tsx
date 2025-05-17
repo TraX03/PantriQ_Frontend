@@ -39,6 +39,7 @@ const MAPPING = {
     type: "MaterialCommunityIcons",
   },
   trash: { name: "trash-can-outline", type: "MaterialCommunityIcons" },
+  "ellipsis.circle": { name: "ellipsis-horizontal", type: "Ionicons" },
 } as const;
 
 export type IconSymbolName = keyof typeof MAPPING;

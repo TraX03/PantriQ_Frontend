@@ -1,9 +1,10 @@
 import { useLocalSearchParams, Stack } from "expo-router";
 import AuthFormContainer from "./authForm/container";
+import { AuthMode } from "./authForm/controller";
 
-export default function AuthScsreen() {
+export default function AuthRouter() {
   const { mode } = useLocalSearchParams();
-  const formMode = mode === "sign-up" ? "sign-up" : "sign-in";
+  const formMode: AuthMode = mode === "sign-up" ? "signUp" : "signIn";
 
   return (
     <>

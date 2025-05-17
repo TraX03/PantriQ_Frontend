@@ -5,12 +5,12 @@ import { styles as profileStyles } from "@/utility/profile/styles";
 import { styles } from "@/utility/create/styles";
 import { Post } from "@/components/PostCard";
 
-type Props = {
+type PostTypeSelectorProps = {
   postType: Post["type"];
   setPostType: (type: Post["type"]) => void;
 };
 
-export default function PostTypeSelector({ postType, setPostType }: Props) {
+export default function PostTypeSelector({ postType, setPostType }: PostTypeSelectorProps) {
   const options: Post["type"][] = ["tips", "discussion"];
 
   return (

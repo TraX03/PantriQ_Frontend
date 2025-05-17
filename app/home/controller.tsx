@@ -1,11 +1,10 @@
 import { Post } from "@/components/PostCard";
 import { AppwriteConfig } from "@/constants/AppwriteConfig";
-import { databases, storage } from "@/services/appwrite";
-import { Query } from "react-native-appwrite";
 import { useFieldState } from "@/hooks/useFieldState";
-import { useEffect, useCallback } from "react";
+import { useCallback } from "react";
 import { getImageUrl } from "@/utility/imageUtils";
 import { fetchAllDocuments, safeFetch } from "@/utility/fetchUtils";
+import { getUsersByIds } from "@/utility/userCacheUtils";
 
 export interface HomeState {
   activeTab: "Follow" | "Explore";
@@ -51,21 +50,14 @@ export const useHomeController = () => {
       ]);
 
       const authorIds = Array.from(
-        new Set([...postDocs, ...recipeDocs].map((doc) => doc.author_id))
+        new Set(
+          [...postDocs, ...recipeDocs]
+            .map((doc) => doc.author_id)
+            .filter(Boolean)
+        )
       );
 
-      const { documents: userDocs } = await databases.listDocuments(
-        AppwriteConfig.DATABASE_ID,
-        AppwriteConfig.USERS_COLLECTION_ID,
-        [Query.equal("$id", authorIds)]
-      );
-
-      const usersMap = new Map(
-        userDocs.map((user) => [
-          user.$id,
-          { name: user.username, profilePic: user.avatar },
-        ])
-      );
+      const usersMap = await getUsersByIds(authorIds);
 
       const mapPost = (doc: any): Post => {
         const author = usersMap.get(doc.author_id);
@@ -74,8 +66,8 @@ export const useHomeController = () => {
           type: doc.type || "recipe",
           title: doc.title,
           image: getImageUrl(doc.image?.[0]),
-          author: author?.name,
-          profilePic: getImageUrl(author?.profilePic),
+          author: author?.name || "Unknown",
+          profilePic: author?.profilePic,
         };
       };
 
@@ -126,10 +118,6 @@ export const useHomeController = () => {
   );
 
   const filteredPosts = filterPosts(posts, activeSuggestion);
-
-  useEffect(() => {
-    refreshPosts();
-  }, [refreshPosts]);
 
   return {
     home,

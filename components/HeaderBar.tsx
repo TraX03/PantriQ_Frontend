@@ -3,11 +3,11 @@ import { useRouter } from "expo-router";
 import { Colors } from "@/constants/Colors";
 import { IconSymbol } from "./ui/IconSymbol";
 
-type Props = {
+type HeaderBarProps = {
   title: string;
 };
 
-const HeaderBar = ({ title }: Props) => {
+const HeaderBar = ({ title }: HeaderBarProps) => {
   const router = useRouter();
 
   return (

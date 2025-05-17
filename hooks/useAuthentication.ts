@@ -13,7 +13,7 @@ export function useAuthentication() {
   const { fetchProfile } = useProfileData();
 
   const handleError = (action: string, error: any) => {
-    console.warn(`${action} failed:`, error);
+    console.error(`${action} failed:`, error);
     throw error;
   };
 

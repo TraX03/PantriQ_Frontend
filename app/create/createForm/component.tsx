@@ -40,7 +40,7 @@ export type EntryController = {
   ) => void;
 };
 
-type CreateFormProps = {
+type Props = {
   create: ReturnType<typeof useFieldState<CreateFormState>>;
   controller: EntryController & {
     handlePickImage: () => void;
@@ -52,10 +52,7 @@ type CreateFormProps = {
   };
 };
 
-export default function CreateFormComponent({
-  create,
-  controller,
-}: CreateFormProps) {
+export default function CreateFormComponent({ create, controller }: Props) {
   const { setFieldState, title, content, images, postType } = create;
 
   const isRecipe = postType === "recipe";
@@ -65,7 +62,6 @@ export default function CreateFormComponent({
   return (
     <>
       <Stack.Screen options={{ headerShown: false }} />
-
       <TouchableWithoutFeedback
         onPress={() => {
           Keyboard.dismiss();

@@ -2,12 +2,7 @@ import { AppwriteConfig } from "@/constants/AppwriteConfig";
 import { Models } from "react-native-appwrite";
 import { ProfileData } from "@/redux/slices/profileSlice";
 import { useFieldState } from "@/hooks/useFieldState";
-import { useEffect } from "react";
-import { AppDispatch, RootState } from "@/redux/store";
-import { useDispatch, useSelector } from "react-redux";
-import { useProfileData } from "@/hooks/useProfileData";
 import { fetchAllDocuments, safeFetch } from "@/utility/fetchUtils";
-import { setRefreshProfile } from "@/redux/slices/profileSlice";
 
 export interface ProfileState {
   activeTab: "Posts" | "Collections" | "Likes";
@@ -17,15 +12,6 @@ export interface ProfileState {
 }
 
 export const useProfileController = () => {
-  const { fetchProfile } = useProfileData();
-  const dispatch = useDispatch<AppDispatch>();
-
-  const { userData: profileData, refreshProfile } = useSelector(
-    (state: RootState) => state.profile
-  );
-  const isLoading = useSelector((state: RootState) => state.loading.loading);
-  const isLoggedIn = useSelector((state: RootState) => state.auth.isLoggedIn);
-
   const profile = useFieldState<ProfileState>({
     activeTab: "Posts",
     posts: [],
@@ -64,27 +50,7 @@ export const useProfileController = () => {
     }
   };
 
-  useEffect(() => {
-    fetchProfile();
-  }, []);
-
-  useEffect(() => {
-    if (profileData && profile.posts.length === 0) {
-      fetchPostsByUser(profileData);
-    }
-  }, [profileData]);
-
-  useEffect(() => {
-    if (refreshProfile && profileData) {
-      fetchPostsByUser(profileData);
-      dispatch(setRefreshProfile(false));
-    }
-  }, [refreshProfile]);
-
   return {
-    profileData,
-    isLoading,
-    isLoggedIn,
     profile,
     fetchPostsByUser,
   };

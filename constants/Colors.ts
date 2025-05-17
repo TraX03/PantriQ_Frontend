@@ -19,11 +19,12 @@ export const Colors = {
     overlay: "rgba(0,0,0,0.4)",
     overlayLight: "rgba(255,255,255,0.8)",
     overlayDark: "rgba(0,0,0,0.5)",
+    whiteOverlay: "rgba(255,255,255,0.4)",
     border: "#D1D5DB",
     shade: "rgba(94, 85, 86, 0.8)",
     lightBlueOverlay: "rgba(217, 243, 255, 0.3)",
     shadow: "rgba(0, 0, 0, 0.1)",
-    grayButtonFill: "#e5e7eb"
+    grayButtonFill: "#e5e7eb",
   },
 
   text: {

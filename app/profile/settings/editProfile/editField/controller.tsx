@@ -7,14 +7,14 @@ import { useFieldState } from "@/hooks/useFieldState";
 import { AppDispatch } from "@/redux/store";
 import { useDispatch } from "react-redux";
 import { useProfileData } from "@/hooks/useProfileData";
-import { useState, useEffect } from "react";
+import { syncUserCache } from "@/utility/userCacheUtils";
 
-export interface EditFieldState {
+interface EditFieldState {
   value: string;
   showDatePicker: boolean;
 }
 
-export const fieldLabels: Record<string, string> = {
+const fieldLabels: Record<string, string> = {
   username: "Username",
   bio: "Bio",
   gender: "Gender",
@@ -31,31 +31,21 @@ export const useEditFieldController = (
   const dispatch = useDispatch<AppDispatch>();
   const { fetchProfile } = useProfileData();
 
-  const [initialValue, setInitialValue] = useState("");
-
-  useEffect(() => {
+  const parsedValue = (() => {
     try {
-      const parsedData = JSON.parse(decodeURIComponent(initialData || "{}"));
-      setInitialValue(parsedData[key] || "");
+      const parsed = JSON.parse(decodeURIComponent(initialData || "{}"));
+      return parsed[key] || "";
     } catch {
-      setInitialValue("");
+      return "";
     }
-  }, [initialData, key]);
+  })();
 
-  const editState = useFieldState<EditFieldState>({
-    value: initialValue,
+  const edit = useFieldState<EditFieldState>({
+    value: parsedValue,
     showDatePicker: false,
   });
 
-  useEffect(() => {
-    if (initialValue) {
-      editState.setFieldState("value", initialValue);
-    }
-  }, [initialValue]);
-
-  const { value, showDatePicker } = editState;
-  const { setFieldState } = editState;
-
+  const { value, showDatePicker, setFieldState } = edit;
   const label = fieldLabels[key] || "Unknown Field";
 
   const setValue = (newValue: string) => {
@@ -68,26 +58,24 @@ export const useEditFieldController = (
 
   const handleSave = async () => {
     if (!key) return;
-
     dispatch(setLoading(true));
 
     try {
       const user = await account.get();
-      const userId = user.$id;
-
       await databases.updateDocument(
         AppwriteConfig.DATABASE_ID,
         AppwriteConfig.USERS_COLLECTION_ID,
-        userId,
+        user.$id,
         { [key]: value }
       );
 
-      await fetchProfile();
+      await Promise.all([fetchProfile(), syncUserCache(user.$id)]);
+
       Alert.alert("Success", `${label} updated successfully.`);
       router.back();
     } catch (err) {
-      Alert.alert("Error", "Failed to update. Please try again.");
       console.error(err);
+      Alert.alert("Error", `Failed to update ${label}. Please try again.`);
     } finally {
       dispatch(setLoading(false));
     }
