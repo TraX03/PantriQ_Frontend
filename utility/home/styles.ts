@@ -16,6 +16,7 @@ export const styles = StyleSheet.create({
     marginBottom: 2,
     backgroundColor: Colors.brand.accent,
     zIndex: 10,
+    paddingBottom: 8,
   },
   suggestContainer: {
     paddingHorizontal: 8,

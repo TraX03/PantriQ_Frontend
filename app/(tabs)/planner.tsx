@@ -1,10 +1,6 @@
-import { View, Text } from 'react-native'
-import React from 'react'
+import React from "react";
+import PlannerContainer from "../planner/container";
 
 export default function PlannerScreenRoute() {
-  return (
-    <View>
-      <Text>Planner</Text>
-    </View>
-  )
-};
+  return <PlannerContainer />;
+}

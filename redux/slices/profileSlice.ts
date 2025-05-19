@@ -16,6 +16,7 @@ export interface ProfileData {
   followingCount: number;
   profileBg?: string;
   id?: string;
+  metadata?: string;
 }
 
 export const guestPicture: string = "6820391600141fa25422";

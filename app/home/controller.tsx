@@ -28,7 +28,8 @@ export const useHomeController = () => {
     refreshing: false,
   });
 
-  const { activeSuggestion, setFieldState, refreshing, posts } = home;
+  const { activeSuggestion, setFieldState, refreshing, posts, setFields } =
+    home;
 
   const fetchPosts = useCallback(async (): Promise<Post[]> => {
     // Fisher-Yates Shuffle for randomness
@@ -100,8 +101,10 @@ export const useHomeController = () => {
   const refreshPosts = useCallback(async () => {
     setFieldState("refreshing", true);
     const fetchedPosts = await fetchPosts();
-    setFieldState("posts", fetchedPosts);
-    setFieldState("refreshing", false);
+    setFields({
+      posts: fetchedPosts,
+      refreshing: false,
+    });
   }, [fetchPosts]);
 
   const filterPosts = useCallback(

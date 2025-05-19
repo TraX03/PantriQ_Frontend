@@ -25,7 +25,7 @@ const MAPPING = {
   "chevron.left": { name: "chevron-back", type: "Ionicons" },
   "lock.fill": { name: "password", type: "MaterialIcons" },
   "pencil.and.outline": { name: "edit-3", type: "Feather" },
-  ellipsis: { name: "settings-outline", type: "Ionicons" },
+  "square.grid.2x2": { name: "settings-outline", type: "Ionicons" },
   "chevron.right": { name: "chevron-forward", type: "Ionicons" },
   photo: { name: "image-outline", type: "Ionicons" },
   "multiply.circle": { name: "x-circle", type: "Octicons" },
@@ -39,7 +39,16 @@ const MAPPING = {
     type: "MaterialCommunityIcons",
   },
   trash: { name: "trash-can-outline", type: "MaterialCommunityIcons" },
-  "ellipsis.circle": { name: "ellipsis-horizontal", type: "Ionicons" },
+  ellipsis: { name: "ellipsis-horizontal", type: "Ionicons" },
+  "ellipsis.circle": {
+    name: "dots-horizontal-circle-outline",
+    type: "MaterialCommunityIcons",
+  },
+  "arrow.clockwise.circle": {
+    name: "refresh",
+    type: "MaterialIcons",
+  },
+  "arrow.2.circlepath": { name: "refresh-ccw", type: "Feather" },
 } as const;
 
 export type IconSymbolName = keyof typeof MAPPING;

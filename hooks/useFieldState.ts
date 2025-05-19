@@ -10,8 +10,16 @@ export function useFieldState<T extends object>(initialState: T) {
     }));
   };
 
+  const setFields = (fields: Partial<T>) => {
+    setState((prev) => ({
+      ...prev,
+      ...fields,
+    }));
+  };
+
   return {
     ...state,
     setFieldState,
+    setFields,
   };
 }

@@ -3,7 +3,7 @@ import { Stack, useLocalSearchParams } from "expo-router";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/redux/store";
 import { setLoading } from "@/redux/slices/loadingSlice";
-import { getPostTypeById } from "@/utility/getPostTypeByIdUtils";
+import { getPostTypeById } from "@/utility/getPostTypeById";
 import ErrorScreen from "@/components/ErrorScreen";
 import RecipeContainer from "./recipe/container";
 

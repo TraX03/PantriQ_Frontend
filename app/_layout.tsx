@@ -23,6 +23,7 @@ export default function RootLayout() {
     RobotoBold: require("../assets/fonts/Roboto-Bold.ttf"),
     RobotoSemiCondensed: require("../assets/fonts/Roboto_SemiCondensed-Regular.ttf"),
     SignikaNegativeSC: require("../assets/fonts/SignikaNegativeSC-Regular.ttf"),
+    SignikaNegativeSCSemiBold: require("../assets/fonts/SignikaNegativeSC-SemiBold.ttf"),
   });
 
   useEffect(() => {

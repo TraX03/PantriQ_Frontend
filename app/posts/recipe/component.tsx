@@ -16,22 +16,32 @@ import { RecipeState } from "./controller";
 import { useFieldState } from "@/hooks/useFieldState";
 import ErrorScreen from "@/components/ErrorScreen";
 import { router } from "expo-router";
-import { getOverlayStyle } from "@/utility/imageColorUtils";
 import BottomSheetModal from "@/components/BottomSheetModal";
 import FullscreenImageViewer from "@/components/FullscreenImageViewer";
+import RecipeStep from "@/components/RecipeStep";
+import { styles } from "@/utility/posts/styles";
+import IconButton from "@/components/IconButton";
 
 type Props = {
   recipe: ReturnType<typeof useFieldState<RecipeState>>;
   deleteRecipeById: (recipeId: string) => Promise<void>;
+  toggleInteraction: (type: "like" | "bookmark") => Promise<void>;
 };
 
-export default function RecipeComponent({ recipe, deleteRecipeById }: Props) {
+export default function RecipeComponent({
+  recipe,
+  deleteRecipeById,
+  toggleInteraction,
+}: Props) {
   const {
     recipeData,
     setFieldState,
-    isBackgroundDark,
     showModal,
     fullscreenImage,
+    imageIndex,
+    metadata,
+    showStepsModal,
+    isInstructionsOverflow: instructionsOverflow,
   } = recipe;
   const { width } = Dimensions.get("window");
 
@@ -39,24 +49,19 @@ export default function RecipeComponent({ recipe, deleteRecipeById }: Props) {
     return <ErrorScreen message="Recipe not found or is invalid." />;
   }
 
+  const isBackgroundDark = metadata.images?.[imageIndex]?.isDark ?? false;
+
   return (
     <>
       <FullscreenImageViewer
         imageUri={fullscreenImage}
         onClose={() => setFieldState("fullscreenImage", null)}
       />
+
       <BottomSheetModal
         isVisible={showModal}
         onClose={() => setFieldState("showModal", false)}
-        modalStyle={{
-          marginBottom: -5,
-          width: "100%",
-          borderRadius: 0,
-          borderTopLeftRadius: 30,
-          borderTopRightRadius: 30,
-          paddingVertical: 20,
-          elevation: 8,
-        }}
+        modalStyle={styles.postSettings}
         zIndex={10}
         options={[
           {
@@ -90,19 +95,39 @@ export default function RecipeComponent({ recipe, deleteRecipeById }: Props) {
         ]}
       />
 
+      <BottomSheetModal
+        isVisible={showStepsModal}
+        onClose={() => setFieldState("showStepsModal", false)}
+        modalStyle={styles.instructionModal}
+        zIndex={10}
+      >
+        <ScrollView showsVerticalScrollIndicator={false}>
+          <Text style={styles.modalHeader}>All Steps</Text>
+          {recipeData.instructions.filter(Boolean).map((step, index) => (
+            <RecipeStep key={index} index={index} step={step} />
+          ))}
+        </ScrollView>
+      </BottomSheetModal>
+
       <GestureHandlerRootView>
-        <ScrollView style={{ flex: 1, backgroundColor: Colors.brand.accent }}>
-          <View style={{ position: "relative" }}>
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          style={styles.container}
+          contentContainerStyle={{ paddingBottom: 100 }}
+        >
+          <View className="relative">
             <FlatList
               data={recipeData.images}
               keyExtractor={(item, index) => `${item}-${index}`}
               horizontal
               pagingEnabled
               showsHorizontalScrollIndicator={false}
-              onMomentumScrollEnd={(e) => {
-                const index = Math.round(e.nativeEvent.contentOffset.x / width);
-                setFieldState("imageIndex", index);
-              }}
+              onMomentumScrollEnd={(e) =>
+                setFieldState(
+                  "imageIndex",
+                  Math.round(e.nativeEvent.contentOffset.x / width)
+                )
+              }
               renderItem={({ item }) => (
                 <Image
                   source={{ uri: item }}
@@ -111,173 +136,123 @@ export default function RecipeComponent({ recipe, deleteRecipeById }: Props) {
                 />
               )}
             />
+            {recipeData.images.length > 1 && (
+              <View style={styles.indicatorContainer}>
+                {recipeData.images.map((_, idx) => (
+                  <View
+                    key={`dot-${idx}`}
+                    className="w-2.5 h-2.5 rounded-full"
+                    style={[
+                      {
+                        backgroundColor: isBackgroundDark
+                          ? recipe.imageIndex === idx
+                            ? Colors.brand.accent
+                            : Colors.ui.whiteOverlay
+                          : recipe.imageIndex === idx
+                          ? Colors.ui.inactive
+                          : Colors.ui.overlayLight,
+                      },
+                    ]}
+                  />
+                ))}
+              </View>
+            )}
 
-            <View
-              style={{
-                position: "absolute",
-                bottom: 25,
-                left: 0,
-                right: 0,
-                flexDirection: "row",
-                justifyContent: "center",
-                gap: 8,
-              }}
-            >
-              {recipeData.images.map((_, idx) => (
-                <View
-                  key={`dot-${idx}`}
-                  style={[
-                    {
-                      width: 8,
-                      height: 8,
-                      borderRadius: 4,
-                      backgroundColor: isBackgroundDark
-                        ? recipe.imageIndex === idx
-                          ? Colors.brand.accent
-                          : Colors.ui.whiteOverlay
-                        : recipe.imageIndex === idx
-                        ? Colors.ui.inactive
-                        : Colors.ui.overlayLight,
-                    },
-                  ]}
-                />
-              ))}
-            </View>
-
-            <View
-              style={{
-                position: "absolute",
-                top: 70,
-                left: 0,
-                right: 0,
-                flexDirection: "row",
-                justifyContent: "space-between",
-                alignItems: "center",
-                paddingHorizontal: 16,
-              }}
-            >
-              <TouchableOpacity
-                onPress={() => router.back()}
-                className="rounded-full p-1.5 justify-center items-center"
-                style={[
-                  getOverlayStyle(isBackgroundDark),
-                  { borderWidth: 1.5 },
-                ]}
-              >
-                <IconSymbol
-                  name="chevron.left"
-                  size={24}
-                  color={
-                    isBackgroundDark
-                      ? Colors.ui.buttonFill
-                      : Colors.ui.backgroundLight
-                  }
-                />
-              </TouchableOpacity>
-
-              <View style={{ flexDirection: "row", gap: 16 }}>
-                <TouchableOpacity
-                  className="rounded-full p-1.5 justify-center items-center"
-                  style={[
-                    getOverlayStyle(isBackgroundDark),
-                    { borderWidth: 1.5 },
-                  ]}
+            <View style={styles.overlayContainer}>
+              <IconButton
+                name="chevron.left"
+                onPress={router.back}
+                isBackgroundDark={isBackgroundDark}
+              />
+              <View className="flex-row gap-4">
+                <IconButton
+                  name="arrow.up.left.and.arrow.down.right"
                   onPress={() =>
                     setFieldState(
                       "fullscreenImage",
                       recipeData.images[recipe.imageIndex]
                     )
                   }
-                >
-                  <IconSymbol
-                    name="arrow.up.left.and.arrow.down.right"
-                    size={24}
-                    color={
-                      isBackgroundDark
-                        ? Colors.ui.buttonFill
-                        : Colors.ui.backgroundLight
-                    }
-                  />
-                </TouchableOpacity>
-                <TouchableOpacity
+                  isBackgroundDark={isBackgroundDark}
+                />
+                <IconButton
+                  name="ellipsis"
                   onPress={() => setFieldState("showModal", !recipe.showModal)}
-                  className="rounded-full p-1.5 justify-center items-center"
-                  style={[
-                    getOverlayStyle(isBackgroundDark),
-                    { borderWidth: 1.5 },
-                  ]}
-                >
-                  <IconSymbol
-                    name="ellipsis.circle"
-                    size={24}
-                    color={
-                      isBackgroundDark
-                        ? Colors.ui.buttonFill
-                        : Colors.ui.backgroundLight
-                    }
-                  />
-                </TouchableOpacity>
+                  isBackgroundDark={isBackgroundDark}
+                />
               </View>
             </View>
           </View>
 
-          {/* Info Container */}
-          <View style={{ backgroundColor: "white", padding: 16 }}>
-            <View
-              style={{
-                flexDirection: "row",
-                justifyContent: "space-between",
-                alignItems: "flex-start",
-              }}
-            >
-              <View>
-                <Text style={{ fontSize: 20, fontWeight: "bold" }}>
-                  {recipeData.title}
-                </Text>
-                <Text style={{ color: "gray", marginTop: 4 }}>
-                  by {recipeData.author}
+          <View style={styles.contentContainer}>
+            <View className="flex-row justify-between items-end">
+              <View className="flex-1 pr-3">
+                <Text style={styles.recipeTitle}>{recipeData.title}</Text>
+                <Text style={styles.authorText}>
+                  by <Text style={styles.authorName}>{recipeData.author}</Text>
                 </Text>
               </View>
-              <View style={{ alignItems: "flex-end" }}>
-                <View style={{ flexDirection: "row", gap: 8 }}>
-                  <TouchableOpacity>
-                    <IconSymbol name="heart" color={Colors.brand.main} />
+              <View className="items-end">
+                <View className="flex-row gap-1.5">
+                  <TouchableOpacity onPress={() => toggleInteraction("like")}>
+                    <IconSymbol
+                      name={recipe.isLiked ? "heart.fill" : "heart"}
+                      color={Colors.brand.main}
+                    />
                   </TouchableOpacity>
-                  <TouchableOpacity>
-                    <IconSymbol name="bookmark" color={Colors.brand.main} />
+                  <TouchableOpacity
+                    onPress={() => toggleInteraction("bookmark")}
+                  >
+                    <IconSymbol
+                      name={recipe.isBookmarked ? "bookmark.fill" : "bookmark"}
+                      color={Colors.brand.main}
+                    />
                   </TouchableOpacity>
                 </View>
-                <Text style={{ color: "gray", fontSize: 12, marginTop: 4 }}>
-                  ⭐ {recipeData.rating.toFixed(1)} | 💬{" "}
-                  {recipeData.commentCount}
+                <Text style={styles.statsText}>
+                  {recipeData.rating.toFixed(1)} Rating |{" "}
+                  {recipeData.commentCount} Comment
                 </Text>
               </View>
             </View>
 
-            {/* Ingredients */}
-            <View style={{ marginTop: 24 }}>
-              <Text
-                style={{ fontSize: 18, fontWeight: "600", marginBottom: 8 }}
-              >
-                Ingredients
-              </Text>
-              {recipeData.ingredients.map((item, index) => (
-                <Text key={index} style={{ marginBottom: 4, color: "#333" }}>
-                  • {item}
-                </Text>
-              ))}
+            <View className="mt-7">
+              <Text style={styles.sectionTitle}>Ingredients</Text>
+              {recipeData.ingredients.map((item, index) => {
+                const [name, quantity] = item.split("-").map((s) => s.trim());
+                return (
+                  <View key={index} className="flex-row justify-between mb-1.5">
+                    <Text style={styles.ingredientName}>{name}</Text>
+                    <Text style={styles.quantityName}>{quantity}</Text>
+                  </View>
+                );
+              })}
             </View>
 
-            {/* Instructions */}
-            <View style={{ marginTop: 24 }}>
-              <Text
-                style={{ fontSize: 18, fontWeight: "600", marginBottom: 8 }}
-              >
-                Instructions
-              </Text>
-              <Text style={{ color: "#333", lineHeight: 22 }}>
-                {recipeData.instructions}
-              </Text>
+            <View className="mt-7">
+              <Text style={styles.sectionTitle}>Instructions</Text>
+              <View style={{ maxHeight: 350 }}>
+                <ScrollView
+                  scrollEnabled={false}
+                  onContentSizeChange={(w, h) => {
+                    setFieldState("isInstructionsOverflow", h > 350);
+                  }}
+                >
+                  {recipeData.instructions
+                    .filter(Boolean)
+                    .map((step, index) => (
+                      <RecipeStep key={index} index={index} step={step} />
+                    ))}
+                </ScrollView>
+              </View>
+              {instructionsOverflow && (
+                <TouchableOpacity
+                  onPress={() => setFieldState("showStepsModal", true)}
+                  className="mt-4 self-center"
+                >
+                  <Text style={styles.buttonText}>See All Steps</Text>
+                </TouchableOpacity>
+              )}
             </View>
           </View>
         </ScrollView>

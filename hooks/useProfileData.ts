@@ -65,7 +65,8 @@ export function useProfileData() {
         email: user.email,
         followersCount: userData.followers_count,
         followingCount: userData.following_count,
-        profileBg: backgroundUrl || undefined,
+        profileBg: backgroundUrl,
+        metadata: userData.metadata,
       };
       dispatch(setProfileData(mappedProfileData));
     } catch (error) {

@@ -10,30 +10,28 @@ import { Colors } from "@/constants/Colors";
 import { styles } from "@/utility/profile/styles";
 import HeaderBar from "@/components/HeaderBar";
 import InputBox from "@/components/InputBox";
+import { EditFieldState } from "./controller";
+import { useFieldState } from "@/hooks/useFieldState";
 
 type Props = {
+  edit: ReturnType<typeof useFieldState<EditFieldState>>;
   keyName: string;
   label: string;
-  value: string;
-  setValue: (val: string) => void;
   handleSave: () => void;
-  showDatePicker: boolean;
-  toggleDatePicker: (val: boolean) => void;
   maxLength?: number;
 };
 
 const genderOptions = ["Female", "Male", "Prefer not to say", "Other"];
 
 export default function EditFieldComponent({
+  edit,
   keyName,
   label,
-  value,
-  setValue,
   handleSave,
-  showDatePicker,
-  toggleDatePicker,
   maxLength,
 }: Props) {
+  const { value, showDatePicker, setFieldState } = edit;
+
   const renderFieldInput = () => {
     switch (keyName) {
       case "gender":
@@ -45,7 +43,7 @@ export default function EditFieldComponent({
                 <TouchableOpacity
                   key={option}
                   className="flex-row justify-between items-center px-2 py-2 rounded-lg"
-                  onPress={() => setValue(option)}
+                  onPress={() => setFieldState("value", option)}
                 >
                   <Text style={styles.genderOptionText}>{option}</Text>
                   <View
@@ -68,7 +66,7 @@ export default function EditFieldComponent({
         return (
           <>
             <TouchableOpacity
-              onPress={() => toggleDatePicker(true)}
+              onPress={() => setFieldState("showDatePicker", true)}
               style={styles.inputBox}
             >
               <Text style={styles.inputPlaceholder}>
@@ -88,9 +86,9 @@ export default function EditFieldComponent({
                 display="default"
                 maximumDate={new Date()}
                 onChange={(event, selectedDate) => {
-                  toggleDatePicker(false);
+                  setFieldState("showDatePicker", false);
                   if (selectedDate) {
-                    setValue(selectedDate.toISOString());
+                    setFieldState("value", selectedDate.toISOString());
                   }
                 }}
               />
@@ -104,7 +102,7 @@ export default function EditFieldComponent({
             <InputBox
               placeholder={`Enter your ${label.toLowerCase()}`}
               value={value}
-              onChangeText={setValue}
+              onChangeText={(text) => setFieldState("value", text)}
               inputStyle={styles.input}
               lines={4}
               limit={maxLength}

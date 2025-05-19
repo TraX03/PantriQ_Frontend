@@ -9,7 +9,7 @@ import { useDispatch } from "react-redux";
 import { useProfileData } from "@/hooks/useProfileData";
 import { syncUserCache } from "@/utility/userCacheUtils";
 
-interface EditFieldState {
+export interface EditFieldState {
   value: string;
   showDatePicker: boolean;
 }
@@ -45,16 +45,7 @@ export const useEditFieldController = (
     showDatePicker: false,
   });
 
-  const { value, showDatePicker, setFieldState } = edit;
   const label = fieldLabels[key] || "Unknown Field";
-
-  const setValue = (newValue: string) => {
-    setFieldState("value", newValue);
-  };
-
-  const toggleDatePicker = (isVisible: boolean) => {
-    setFieldState("showDatePicker", isVisible);
-  };
 
   const handleSave = async () => {
     if (!key) return;
@@ -66,7 +57,7 @@ export const useEditFieldController = (
         AppwriteConfig.DATABASE_ID,
         AppwriteConfig.USERS_COLLECTION_ID,
         user.$id,
-        { [key]: value }
+        { [key]: edit.value }
       );
 
       await Promise.all([fetchProfile(), syncUserCache(user.$id)]);
@@ -82,13 +73,10 @@ export const useEditFieldController = (
   };
 
   return {
+    edit,
     keyName: key,
     label,
-    value,
-    setValue,
     handleSave,
-    showDatePicker,
-    toggleDatePicker,
     maxLength,
   };
 };

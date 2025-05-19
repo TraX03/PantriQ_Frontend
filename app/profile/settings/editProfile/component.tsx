@@ -15,19 +15,20 @@ import ErrorScreen from "@/components/ErrorScreen";
 import { maskEmail } from "@/utility/maskUtils";
 import { ProfileData } from "@/redux/slices/profileSlice";
 import HeaderBar from "@/components/HeaderBar";
-import { getOverlayStyle } from "@/utility/imageColorUtils";
+import { getOverlayStyle } from "@/utility/imageUtils";
+import IconButton from "@/components/IconButton";
 
 type Props = {
+  isBackgroundDark: boolean;
   profileData: ProfileData | null;
   loading: boolean;
-  isBackgroundDark: boolean;
   onChangeImagePress: (fieldKey: "profile_bg" | "avatar") => Promise<void>;
 };
 
 export default function EditProfileComponent({
+  isBackgroundDark,
   profileData,
   loading,
-  isBackgroundDark,
   onChangeImagePress,
 }: Props) {
   if (!profileData && loading) return null;
@@ -110,21 +111,13 @@ export default function EditProfileComponent({
                 resizeMode="cover"
               />
             </View>
-            <TouchableOpacity
-              className="absolute -bottom-1 -right-1 rounded-full p-2 w-9 h-9 justify-center items-center"
-              style={[getOverlayStyle(isBackgroundDark), { borderWidth: 1.5 }]}
+            <IconButton
+              name="pencil"
+              iconSize={16}
+              isBackgroundDark={isBackgroundDark}
               onPress={() => onChangeImagePress("avatar")}
-            >
-              <IconSymbol
-                name="pencil"
-                color={
-                  isBackgroundDark
-                    ? Colors.ui.buttonFill
-                    : Colors.ui.backgroundLight
-                }
-                size={16}
-              />
-            </TouchableOpacity>
+              containerClassName="absolute -bottom-1 -right-1 rounded-full p-2 w-9 h-9 justify-center items-center"
+            />
           </View>
           <TouchableOpacity
             style={[styles.changeBgButton, getOverlayStyle(isBackgroundDark)]}

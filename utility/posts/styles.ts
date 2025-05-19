@@ -1,0 +1,104 @@
+import { StyleSheet } from "react-native";
+import { Colors } from "@/constants/Colors";
+
+export const styles = StyleSheet.create({
+  // Containers
+  container: {
+    flex: 1,
+    backgroundColor: Colors.brand.accent,
+  },
+  contentContainer: {
+    backgroundColor: Colors.brand.accent,
+    paddingHorizontal: 16,
+    paddingTop: 25,
+  },
+  overlayContainer: {
+    position: "absolute",
+    top: 70,
+    left: 0,
+    right: 0,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 16,
+  },
+  indicatorContainer: {
+    position: "absolute",
+    bottom: 25,
+    left: 0,
+    right: 0,
+    flexDirection: "row",
+    justifyContent: "center",
+    gap: 8,
+  },
+
+  // Modals & Panels
+  postSettings: {
+    width: "100%",
+    borderRadius: 0,
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
+    paddingVertical: 20,
+    paddingBottom: 70,
+    marginBottom: -30,
+    elevation: 8,
+  },
+  instructionModal: {
+    height: "85%",
+    width: "100%",
+    paddingHorizontal: 16,
+    paddingTop: 20,
+    paddingBottom: 60,
+    marginBottom: -25,
+  },
+
+  // Text styles
+  modalHeader: {
+    fontSize: 20,
+    fontFamily: "RobotoSemiBold",
+    marginBottom: 12,
+    textAlign: "center",
+  },
+  recipeTitle: {
+    fontSize: 20,
+    fontFamily: "RobotoBold",
+    flexShrink: 1,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontFamily: "RobotoMedium",
+    marginBottom: 12,
+  },
+  authorText: {
+    color: Colors.text.faint,
+    marginTop: 6,
+    fontFamily: "RobotoMedium",
+    fontSize: 14,
+  },
+  authorName: {
+    color: Colors.brand.main,
+    textDecorationLine: "underline",
+  },
+  statsText: {
+    color: Colors.text.gray,
+    fontSize: 12,
+    marginTop: 4,
+  },
+  ingredientName: {
+    color: Colors.ui.base,
+    fontSize: 15,
+    fontFamily: "RobotoRegular",
+    flexShrink: 1,
+  },
+  quantityName: {
+    color: Colors.text.gray,
+    fontSize: 14,
+    fontFamily: "RobotoRegular",
+  },
+  buttonText: {
+    color: Colors.brand.main,
+    fontFamily: "RobotoMedium",
+    fontSize: 15,
+    textDecorationLine: "underline",
+  },
+});

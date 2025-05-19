@@ -19,12 +19,10 @@ export const useProfileController = () => {
     postLoading: false,
   });
 
-  const { setFieldState } = profile;
-
   const fetchPostsByUser = async (user: ProfileData) => {
     if (!user?.id) return;
 
-    setFieldState("postLoading", true);
+    profile.setFieldState("postLoading", true);
 
     try {
       const [recipesRes, postsRes] = await Promise.all([
@@ -42,11 +40,11 @@ export const useProfileController = () => {
         (doc) => doc.author_id === user.id
       );
 
-      setFieldState("posts", [...recipes, ...tipsAndDiscussions]);
+      profile.setFieldState("posts", [...recipes, ...tipsAndDiscussions]);
     } catch (error) {
       console.error("Failed to fetch posts:", error);
     } finally {
-      setFieldState("postLoading", false);
+      profile.setFieldState("postLoading", false);
     }
   };
 

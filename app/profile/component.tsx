@@ -95,7 +95,7 @@ export default function ProfileComponent({
           <TouchableOpacity
             onPress={() => router.push("/profile/settings/container")}
           >
-            <IconSymbol name="ellipsis" size={27} color={Colors.brand.accent} />
+            <IconSymbol name="square.grid.2x2" size={27} color={Colors.brand.accent} />
           </TouchableOpacity>
         </View>
 

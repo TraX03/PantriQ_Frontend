@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Animated, StatusBar } from "react-native";
+import { Animated, Dimensions } from "react-native";
 
 export function useSlide(isVisible: boolean) {
   const translateY = useRef(new Animated.Value(300)).current;
@@ -7,7 +7,7 @@ export function useSlide(isVisible: boolean) {
   const cancelUnmount = useRef(false);
 
   useEffect(() => {
-    const initialY = StatusBar.currentHeight || 100;
+    const offscreenY = Dimensions.get("window").height;
 
     if (isVisible) {
       cancelUnmount.current = true;
@@ -19,7 +19,7 @@ export function useSlide(isVisible: boolean) {
     } else {
       cancelUnmount.current = false;
       Animated.spring(translateY, {
-        toValue: initialY + 100,
+        toValue: offscreenY,
         useNativeDriver: true,
       }).start(() => {
         if (!cancelUnmount.current) {

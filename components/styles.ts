@@ -58,16 +58,16 @@ const styles = StyleSheet.create({
     fontFamily: "RobotoMedium",
     color: Colors.brand.accent,
   },
-  SlideModalSheet: {
+  slideModalSheet: {
     backgroundColor: "white",
     borderRadius: 16,
     padding: 16,
-    height: 150,
     width: 270,
     alignSelf: "center",
     borderColor: Colors.ui.shadow,
     borderWidth: 1.5,
-    marginBottom: (StatusBar.currentHeight ?? 0) - 5,
+    paddingBottom: (StatusBar.currentHeight ?? 0) + 50,
+    marginBottom: -3,
   },
   addModalText: {
     fontSize: 16,
@@ -75,7 +75,7 @@ const styles = StyleSheet.create({
   },
   modalContainer: {
     flex: 1,
-    backgroundColor: Colors.ui.overlayDark,
+    backgroundColor: Colors.ui.fullScreenOverlay,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -83,6 +83,32 @@ const styles = StyleSheet.create({
     width: "100%",
     height: "100%",
     resizeMode: "contain",
+  },
+  divider: {
+    width: "30%",
+    height: 2,
+    borderRadius: 100,
+    backgroundColor: Colors.text.placeholder,
+    alignSelf: "center",
+    marginBottom: 20,
+    elevation: 1,
+  },
+  stepText: {
+    fontSize: 16,
+    fontFamily: "RobotoMedium",
+    marginBottom: 8,
+    color: Colors.brand.main,
+  },
+  stepImage: {
+    width: "100%",
+    height: 200,
+    marginBottom: 18,
+  },
+  stepDescription: {
+    color: Colors.ui.base,
+    lineHeight: 22,
+    fontSize: 15,
+    fontFamily: "RobotoRegular",
   },
 });
 

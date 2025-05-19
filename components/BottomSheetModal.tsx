@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -11,6 +11,7 @@ import {
 import { useSlide } from "@/hooks/useSlide";
 import { router } from "expo-router";
 import styles from "./styles";
+import { Colors } from "@/constants/Colors";
 
 type Option = {
   key: string;
@@ -21,9 +22,10 @@ type Option = {
 type BottomSheetModalProps = {
   isVisible: boolean;
   onClose: () => void;
-  options: Option[];
+  options?: Option[];
   zIndex?: number;
   modalStyle?: StyleProp<ViewStyle>;
+  children?: React.ReactNode;
 };
 
 export default function BottomSheetModal({
@@ -32,8 +34,21 @@ export default function BottomSheetModal({
   options,
   zIndex = 0,
   modalStyle,
+  children,
 }: BottomSheetModalProps) {
   const { translateY, shouldRender } = useSlide(isVisible);
+  const [overlayColor, setOverlayColor] = useState(Colors.ui.overlay);
+
+  useEffect(() => {
+    if (isVisible) {
+      setOverlayColor(Colors.ui.overlay);
+    }
+  }, [isVisible]);
+
+  const handlePress = () => {
+    setOverlayColor("transparent");
+    onClose();
+  };
 
   if (!shouldRender) return null;
 
@@ -46,21 +61,26 @@ export default function BottomSheetModal({
     >
       <TouchableOpacity
         activeOpacity={1}
-        onPress={onClose}
-        style={StyleSheet.absoluteFillObject}
+        onPress={handlePress}
+        style={[
+          StyleSheet.absoluteFillObject,
+          { backgroundColor: overlayColor },
+        ]}
       />
       <Animated.View
         style={[
-          styles.SlideModalSheet,
+          styles.slideModalSheet,
           { transform: [{ translateY }] },
           modalStyle,
         ]}
       >
-        {options.map(({ key, label, onPress }) => (
-          <TouchableOpacity key={key} className="py-1" onPress={onPress}>
-            <Animated.Text style={styles.addModalText}>{label}</Animated.Text>
-          </TouchableOpacity>
-        ))}
+        <View style={styles.divider} />
+        {children ??
+          options?.map(({ key, label, onPress }) => (
+            <TouchableOpacity key={key} className="py-1" onPress={onPress}>
+              <Animated.Text style={styles.addModalText}>{label}</Animated.Text>
+            </TouchableOpacity>
+          ))}
       </Animated.View>
     </View>
   );

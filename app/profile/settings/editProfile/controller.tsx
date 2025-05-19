@@ -1,48 +1,25 @@
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/redux/store";
-import { useFieldState } from "@/hooks/useFieldState";
 import { useProfileData } from "@/hooks/useProfileData";
 import { account, databases, storage } from "@/services/appwrite";
 import { AppwriteConfig } from "@/constants/AppwriteConfig";
-import { ID, Permission, Role } from "react-native-appwrite";
-import * as ImagePicker from "expo-image-picker";
-import * as FileSystem from "expo-file-system";
-import mime from "mime";
 import { guestPicture } from "@/redux/slices/profileSlice";
 import { setLoading } from "@/redux/slices/loadingSlice";
+import { useMemo } from "react";
+import { parseMetadata, setNestedMetadata } from "@/utility/handleMetadata";
+import { detectBackgroundDarkness } from "@/utility/imageUtils";
+import { useMediaHandler } from "@/hooks/useMediaHandler";
 
-interface EditProfileState {
-  isBackgroundDark: boolean;
-}
-
-export const useEditProfileController = () => {
+export const useEditProfileController = (profileData: any) => {
   const dispatch = useDispatch<AppDispatch>();
   const { fetchProfile } = useProfileData();
+  const { pickImageFile, uploadFile } = useMediaHandler();
 
-  const profile = useFieldState<EditProfileState>({
-    isBackgroundDark: false,
-  });
-
-  const pickImageFile = async () => {
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: "images",
-      allowsEditing: true,
-      quality: 1,
-    });
-
-    if (result.canceled || result.assets.length === 0) return null;
-
-    const asset = result.assets[0];
-    const mimeType = mime.getType(asset.uri) || "application/octet-stream";
-    const localFileInfo = await FileSystem.getInfoAsync(asset.uri);
-
-    return {
-      name: asset.fileName || `background_${Date.now()}`,
-      type: mimeType,
-      size: localFileInfo.exists ? localFileInfo.size ?? 0 : 0,
-      uri: asset.uri,
-    };
-  };
+  const metadata = useMemo(
+    () => parseMetadata(profileData?.metadata),
+    [profileData]
+  );
+  const isBackgroundDark = metadata?.profileBg?.isDark ?? false;
 
   const uploadFileAndUpdateProfile = async (
     file: { name: string; type: string; size: number; uri: string },
@@ -56,26 +33,37 @@ export const useEditProfileController = () => {
     );
 
     const oldFileId = userDoc[fieldKey];
-    if (oldFileId && oldFileId !== guestPicture) {
-      try {
-        await storage.deleteFile(AppwriteConfig.BUCKET_ID, oldFileId);
-      } catch (err) {
-        console.warn("Failed to delete old file:", err);
-      }
+    const shouldDeleteOldFile = oldFileId && oldFileId !== guestPicture;
+
+    if (shouldDeleteOldFile) {
+      storage
+        .deleteFile(AppwriteConfig.BUCKET_ID, oldFileId)
+        .catch((err) => console.warn("Failed to delete old file:", err));
     }
 
-    const uploaded = await storage.createFile(
-      AppwriteConfig.BUCKET_ID,
-      ID.unique(),
-      file,
-      [Permission.read(Role.user(userId)), Permission.write(Role.user(userId))]
-    );
+    const uploadedId = await uploadFile(file, userId);
+    if (!uploadedId) return;
+
+    const updatePayload: Record<string, any> = {
+      [fieldKey]: uploadedId,
+    };
+
+    if (fieldKey === "profile_bg") {
+      const existingMetadata = parseMetadata(userDoc.metadata);
+      const isDark = await detectBackgroundDarkness(file.uri);
+      const updatedMetadata = setNestedMetadata(
+        existingMetadata,
+        ["profileBg", "isDark"],
+        isDark
+      );
+      updatePayload.metadata = JSON.stringify(updatedMetadata);
+    }
 
     await databases.updateDocument(
       AppwriteConfig.DATABASE_ID,
       AppwriteConfig.USERS_COLLECTION_ID,
       userId,
-      { [fieldKey]: uploaded.$id }
+      updatePayload
     );
 
     await fetchProfile();
@@ -97,7 +85,7 @@ export const useEditProfileController = () => {
   };
 
   return {
-    profile,
+    isBackgroundDark,
     onChangeImagePress,
   };
 };

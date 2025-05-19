@@ -20,6 +20,7 @@ export const Colors = {
     overlayLight: "rgba(255,255,255,0.8)",
     overlayDark: "rgba(0,0,0,0.5)",
     whiteOverlay: "rgba(255,255,255,0.4)",
+    fullScreenOverlay: "rgba(0,0,0,0.8)",
     border: "#D1D5DB",
     shade: "rgba(94, 85, 86, 0.8)",
     lightBlueOverlay: "rgba(217, 243, 255, 0.3)",
@@ -33,7 +34,7 @@ export const Colors = {
     link: "#1F73F1",
     secondary: "#3D3D3D",
     highlight: "#A81C30",
-    gray: "#6b7280",
+    gray: "#808080",
     muted: "#e1e8f2",
   },
 };

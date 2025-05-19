@@ -26,7 +26,7 @@ export const useAuthController = (mode: AuthMode) => {
     showErrorModal: false,
   });
 
-  const { email, password, setFieldState } = authForm;
+  const { email, password, setFieldState, setFields } = authForm;
 
   const isValidEmail = (email: string) => /\S+@\S+\.\S+/.test(email);
 
@@ -80,14 +80,18 @@ export const useAuthController = (mode: AuthMode) => {
     title: string;
     defaultMessage: string;
   }) => {
-    setFieldState("errorTitle", errorConfig.title);
-    setFieldState("errorMessage", errorConfig.defaultMessage);
-    setFieldState("showErrorModal", true);
+    setFields({
+      errorTitle: errorConfig.title,
+      errorMessage: errorConfig.defaultMessage,
+      showErrorModal: true,
+    });
   };
 
   const closeErrorModal = () => {
-    setFieldState("showErrorModal", false);
-    setFieldState("errorMessage", "");
+    setFields({
+      showErrorModal: false,
+      errorMessage: "",
+    });
   };
 
   const handleSubmit = async () => {

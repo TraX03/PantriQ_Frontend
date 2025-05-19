@@ -37,7 +37,7 @@ export default function HomeComponent({
       return (
         <View>
           {filteredPosts.map((post) => (
-            <PostCard key={post.id} post={post}/>
+            <PostCard key={post.id} post={post} />
           ))}
         </View>
       );
@@ -50,7 +50,7 @@ export default function HomeComponent({
             {filteredPosts
               .filter((_, i) => i % 2 === colIndex)
               .map((post) => (
-                <PostCard key={post.id} post={post}/>
+                <PostCard key={post.id} post={post} />
               ))}
           </View>
         ))}
@@ -61,7 +61,7 @@ export default function HomeComponent({
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <View className="flex-row pb-2">
+        <View className="flex-row">
           {["Follow", "Explore"].map((tab) => (
             <Pressable
               key={tab}
@@ -84,8 +84,8 @@ export default function HomeComponent({
           ))}
         </View>
 
-        <View className="flex-row items-center space-x-4 pb-2">
-          <Pressable className="mr-2">
+        <View className="flex-row items-center gap-2">
+          <Pressable>
             <IconSymbol name="magnifyingglass" color={Colors.brand.main} />
           </Pressable>
           <Pressable>

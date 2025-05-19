@@ -10,20 +10,19 @@ type Props = {
 };
 
 export default function RecipeContainer({ recipeId }: Props) {
-  const { recipe, getRecipeById, updateBackgroundDarkness, deleteRecipeById } =
-    useRecipeController();
   const dispatch = useDispatch<AppDispatch>();
+  const { recipe, getRecipeById, deleteRecipeById, toggleInteraction } =
+    useRecipeController();
 
   useEffect(() => {
     const loadRecipe = async () => {
       try {
         dispatch(setLoading(true));
         const data = await getRecipeById(recipeId);
-        if (data) {
-          recipe.setFieldState("recipeData", data);
-        } else {
-          console.warn("Recipe not found");
-        }
+        recipe.setFields({
+          recipeData: data.recipe,
+          metadata: data.metadata,
+        });
       } catch (error) {
         console.error("Error loading recipe:", error);
       } finally {
@@ -34,19 +33,11 @@ export default function RecipeContainer({ recipeId }: Props) {
     loadRecipe();
   }, [recipeId]);
 
-  useEffect(() => {
-    if (recipe.recipeData?.images?.length) {
-      const firstImage = recipe.recipeData.images[0];
-      updateBackgroundDarkness(firstImage);
-    }
-  }, [recipe.recipeData?.images]);
-
-  useEffect(() => {
-    const currentImage = recipe.recipeData?.images?.[recipe.imageIndex];
-    if (currentImage) updateBackgroundDarkness(currentImage);
-  }, [recipe.imageIndex]);
-
   return (
-    <RecipeComponent recipe={recipe} deleteRecipeById={deleteRecipeById} />
+    <RecipeComponent
+      recipe={recipe}
+      deleteRecipeById={deleteRecipeById}
+      toggleInteraction={toggleInteraction}
+    />
   );
 }
