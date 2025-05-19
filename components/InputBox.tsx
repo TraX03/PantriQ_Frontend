@@ -1,17 +1,17 @@
-import React from "react";
-import {
-  View,
-  TextInput,
-  TextInputProps,
-  StyleProp,
-  ViewStyle,
-  TouchableOpacity,
-  Text,
-  TextStyle,
-} from "react-native";
 import { IconSymbol, IconSymbolName } from "@/components/ui/IconSymbol";
 import { Colors } from "@/constants/Colors";
 import { styles as profileStyles } from "@/utility/profile/styles";
+import React from "react";
+import {
+  StyleProp,
+  Text,
+  TextInput,
+  TextInputProps,
+  TextStyle,
+  TouchableOpacity,
+  View,
+  ViewStyle,
+} from "react-native";
 
 type InputBoxProps = TextInputProps & {
   icon?: IconSymbolName;

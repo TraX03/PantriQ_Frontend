@@ -1,9 +1,9 @@
+import { setLoading } from "@/redux/slices/loadingSlice";
+import { AppDispatch } from "@/redux/store";
+import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import RecipeComponent from "./component";
 import useRecipeController from "./controller";
-import { AppDispatch } from "@/redux/store";
-import { useEffect } from "react";
-import { setLoading } from "@/redux/slices/loadingSlice";
 
 type Props = {
   recipeId: string;
@@ -11,14 +11,14 @@ type Props = {
 
 export default function RecipeContainer({ recipeId }: Props) {
   const dispatch = useDispatch<AppDispatch>();
-  const { recipe, getRecipeById, deleteRecipeById, toggleInteraction } =
+  const { recipe, getRecipe, deleteRecipe, toggleInteraction } =
     useRecipeController();
 
   useEffect(() => {
     const loadRecipe = async () => {
       try {
         dispatch(setLoading(true));
-        const data = await getRecipeById(recipeId);
+        const data = await getRecipe(recipeId);
         recipe.setFields({
           recipeData: data.recipe,
           metadata: data.metadata,
@@ -36,7 +36,7 @@ export default function RecipeContainer({ recipeId }: Props) {
   return (
     <RecipeComponent
       recipe={recipe}
-      deleteRecipeById={deleteRecipeById}
+      deleteRecipeById={deleteRecipe}
       toggleInteraction={toggleInteraction}
     />
   );

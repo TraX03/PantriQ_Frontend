@@ -1,10 +1,10 @@
-import { useEffect, useState } from "react";
-import { Stack, useLocalSearchParams } from "expo-router";
-import { useDispatch } from "react-redux";
-import { AppDispatch } from "@/redux/store";
-import { setLoading } from "@/redux/slices/loadingSlice";
-import { getPostTypeById } from "@/utility/getPostTypeById";
 import ErrorScreen from "@/components/ErrorScreen";
+import { setLoading } from "@/redux/slices/loadingSlice";
+import { AppDispatch } from "@/redux/store";
+import { getPostTypeById } from "@/services/appwrite";
+import { Stack, useLocalSearchParams } from "expo-router";
+import { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
 import RecipeContainer from "./recipe/container";
 
 export default function PostRouter() {

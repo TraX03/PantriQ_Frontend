@@ -1,26 +1,26 @@
-import React from "react";
-import {
-  View,
-  Text,
-  Image,
-  TouchableOpacity,
-  ScrollView,
-  FlatList,
-  Dimensions,
-  Alert,
-} from "react-native";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
+import BottomSheetModal from "@/components/BottomSheetModal";
+import ErrorScreen from "@/components/ErrorScreen";
+import FullscreenImageViewer from "@/components/FullscreenImageViewer";
+import IconButton from "@/components/IconButton";
+import RecipeStep from "@/components/RecipeStep";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { Colors } from "@/constants/Colors";
-import { RecipeState } from "./controller";
 import { useFieldState } from "@/hooks/useFieldState";
-import ErrorScreen from "@/components/ErrorScreen";
-import { router } from "expo-router";
-import BottomSheetModal from "@/components/BottomSheetModal";
-import FullscreenImageViewer from "@/components/FullscreenImageViewer";
-import RecipeStep from "@/components/RecipeStep";
 import { styles } from "@/utility/posts/styles";
-import IconButton from "@/components/IconButton";
+import { router } from "expo-router";
+import React from "react";
+import {
+  Alert,
+  Dimensions,
+  FlatList,
+  Image,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { RecipeState } from "./controller";
 
 type Props = {
   recipe: ReturnType<typeof useFieldState<RecipeState>>;

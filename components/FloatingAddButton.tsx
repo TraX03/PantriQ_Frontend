@@ -1,5 +1,10 @@
 import React, { useMemo } from "react";
-import { Image, TouchableOpacity, TouchableOpacityProps, View } from "react-native";
+import {
+  Image,
+  TouchableOpacity,
+  TouchableOpacityProps,
+  View,
+} from "react-native";
 
 const imageSource = require("@/assets/images/add-button.png");
 

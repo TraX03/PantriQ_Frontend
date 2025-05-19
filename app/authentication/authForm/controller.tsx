@@ -1,7 +1,7 @@
-import { useLocalSearchParams, useRouter } from "expo-router";
-import { ValidationErrors, AuthErrors } from "@/constants/Errors";
+import { AuthErrors, ValidationErrors } from "@/constants/Errors";
 import { useAuthentication } from "@/hooks/useAuthentication";
 import { useFieldState } from "@/hooks/useFieldState";
+import { useLocalSearchParams, useRouter } from "expo-router";
 
 export interface AuthFormState {
   email: string;

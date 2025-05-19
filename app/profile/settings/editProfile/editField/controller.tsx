@@ -1,13 +1,13 @@
-import { account, databases } from "@/services/appwrite";
 import { AppwriteConfig } from "@/constants/AppwriteConfig";
-import { setLoading } from "@/redux/slices/loadingSlice";
-import { Alert } from "react-native";
-import { router } from "expo-router";
 import { useFieldState } from "@/hooks/useFieldState";
-import { AppDispatch } from "@/redux/store";
-import { useDispatch } from "react-redux";
 import { useProfileData } from "@/hooks/useProfileData";
+import { setLoading } from "@/redux/slices/loadingSlice";
+import { AppDispatch } from "@/redux/store";
+import { getCurrentUser, updateDocument } from "@/services/appwrite";
 import { syncUserCache } from "@/utility/userCacheUtils";
+import { router } from "expo-router";
+import { Alert } from "react-native";
+import { useDispatch } from "react-redux";
 
 export interface EditFieldState {
   value: string;
@@ -52,13 +52,10 @@ export const useEditFieldController = (
     dispatch(setLoading(true));
 
     try {
-      const user = await account.get();
-      await databases.updateDocument(
-        AppwriteConfig.DATABASE_ID,
-        AppwriteConfig.USERS_COLLECTION_ID,
-        user.$id,
-        { [key]: edit.value }
-      );
+      const user = await getCurrentUser();
+      await updateDocument(AppwriteConfig.USERS_COLLECTION_ID, user.$id, {
+        [key]: edit.value,
+      });
 
       await Promise.all([fetchProfile(), syncUserCache(user.$id)]);
 

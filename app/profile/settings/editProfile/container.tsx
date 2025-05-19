@@ -1,9 +1,9 @@
+import { useProfileData } from "@/hooks/useProfileData";
+import { RootState } from "@/redux/store";
 import React, { useEffect } from "react";
+import { useSelector } from "react-redux";
 import EditProfileComponent from "./component";
 import { useEditProfileController } from "./controller";
-import { useSelector } from "react-redux";
-import { RootState } from "@/redux/store";
-import { useProfileData } from "@/hooks/useProfileData";
 
 export default function EditProfileContainer() {
   const { fetchProfile } = useProfileData();

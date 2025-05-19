@@ -1,8 +1,8 @@
-import { View, Text, Pressable, ScrollView } from "react-native";
-import React from "react";
+import { Colors } from "@/constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
 import { Stack } from "expo-router";
-import { Colors } from "@/constants/Colors";
+import React from "react";
+import { Pressable, ScrollView, Text, View } from "react-native";
 
 export default function OnboardingComponent() {
   const suggestions = [
@@ -37,8 +37,7 @@ export default function OnboardingComponent() {
               >
                 <Text
                   style={{
-                    color:
-                      num === 1 ? Colors.brand.accent : Colors.brand.base,
+                    color: num === 1 ? Colors.brand.accent : Colors.brand.base,
                     fontSize: 13,
                     fontFamily: "RobotoRegular",
                   }}

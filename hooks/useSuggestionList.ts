@@ -1,9 +1,9 @@
-import { useEffect, useState } from "react";
 import {
-  fetchIngredients,
-  fetchCategory,
   fetchArea,
+  fetchCategory,
+  fetchIngredients,
 } from "@/services/MealDbApi";
+import { useEffect, useState } from "react";
 
 type SuggestionType = "ingredient" | "category" | "area";
 

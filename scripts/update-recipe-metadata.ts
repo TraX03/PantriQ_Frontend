@@ -1,7 +1,6 @@
-import { databases } from "@/services/appwrite";
 import { AppwriteConfig } from "@/constants/AppwriteConfig";
+import { fetchAllDocuments, updateDocument } from "@/services/appwrite";
 import { detectBackgroundDarkness } from "@/utility/imageUtils";
-import { fetchAllDocuments } from "@/utility/fetchUtils";
 
 export const updateRecipeMetadata = async () => {
   try {
@@ -25,12 +24,9 @@ export const updateRecipeMetadata = async () => {
         ),
       };
 
-      await databases.updateDocument(
-        AppwriteConfig.DATABASE_ID,
-        AppwriteConfig.RECIPES_COLLECTION_ID,
-        $id,
-        { metadata: JSON.stringify(metadata) }
-      );
+      await updateDocument(AppwriteConfig.RECIPES_COLLECTION_ID, $id, {
+        metadata: JSON.stringify(metadata),
+      });
 
       console.log(`Updated metadata for recipe ${$id}`);
     }

@@ -1,9 +1,9 @@
 import { useProfileData } from "@/hooks/useProfileData";
-import ProfileComponent from "./component";
-import SettingsController from "./controller";
+import { RootState } from "@/redux/store";
 import { useEffect } from "react";
 import { useSelector } from "react-redux";
-import { RootState } from "@/redux/store";
+import ProfileComponent from "./component";
+import SettingsController from "./controller";
 
 export default function SettingsContainer() {
   const { fetchProfile } = useProfileData();

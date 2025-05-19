@@ -1,15 +1,15 @@
-import {
-  ScrollView,
-  View,
-  Text,
-  Pressable,
-  RefreshControl,
-} from "react-native";
-import { Colors } from "@/constants/Colors";
 import PostCard, { Post } from "@/components/PostCard";
 import { IconSymbol } from "@/components/ui/IconSymbol";
-import { styles } from "@/utility/home/styles";
+import { Colors } from "@/constants/Colors";
 import { useFieldState } from "@/hooks/useFieldState";
+import { styles } from "@/utility/home/styles";
+import {
+  Pressable,
+  RefreshControl,
+  ScrollView,
+  Text,
+  View,
+} from "react-native";
 import { HomeState } from "./controller";
 
 type Props = {

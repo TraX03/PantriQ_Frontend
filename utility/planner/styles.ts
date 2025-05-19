@@ -1,5 +1,5 @@
-import { StyleSheet } from "react-native";
 import { Colors } from "@/constants/Colors";
+import { StyleSheet } from "react-native";
 
 export const styles = StyleSheet.create({
   headerTitle: {
@@ -7,18 +7,20 @@ export const styles = StyleSheet.create({
     fontSize: 25,
     color: Colors.text.highlight,
   },
-  dateContainer: {
+  weekContainer: {
     paddingVertical: 12,
     backgroundColor: Colors.brand.accent,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     paddingHorizontal: 16,
+    elevation: 2,
+    zIndex: 10,
   },
   weekText: {
     fontFamily: "RobotoMedium",
-    fontSize: 16,
-    color: Colors.brand.base,
+    fontSize: 17,
+    color: Colors.ui.base,
   },
   dayText: {
     fontFamily: "RobotoRegular",
@@ -26,8 +28,66 @@ export const styles = StyleSheet.create({
   },
   dateText: {
     fontFamily: "RobotoMedium",
-    fontSize: 16,
+    fontSize: 17,
     color: Colors.brand.base,
     marginRight: 8,
+    marginVertical: 4,
+  },
+  addMealButton: {
+    width: 130,
+    height: 100,
+    borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: Colors.ui.grayButtonFill,
+  },
+  mealtimeContainer: {
+    backgroundColor: Colors.brand.accent,
+    width: "100%",
+    padding: 13,
+    borderRadius: 8,
+    marginTop: 10,
+  },
+  mealtimeTitle: {
+    fontFamily: "AfacadMedium",
+    fontSize: 20,
+    color: Colors.brand.main,
+  },
+  recipeTitle: {
+    color: Colors.brand.base,
+    fontFamily: "RobotoRegular",
+    fontSize: 13,
+  },
+  addContianer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    borderBottomColor: Colors.ui.overlay,
+    borderBottomWidth: 1.5,
+    marginHorizontal: 9,
+    marginTop: 18,
+    marginBottom: 12,
+  },
+  addText: {
+    fontFamily: "AfacadMedium",
+    fontSize: 20,
+    color: Colors.ui.overlay,
+  },
+  generateButton: {
+    position: "absolute",
+    width: "80%",
+    bottom: 45,
+    backgroundColor: Colors.brand.main,
+    padding: 14,
+    borderRadius: 6,
+    alignItems: "center",
+    justifyContent: "center",
+    alignSelf: "center",
+    elevation: 2,
+  },
+  generateText: {
+    color: Colors.brand.accent,
+    fontSize: 16,
+    fontFamily: "RobotoMedium",
   },
 });

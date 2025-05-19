@@ -1,7 +1,6 @@
 import { AppwriteConfig } from "@/constants/AppwriteConfig";
-import { databases } from "@/services/appwrite";
+import { createDocument } from "@/services/appwrite";
 import { TheMealDB_Config } from "@/services/MealDbApi";
-import { ID } from "react-native-appwrite";
 
 const parseIngredients = (meal: any) => {
   const ingredients = [];
@@ -48,21 +47,16 @@ export const fetchAndSaveMeals = async () => {
 
     for (const meal of meals) {
       try {
-        await databases.createDocument(
-          DATABASE_ID,
-          RECIPES_COLLECTION_ID,
-          ID.unique(),
-          {
-            title: meal.strMeal,
-            image: [meal.strMealThumb],
-            author_id: THEMEALDB_ID,
-            ingredients: flattenIngredients(parseIngredients(meal)),
-            instructions: parseInstructions(meal.strInstructions),
-            area: meal.strArea,
-            category: [meal.strCategory],
-            created_at: new Date().toISOString(),
-          }
-        );
+        await createDocument(RECIPES_COLLECTION_ID, {
+          title: meal.strMeal,
+          image: [meal.strMealThumb],
+          author_id: THEMEALDB_ID,
+          ingredients: flattenIngredients(parseIngredients(meal)),
+          instructions: parseInstructions(meal.strInstructions),
+          area: meal.strArea,
+          category: [meal.strCategory],
+          created_at: new Date().toISOString(),
+        });
 
         console.log(`Saved: ${meal.strMeal}`);
       } catch (saveErr) {

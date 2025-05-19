@@ -1,5 +1,5 @@
-import { StyleSheet } from "react-native";
 import { Colors } from "@/constants/Colors";
+import { StyleSheet } from "react-native";
 
 const BaseInputBox = {
   borderWidth: 1,
@@ -44,8 +44,12 @@ export const styles = StyleSheet.create({
 
   // Button
   addImageButton: {
+    width: 112,
+    height: 112,
+    borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "center",
     backgroundColor: Colors.ui.grayButtonFill,
-    elevation: 2,
   },
   removeButton: {
     position: "absolute",

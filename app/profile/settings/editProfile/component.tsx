@@ -1,22 +1,22 @@
-import React, { useMemo } from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  ImageBackground,
-  Image,
-  Pressable,
-} from "react-native";
-import { Colors } from "@/constants/Colors";
+import ErrorScreen from "@/components/ErrorScreen";
+import HeaderBar from "@/components/HeaderBar";
+import IconButton from "@/components/IconButton";
 import { IconSymbol } from "@/components/ui/IconSymbol";
+import { Colors } from "@/constants/Colors";
+import { ProfileData } from "@/redux/slices/profileSlice";
+import { getOverlayStyle } from "@/utility/imageUtils";
+import { maskEmail } from "@/utility/maskUtils";
 import { styles } from "@/utility/profile/styles";
 import { router, Stack } from "expo-router";
-import ErrorScreen from "@/components/ErrorScreen";
-import { maskEmail } from "@/utility/maskUtils";
-import { ProfileData } from "@/redux/slices/profileSlice";
-import HeaderBar from "@/components/HeaderBar";
-import { getOverlayStyle } from "@/utility/imageUtils";
-import IconButton from "@/components/IconButton";
+import React, { useMemo } from "react";
+import {
+  Image,
+  ImageBackground,
+  Pressable,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 type Props = {
   isBackgroundDark: boolean;

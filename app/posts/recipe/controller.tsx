@@ -1,18 +1,25 @@
 import { AppwriteConfig } from "@/constants/AppwriteConfig";
-import { account, databases, storage } from "@/services/appwrite";
-import { getUsersByIds } from "@/utility/userCacheUtils";
-import { getImageUrl, isValidUrl } from "@/utility/imageUtils";
 import { useFieldState } from "@/hooks/useFieldState";
-import { useDispatch } from "react-redux";
-import { AppDispatch } from "@/redux/store";
 import { setLoading } from "@/redux/slices/loadingSlice";
-import { Alert } from "react-native";
-import { router } from "expo-router";
 import { setRefreshProfile } from "@/redux/slices/profileSlice";
-import { parseMetadata } from "@/utility/handleMetadata";
-import { ID, Query } from "react-native-appwrite";
+import { AppDispatch } from "@/redux/store";
+import {
+  createDocument,
+  deleteDocument,
+  getCurrentUser,
+  getDocumentById,
+  listDocuments,
+  storage,
+} from "@/services/appwrite";
+import { getImageUrl, isValidUrl } from "@/utility/imageUtils";
+import { parseMetadata } from "@/utility/metadataUtils";
+import { fetchUsers } from "@/utility/userCacheUtils";
+import { router } from "expo-router";
+import { Alert } from "react-native";
+import { Query } from "react-native-appwrite";
+import { useDispatch } from "react-redux";
 
-interface Recipe {
+export interface Recipe {
   id: string;
   title: string;
   author: string;
@@ -21,6 +28,7 @@ interface Recipe {
   instructions: string[];
   rating: number;
   commentCount: number;
+  category?: string[];
 }
 
 export interface RecipeState {
@@ -54,16 +62,14 @@ export const useRecipeController = () => {
     isInstructionsOverflow: false,
   });
 
-  const getRecipeById = async (recipeId: string) => {
+  const getRecipe = async (recipeId: string) => {
     try {
-      const recipeDoc = await databases.getDocument(
-        AppwriteConfig.DATABASE_ID,
+      const recipeDoc = await getDocumentById(
         AppwriteConfig.RECIPES_COLLECTION_ID,
         recipeId
       );
-
       const authorId = recipeDoc.author_id;
-      const usersMap = await getUsersByIds([authorId]);
+      const usersMap = await fetchUsers([authorId]);
       const author = usersMap.get(authorId);
 
       const images = Array.isArray(recipeDoc.image)
@@ -71,10 +77,9 @@ export const useRecipeController = () => {
         : [];
 
       const metadata = parseMetadata(recipeDoc.metadata);
-      const currentUser = await account.get();
+      const currentUser = await getCurrentUser();
 
-      const interactions = await databases.listDocuments(
-        AppwriteConfig.DATABASE_ID,
+      const interactions = await listDocuments(
         AppwriteConfig.INTERACTIONS_COLLECTION_ID,
         [
           Query.equal("post_id", recipeDoc.$id),
@@ -82,10 +87,8 @@ export const useRecipeController = () => {
         ]
       );
 
-      const like = interactions.documents.find((doc) => doc.type === "like");
-      const bookmark = interactions.documents.find(
-        (doc) => doc.type === "bookmark"
-      );
+      const like = interactions.find((doc) => doc.type === "like");
+      const bookmark = interactions.find((doc) => doc.type === "bookmark");
 
       recipe.setFields({
         isLiked: !!like,
@@ -113,16 +116,14 @@ export const useRecipeController = () => {
     }
   };
 
-  const deleteRecipeById = async (recipeId: string) => {
+  const deleteRecipe = async (recipeId: string) => {
     try {
       dispatch(setLoading(true));
 
-      const recipeDoc = await databases.getDocument(
-        AppwriteConfig.DATABASE_ID,
+      const recipeDoc = await getDocumentById(
         AppwriteConfig.RECIPES_COLLECTION_ID,
         recipeId
       );
-
       const imageRefs = recipeDoc.image || [];
       const instructionRefs = recipeDoc.instructions || [];
 
@@ -146,11 +147,7 @@ export const useRecipeController = () => {
         })
       );
 
-      await databases.deleteDocument(
-        AppwriteConfig.DATABASE_ID,
-        AppwriteConfig.RECIPES_COLLECTION_ID,
-        recipeId
-      );
+      await deleteDocument(AppwriteConfig.RECIPES_COLLECTION_ID, recipeId);
 
       recipe.setFieldState("recipeData", null);
 
@@ -170,24 +167,19 @@ export const useRecipeController = () => {
   const toggleInteraction = async (type: "like" | "bookmark") => {
     const isActive = type === "like" ? recipe.isLiked : recipe.isBookmarked;
     const docId = type === "like" ? recipe.likeDocId : recipe.bookmarkDocId;
-    const currentUser = await account.get();
+    const currentUser = await getCurrentUser();
 
     try {
       if (isActive && docId) {
-        await databases.deleteDocument(
-          AppwriteConfig.DATABASE_ID,
-          AppwriteConfig.INTERACTIONS_COLLECTION_ID,
-          docId
-        );
+        await deleteDocument(AppwriteConfig.INTERACTIONS_COLLECTION_ID, docId);
+
         recipe.setFields({
           [type === "like" ? "isLiked" : "isBookmarked"]: false,
           [type === "like" ? "likeDocId" : "bookmarkDocId"]: undefined,
         });
       } else {
-        const newDoc = await databases.createDocument(
-          AppwriteConfig.DATABASE_ID,
+        const newDoc = await createDocument(
           AppwriteConfig.INTERACTIONS_COLLECTION_ID,
-          ID.unique(),
           {
             user_id: currentUser.$id,
             post_id: recipe.recipeData?.id,
@@ -195,6 +187,7 @@ export const useRecipeController = () => {
             created_at: new Date().toISOString(),
           }
         );
+
         recipe.setFields({
           [type === "like" ? "isLiked" : "isBookmarked"]: true,
           [type === "like" ? "likeDocId" : "bookmarkDocId"]: newDoc.$id,
@@ -207,8 +200,8 @@ export const useRecipeController = () => {
 
   return {
     recipe,
-    getRecipeById,
-    deleteRecipeById,
+    getRecipe,
+    deleteRecipe,
     toggleInteraction,
   };
 };

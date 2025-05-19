@@ -1,12 +1,12 @@
-import React from "react";
-import { Text, TouchableOpacity, ScrollView, View, Image } from "react-native";
-import { styles } from "@/utility/profile/styles";
-import { router, Stack } from "expo-router";
+import ErrorScreen from "@/components/ErrorScreen";
 import HeaderBar from "@/components/HeaderBar";
+import { IconSymbol } from "@/components/ui/IconSymbol";
 import { Colors } from "@/constants/Colors";
 import { ProfileData } from "@/redux/slices/profileSlice";
-import ErrorScreen from "@/components/ErrorScreen";
-import { IconSymbol } from "@/components/ui/IconSymbol";
+import { styles } from "@/utility/profile/styles";
+import { router, Stack } from "expo-router";
+import React from "react";
+import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
 
 type Props = {
   profileData: ProfileData | null;

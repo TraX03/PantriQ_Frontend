@@ -1,5 +1,4 @@
-import { AppwriteConfig } from "@/constants/AppwriteConfig";
-import { storage } from "@/services/appwrite";
+import { getImageUrl } from "@/utility/imageUtils";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 type Gender = "Male" | "Female" | "Prefer not to say" | "Other";
@@ -23,7 +22,7 @@ export const guestPicture: string = "6820391600141fa25422";
 
 export const guestProfile: ProfileData = {
   username: "Guest",
-  avatarUrl: storage.getFileView(AppwriteConfig.BUCKET_ID, guestPicture).href,
+  avatarUrl: getImageUrl(guestPicture),
   followersCount: 0,
   followingCount: 0,
 };

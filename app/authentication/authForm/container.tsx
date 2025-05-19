@@ -1,6 +1,6 @@
 import React from "react";
 import AuthFormComponent from "./component";
-import { useAuthController, AuthMode } from "./controller";
+import { AuthMode, useAuthController } from "./controller";
 
 type Props = {
   mode: AuthMode;

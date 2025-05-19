@@ -1,9 +1,9 @@
-import * as ImagePicker from "expo-image-picker";
-import * as FileSystem from "expo-file-system";
-import mime from "mime";
-import { storage } from "@/services/appwrite";
-import { ID, Permission, Role } from "react-native-appwrite";
 import { AppwriteConfig } from "@/constants/AppwriteConfig";
+import { storage } from "@/services/appwrite";
+import * as FileSystem from "expo-file-system";
+import * as ImagePicker from "expo-image-picker";
+import mime from "mime";
+import { ID, Permission, Role } from "react-native-appwrite";
 
 export const useMediaHandler = () => {
   const pickImageFile = async () => {

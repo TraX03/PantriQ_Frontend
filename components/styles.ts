@@ -1,5 +1,5 @@
-import { StatusBar, StyleSheet } from "react-native";
 import { Colors } from "@/constants/Colors";
+import { StatusBar, StyleSheet } from "react-native";
 
 const baseTextStyle = {
   fontFamily: "RobotoRegular",

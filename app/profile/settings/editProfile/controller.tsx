@@ -1,14 +1,19 @@
-import { useDispatch } from "react-redux";
-import { AppDispatch } from "@/redux/store";
-import { useProfileData } from "@/hooks/useProfileData";
-import { account, databases, storage } from "@/services/appwrite";
 import { AppwriteConfig } from "@/constants/AppwriteConfig";
-import { guestPicture } from "@/redux/slices/profileSlice";
-import { setLoading } from "@/redux/slices/loadingSlice";
-import { useMemo } from "react";
-import { parseMetadata, setNestedMetadata } from "@/utility/handleMetadata";
-import { detectBackgroundDarkness } from "@/utility/imageUtils";
 import { useMediaHandler } from "@/hooks/useMediaHandler";
+import { useProfileData } from "@/hooks/useProfileData";
+import { setLoading } from "@/redux/slices/loadingSlice";
+import { guestPicture } from "@/redux/slices/profileSlice";
+import { AppDispatch } from "@/redux/store";
+import {
+  getCurrentUser,
+  getDocumentById,
+  storage,
+  updateDocument,
+} from "@/services/appwrite";
+import { detectBackgroundDarkness } from "@/utility/imageUtils";
+import { parseMetadata, setNestedMetadata } from "@/utility/metadataUtils";
+import { useMemo } from "react";
+import { useDispatch } from "react-redux";
 
 export const useEditProfileController = (profileData: any) => {
   const dispatch = useDispatch<AppDispatch>();
@@ -26,12 +31,10 @@ export const useEditProfileController = (profileData: any) => {
     userId: string,
     fieldKey: "profile_bg" | "avatar"
   ) => {
-    const userDoc = await databases.getDocument(
-      AppwriteConfig.DATABASE_ID,
+    const userDoc = await getDocumentById(
       AppwriteConfig.USERS_COLLECTION_ID,
       userId
     );
-
     const oldFileId = userDoc[fieldKey];
     const shouldDeleteOldFile = oldFileId && oldFileId !== guestPicture;
 
@@ -59,8 +62,7 @@ export const useEditProfileController = (profileData: any) => {
       updatePayload.metadata = JSON.stringify(updatedMetadata);
     }
 
-    await databases.updateDocument(
-      AppwriteConfig.DATABASE_ID,
+    await updateDocument(
       AppwriteConfig.USERS_COLLECTION_ID,
       userId,
       updatePayload
@@ -75,7 +77,7 @@ export const useEditProfileController = (profileData: any) => {
 
     dispatch(setLoading(true));
     try {
-      const user = await account.get();
+      const user = await getCurrentUser();
       await uploadFileAndUpdateProfile(file, user.$id, fieldKey);
     } catch (error) {
       console.error(`Failed to update ${fieldKey}:`, error);

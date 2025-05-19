@@ -1,6 +1,6 @@
-import { View, Text, TouchableOpacity } from "react-native";
-import { useRouter } from "expo-router";
 import { Colors } from "@/constants/Colors";
+import { useRouter } from "expo-router";
+import { Text, TouchableOpacity, View } from "react-native";
 import { IconSymbol } from "./ui/IconSymbol";
 
 type HeaderBarProps = {

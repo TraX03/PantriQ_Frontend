@@ -1,8 +1,8 @@
 import { AppwriteConfig } from "@/constants/AppwriteConfig";
-import { Models } from "react-native-appwrite";
-import { ProfileData } from "@/redux/slices/profileSlice";
 import { useFieldState } from "@/hooks/useFieldState";
-import { fetchAllDocuments, safeFetch } from "@/utility/fetchUtils";
+import { ProfileData } from "@/redux/slices/profileSlice";
+import { fetchAllDocuments } from "@/services/appwrite";
+import { Models } from "react-native-appwrite";
 
 export interface ProfileState {
   activeTab: "Posts" | "Collections" | "Likes";
@@ -26,10 +26,8 @@ export const useProfileController = () => {
 
     try {
       const [recipesRes, postsRes] = await Promise.all([
-        safeFetch(() =>
-          fetchAllDocuments(AppwriteConfig.RECIPES_COLLECTION_ID)
-        ),
-        safeFetch(() => fetchAllDocuments(AppwriteConfig.POSTS_COLLECTION_ID)),
+        fetchAllDocuments(AppwriteConfig.RECIPES_COLLECTION_ID),
+        fetchAllDocuments(AppwriteConfig.POSTS_COLLECTION_ID),
       ]);
 
       const recipes = recipesRes

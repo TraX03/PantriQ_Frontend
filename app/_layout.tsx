@@ -6,10 +6,10 @@ import { useEffect } from "react";
 import "react-native-reanimated";
 import "./global.css";
 
+import LoadingScreen from "@/components/LoadingScreen";
+import { persistor, store } from "@/redux/store";
 import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
-import { store, persistor } from "@/redux/store";
-import LoadingScreen from "@/components/LoadingScreen";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -24,6 +24,8 @@ export default function RootLayout() {
     RobotoSemiCondensed: require("../assets/fonts/Roboto_SemiCondensed-Regular.ttf"),
     SignikaNegativeSC: require("../assets/fonts/SignikaNegativeSC-Regular.ttf"),
     SignikaNegativeSCSemiBold: require("../assets/fonts/SignikaNegativeSC-SemiBold.ttf"),
+    Afacad: require("../assets/fonts/Afacad-Regular.ttf"),
+    AfacadMedium: require("../assets/fonts/Afacad-Medium.ttf"),
   });
 
   useEffect(() => {

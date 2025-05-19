@@ -1,26 +1,26 @@
+import ErrorScreen from "@/components/ErrorScreen";
+import PostCard from "@/components/PostCard";
+import { IconSymbol, IconSymbolName } from "@/components/ui/IconSymbol";
+import { Colors } from "@/constants/Colors";
+import { useFieldState } from "@/hooks/useFieldState";
+import { ProfileData } from "@/redux/slices/profileSlice";
+import { getImageUrl } from "@/utility/imageUtils";
+import { styles } from "@/utility/profile/styles";
+import { LinearGradient } from "expo-linear-gradient";
+import { router } from "expo-router";
 import React from "react";
 import {
-  View,
+  ActivityIndicator,
+  Image,
+  ImageBackground,
+  Pressable,
+  ScrollView,
+  StyleSheet,
   Text,
   TouchableOpacity,
-  Image,
-  ScrollView,
-  ImageBackground,
-  StyleSheet,
-  Pressable,
-  ActivityIndicator,
+  View,
 } from "react-native";
-import { Colors } from "@/constants/Colors";
-import { styles } from "@/utility/profile/styles";
-import { IconSymbol, IconSymbolName } from "@/components/ui/IconSymbol";
-import { router } from "expo-router";
-import ErrorScreen from "@/components/ErrorScreen";
-import { ProfileData } from "@/redux/slices/profileSlice";
-import { LinearGradient } from "expo-linear-gradient";
-import { useFieldState } from "@/hooks/useFieldState";
-import PostCard from "@/components/PostCard";
 import { ProfileState } from "./controller";
-import { getImageUrl } from "@/utility/imageUtils";
 
 type Props = {
   profileData: ProfileData | null;
@@ -95,7 +95,11 @@ export default function ProfileComponent({
           <TouchableOpacity
             onPress={() => router.push("/profile/settings/container")}
           >
-            <IconSymbol name="square.grid.2x2" size={27} color={Colors.brand.accent} />
+            <IconSymbol
+              name="square.grid.2x2"
+              size={27}
+              color={Colors.brand.accent}
+            />
           </TouchableOpacity>
         </View>
 

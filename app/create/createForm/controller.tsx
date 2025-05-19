@@ -1,21 +1,21 @@
-import * as ImagePicker from "expo-image-picker";
-import * as FileSystem from "expo-file-system";
-import mime from "mime";
-import { Alert, Keyboard } from "react-native";
-import { account, databases } from "@/services/appwrite";
-import { AppwriteConfig } from "@/constants/AppwriteConfig";
-import { ID, Permission, Role } from "react-native-appwrite";
-import { setLoading } from "@/redux/slices/loadingSlice";
-import { useFieldState } from "@/hooks/useFieldState";
-import { useDispatch } from "react-redux";
-import { AppDispatch } from "@/redux/store";
-import { useLocalSearchParams, router } from "expo-router";
-import { useCallback, useMemo } from "react";
-import { PostType } from "@/components/PostCard";
 import { EntryType } from "@/components/EntryListForm";
-import { setRefreshProfile } from "@/redux/slices/profileSlice";
-import { detectBackgroundDarkness } from "@/utility/imageUtils";
+import { PostType } from "@/components/PostCard";
+import { AppwriteConfig } from "@/constants/AppwriteConfig";
+import { useFieldState } from "@/hooks/useFieldState";
 import { useMediaHandler } from "@/hooks/useMediaHandler";
+import { setLoading } from "@/redux/slices/loadingSlice";
+import { setRefreshProfile } from "@/redux/slices/profileSlice";
+import { AppDispatch } from "@/redux/store";
+import { createDocument, getCurrentUser } from "@/services/appwrite";
+import { detectBackgroundDarkness } from "@/utility/imageUtils";
+import * as FileSystem from "expo-file-system";
+import * as ImagePicker from "expo-image-picker";
+import { router, useLocalSearchParams } from "expo-router";
+import mime from "mime";
+import { useCallback, useMemo } from "react";
+import { Alert, Keyboard } from "react-native";
+import { ID, Permission, Role } from "react-native-appwrite";
+import { useDispatch } from "react-redux";
 
 export interface CreateFormState {
   title: string;
@@ -81,7 +81,7 @@ export const useCreateFormController = () => {
 
     dispatch(setLoading(true));
     try {
-      const user = await account.get();
+      const user = await getCurrentUser();
       const userId = user.$id;
 
       const uploadedImageIds = (
@@ -155,11 +155,10 @@ export const useCreateFormController = () => {
         community: AppwriteConfig.COMMUNITIES_COLLECTION_ID,
       };
 
-      await databases.createDocument(
-        AppwriteConfig.DATABASE_ID,
+      await createDocument(
         collectionMap[postType],
-        ID.unique(),
         payloadMap[postType],
+        ID.unique(),
         [Permission.read(Role.any()), Permission.write(Role.user(userId))]
       );
 

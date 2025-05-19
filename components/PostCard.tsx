@@ -1,8 +1,8 @@
-import { View, Text, Image, Pressable, TouchableOpacity } from "react-native";
 import { Colors } from "@/constants/Colors";
-import { IconSymbol } from "./ui/IconSymbol";
-import styles from "./styles";
 import { router } from "expo-router";
+import { Image, Pressable, Text, TouchableOpacity, View } from "react-native";
+import styles from "./styles";
+import { IconSymbol } from "./ui/IconSymbol";
 
 export type PostType = "recipe" | "tips" | "discussion" | "community";
 

@@ -1,10 +1,10 @@
-import React from "react";
-import { View, Text, TouchableOpacity } from "react-native";
-import { styles } from "@/utility/profile/styles";
-import LottieView from "lottie-react-native";
-import { router, Stack } from "expo-router";
-import { IconSymbol } from "./ui/IconSymbol";
 import { Colors } from "@/constants/Colors";
+import { styles } from "@/utility/profile/styles";
+import { router, Stack } from "expo-router";
+import LottieView from "lottie-react-native";
+import React from "react";
+import { Text, TouchableOpacity, View } from "react-native";
+import { IconSymbol } from "./ui/IconSymbol";
 
 type ErrorScreenProps = {
   message: string;
@@ -16,11 +16,7 @@ const ErrorScreen: React.FC<ErrorScreenProps> = ({ message }) => (
     <View style={styles.centeredContainer}>
       <View className="absolute top-20 left-3 self-start">
         <TouchableOpacity onPress={() => router.back()}>
-          <IconSymbol
-            name="chevron.left"
-            color={Colors.brand.main}
-            size={30}
-          />
+          <IconSymbol name="chevron.left" color={Colors.brand.main} size={30} />
         </TouchableOpacity>
       </View>
       <LottieView

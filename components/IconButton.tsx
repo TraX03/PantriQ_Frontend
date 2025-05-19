@@ -1,7 +1,7 @@
-import { ViewStyle, TouchableOpacity } from "react-native";
-import { IconSymbol, IconSymbolName } from "./ui/IconSymbol";
 import { Colors } from "@/constants/Colors";
 import { getOverlayStyle } from "@/utility/imageUtils";
+import { TouchableOpacity, ViewStyle } from "react-native";
+import { IconSymbol, IconSymbolName } from "./ui/IconSymbol";
 
 type IconButtonProps = {
   name: IconSymbolName;

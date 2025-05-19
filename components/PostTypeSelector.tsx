@@ -1,16 +1,19 @@
-import React from "react";
-import { View, Text, TouchableOpacity } from "react-native";
-import { Colors } from "@/constants/Colors";
-import { styles as profileStyles } from "@/utility/profile/styles";
-import { styles } from "@/utility/create/styles";
 import { Post } from "@/components/PostCard";
+import { Colors } from "@/constants/Colors";
+import { styles } from "@/utility/create/styles";
+import { styles as profileStyles } from "@/utility/profile/styles";
+import React from "react";
+import { Text, TouchableOpacity, View } from "react-native";
 
 type PostTypeSelectorProps = {
   postType: Post["type"];
   setPostType: (type: Post["type"]) => void;
 };
 
-export default function PostTypeSelector({ postType, setPostType }: PostTypeSelectorProps) {
+export default function PostTypeSelector({
+  postType,
+  setPostType,
+}: PostTypeSelectorProps) {
   const options: Post["type"][] = ["tips", "discussion"];
 
   return (

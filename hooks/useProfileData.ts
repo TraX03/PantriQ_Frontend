@@ -1,14 +1,15 @@
-import { useCallback } from "react";
-import { account, databases, storage } from "@/services/appwrite";
 import { AppwriteConfig } from "@/constants/AppwriteConfig";
 import { setLoading } from "@/redux/slices/loadingSlice";
 import {
-  setProfileData,
-  resetProfileData,
   guestProfile,
+  resetProfileData,
+  setProfileData,
 } from "@/redux/slices/profileSlice";
-import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/redux/store";
+import { getCurrentUser, getDocumentById } from "@/services/appwrite";
+import { getImageUrl } from "@/utility/imageUtils";
+import { useCallback } from "react";
+import { useDispatch } from "react-redux";
 
 export function useProfileData() {
   const dispatch = useDispatch<AppDispatch>();
@@ -16,10 +17,8 @@ export function useProfileData() {
   const fetchProfile = useCallback(async () => {
     dispatch(setLoading(true));
     try {
-      const user = await account.get();
-
-      const userData = await databases.getDocument(
-        AppwriteConfig.DATABASE_ID,
+      const user = await getCurrentUser();
+      const userData = await getDocumentById(
         AppwriteConfig.USERS_COLLECTION_ID,
         user.$id
       );
@@ -27,10 +26,7 @@ export function useProfileData() {
       let avatarUrl: string | undefined;
       if (userData.avatar) {
         try {
-          avatarUrl = storage.getFileView(
-            AppwriteConfig.BUCKET_ID,
-            userData.avatar
-          ).href;
+          avatarUrl = getImageUrl(userData.avatar);
         } catch (avatarError) {
           console.warn("Failed to generate avatar URL.", { avatarError });
           avatarUrl = guestProfile.avatarUrl;
@@ -42,10 +38,7 @@ export function useProfileData() {
       let backgroundUrl: string | undefined;
       if (userData.profile_bg) {
         try {
-          backgroundUrl = storage.getFileView(
-            AppwriteConfig.BUCKET_ID,
-            userData.profile_bg
-          ).href;
+          backgroundUrl = getImageUrl(userData.profile_bg);
         } catch (bgError) {
           console.warn("Failed to generate background URL.", { bgError });
           backgroundUrl = undefined;

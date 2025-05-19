@@ -1,10 +1,10 @@
 import { Colors } from "@/constants/Colors";
 import { getImageUrl } from "@/utility/imageUtils";
 import React, { useState } from "react";
-import { View, Text, Image, TouchableOpacity } from "react-native";
+import { Image, Text, TouchableOpacity, View } from "react-native";
 import FullscreenImageViewer from "./FullscreenImageViewer";
-import { IconSymbol } from "./ui/IconSymbol";
 import styles from "./styles";
+import { IconSymbol } from "./ui/IconSymbol";
 
 interface RecipeStepProps {
   index: number;

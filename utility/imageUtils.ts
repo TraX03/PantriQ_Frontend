@@ -1,7 +1,7 @@
-import { storage } from "@/services/appwrite";
 import { AppwriteConfig } from "@/constants/AppwriteConfig";
-import ImageColors from "react-native-image-colors";
 import { Colors } from "@/constants/Colors";
+import { storage } from "@/services/appwrite";
+import ImageColors from "react-native-image-colors";
 
 export const isValidUrl = (url?: string): boolean => {
   if (!url) return false;
@@ -63,4 +63,3 @@ export const getOverlayStyle = (isDark: boolean, isIcon?: boolean) => {
     borderWidth: 1.5,
   };
 };
-

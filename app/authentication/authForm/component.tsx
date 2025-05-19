@@ -1,21 +1,21 @@
-import React from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  Image,
-  ImageBackground,
-  Dimensions,
-  ScrollView,
-  StatusBar,
-} from "react-native";
-import { router } from "expo-router";
 import InputBox from "@/components/InputBox";
 import NotificationModal from "@/components/NotifcationModal";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { Colors } from "@/constants/Colors";
-import { styles } from "../../../utility/authentication/styles";
 import { useFieldState } from "@/hooks/useFieldState";
+import { router } from "expo-router";
+import React from "react";
+import {
+  Dimensions,
+  Image,
+  ImageBackground,
+  ScrollView,
+  StatusBar,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { styles } from "../../../utility/authentication/styles";
 import { AuthFormState, AuthMode } from "./controller";
 
 const SOCIAL_PROVIDERS = {

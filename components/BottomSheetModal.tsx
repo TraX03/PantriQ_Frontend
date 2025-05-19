@@ -1,17 +1,15 @@
+import { Colors } from "@/constants/Colors";
+import { useSlide } from "@/hooks/useSlide";
 import React, { useEffect, useState } from "react";
 import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
   Animated,
-  ViewStyle,
   StyleProp,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+  ViewStyle,
 } from "react-native";
-import { useSlide } from "@/hooks/useSlide";
-import { router } from "expo-router";
 import styles from "./styles";
-import { Colors } from "@/constants/Colors";
 
 type Option = {
   key: string;

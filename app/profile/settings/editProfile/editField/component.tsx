@@ -1,17 +1,17 @@
-import React from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  KeyboardAvoidingView,
-} from "react-native";
-import DateTimePicker from "@react-native-community/datetimepicker";
-import { Colors } from "@/constants/Colors";
-import { styles } from "@/utility/profile/styles";
 import HeaderBar from "@/components/HeaderBar";
 import InputBox from "@/components/InputBox";
-import { EditFieldState } from "./controller";
+import { Colors } from "@/constants/Colors";
 import { useFieldState } from "@/hooks/useFieldState";
+import { styles } from "@/utility/profile/styles";
+import DateTimePicker from "@react-native-community/datetimepicker";
+import React from "react";
+import {
+  KeyboardAvoidingView,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { EditFieldState } from "./controller";
 
 type Props = {
   edit: ReturnType<typeof useFieldState<EditFieldState>>;

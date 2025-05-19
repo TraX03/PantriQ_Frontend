@@ -1,10 +1,10 @@
 import { Post } from "@/components/PostCard";
 import { AppwriteConfig } from "@/constants/AppwriteConfig";
 import { useFieldState } from "@/hooks/useFieldState";
-import { useCallback } from "react";
+import { fetchAllDocuments } from "@/services/appwrite";
 import { getImageUrl } from "@/utility/imageUtils";
-import { fetchAllDocuments, safeFetch } from "@/utility/fetchUtils";
-import { getUsersByIds } from "@/utility/userCacheUtils";
+import { fetchUsers } from "@/utility/userCacheUtils";
+import { useCallback } from "react";
 
 export interface HomeState {
   activeTab: "Follow" | "Explore";
@@ -41,13 +41,9 @@ export const useHomeController = () => {
 
     try {
       const [postDocs, recipeDocs, communityDocs] = await Promise.all([
-        safeFetch(() => fetchAllDocuments(AppwriteConfig.POSTS_COLLECTION_ID)),
-        safeFetch(() =>
-          fetchAllDocuments(AppwriteConfig.RECIPES_COLLECTION_ID)
-        ),
-        safeFetch(() =>
-          fetchAllDocuments(AppwriteConfig.COMMUNITIES_COLLECTION_ID)
-        ),
+        fetchAllDocuments(AppwriteConfig.POSTS_COLLECTION_ID),
+        fetchAllDocuments(AppwriteConfig.RECIPES_COLLECTION_ID),
+        fetchAllDocuments(AppwriteConfig.COMMUNITIES_COLLECTION_ID),
       ]);
 
       const authorIds = Array.from(
@@ -58,7 +54,7 @@ export const useHomeController = () => {
         )
       );
 
-      const usersMap = await getUsersByIds(authorIds);
+      const usersMap = await fetchUsers(authorIds);
 
       const mapPost = (doc: any): Post => {
         const author = usersMap.get(doc.author_id);

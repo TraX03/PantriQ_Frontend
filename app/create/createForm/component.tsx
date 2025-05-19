@@ -1,25 +1,25 @@
-import React from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  ScrollView,
-  TouchableWithoutFeedback,
-  Keyboard,
-  Image,
-} from "react-native";
-import { Stack } from "expo-router";
-import { styles as profileStyles } from "@/utility/profile/styles";
-import { styles } from "@/utility/create/styles";
-import { useFieldState } from "@/hooks/useFieldState";
+import EntryListForm from "@/components/EntryListForm";
 import HeaderBar from "@/components/HeaderBar";
 import InputBox from "@/components/InputBox";
-import PostTypeSelector from "@/components/PostTypeSelector";
-import { CreateFormState } from "./controller";
 import InstructionsForm from "@/components/InstructionsForm";
+import PostTypeSelector from "@/components/PostTypeSelector";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { Colors } from "@/constants/Colors";
-import EntryListForm from "@/components/EntryListForm";
+import { useFieldState } from "@/hooks/useFieldState";
+import { styles } from "@/utility/create/styles";
+import { styles as profileStyles } from "@/utility/profile/styles";
+import { Stack } from "expo-router";
+import React from "react";
+import {
+  Image,
+  Keyboard,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  View,
+} from "react-native";
+import { CreateFormState } from "./controller";
 
 export type EntryController = {
   updateEntry: (
@@ -94,7 +94,7 @@ export default function CreateFormComponent({ create, controller }: Props) {
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
               <View className="flex-row items-center mb-7 pt-2.5">
                 {images.map((uri, index) => (
-                  <View key={index} className="relative mr-3">
+                  <View key={index} className="relative mr-4">
                     <Image
                       source={{ uri }}
                       className="w-32 h-32 rounded"
@@ -121,7 +121,6 @@ export default function CreateFormComponent({ create, controller }: Props) {
                   (isCommunity && images.length === 0)) && (
                   <TouchableOpacity
                     onPress={controller.handlePickImage}
-                    className="w-32 h-32 rounded items-center justify-center mr-3"
                     style={styles.addImageButton}
                   >
                     <IconSymbol

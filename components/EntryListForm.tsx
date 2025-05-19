@@ -1,12 +1,12 @@
-import React from "react";
-import { View, Text, TextInput, TouchableOpacity } from "react-native";
-import { Colors } from "@/constants/Colors";
-import { IconSymbol } from "@/components/ui/IconSymbol";
-import { styles } from "@/utility/create/styles";
-import { CreateFormState } from "@/app/create/createForm/controller";
-import { useSuggestionList } from "@/hooks/useSuggestionList";
-import { useFieldState } from "@/hooks/useFieldState";
 import { EntryController } from "@/app/create/createForm/component";
+import { CreateFormState } from "@/app/create/createForm/controller";
+import { IconSymbol } from "@/components/ui/IconSymbol";
+import { Colors } from "@/constants/Colors";
+import { useFieldState } from "@/hooks/useFieldState";
+import { useSuggestionList } from "@/hooks/useSuggestionList";
+import { styles } from "@/utility/create/styles";
+import React from "react";
+import { Text, TextInput, TouchableOpacity, View } from "react-native";
 
 export type EntryType = "ingredient" | "category" | "area";
 

@@ -1,11 +1,11 @@
-import ProfileComponent from "./component";
-import { useRequireLogin } from "@/hooks/useRequireLogin";
-import { useProfileController } from "./controller";
 import { useProfileData } from "@/hooks/useProfileData";
+import { useRequireLogin } from "@/hooks/useRequireLogin";
+import { setRefreshProfile } from "@/redux/slices/profileSlice";
+import { AppDispatch, RootState } from "@/redux/store";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch, RootState } from "@/redux/store";
-import { setRefreshProfile } from "@/redux/slices/profileSlice";
+import ProfileComponent from "./component";
+import { useProfileController } from "./controller";
 
 export default function ProfileContainer() {
   const { checkLogin } = useRequireLogin();

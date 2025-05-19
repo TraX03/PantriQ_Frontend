@@ -1,11 +1,11 @@
-import React, { useState } from "react";
-import { View, Text, TouchableOpacity, Image, Modal } from "react-native";
-import { styles as createStyles } from "@/utility/create/styles";
 import { Colors } from "@/constants/Colors";
+import { styles as createStyles } from "@/utility/create/styles";
 import { styles as profileStyles } from "@/utility/profile/styles";
+import React, { useState } from "react";
+import { Image, Text, TouchableOpacity, View } from "react-native";
+import FullscreenImageViewer from "./FullscreenImageViewer";
 import InputBox from "./InputBox";
 import { IconSymbol } from "./ui/IconSymbol";
-import FullscreenImageViewer from "./FullscreenImageViewer";
 
 type InstructionsFormProps = {
   instructions: { image?: string; text: string }[];
