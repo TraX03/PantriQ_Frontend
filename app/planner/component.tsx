@@ -18,7 +18,6 @@ import { PlannerState } from "./controller";
 
 type DateInfo = {
   minDate: Date;
-  maxDate: Date;
   weekStart: Date;
 };
 
@@ -37,7 +36,7 @@ export default function PlannerComponent({
 }: Props) {
   const scrollRef = useRef<ScrollView>(null);
   const { selectedDate, showDatePicker, setFieldState } = planner;
-  const { weekStart, minDate, maxDate } = date;
+  const { weekStart, minDate } = date;
 
   const formattedWeek = isThisWeek(selectedDate, { weekStartsOn: 1 })
     ? "This Week"
@@ -85,7 +84,6 @@ export default function PlannerComponent({
             mode="date"
             display="default"
             minimumDate={minDate}
-            maximumDate={maxDate}
             onChange={(event, date) => {
               setFieldState("showDatePicker", false);
               if (date) setFieldState("selectedDate", startOfDay(date));
@@ -114,16 +112,14 @@ export default function PlannerComponent({
               const isSelected =
                 format(day, "yyyy-MM-dd") ===
                 format(selectedDate, "yyyy-MM-dd");
-              const isWithinAllowedRange = day >= minDate && day <= maxDate;
+              const isWithinAllowedRange = day >= minDate;
 
               return (
                 <TouchableOpacity
                   key={index}
                   onPress={() => {
                     if (!isWithinAllowedRange) {
-                      alert(
-                        "Meal plan only retains the previous and next 30 days."
-                      );
+                      alert("Meal plan only retains the previous 30 days.");
                     } else {
                       setFieldState("selectedDate", startOfDay(day));
                     }
@@ -212,6 +208,7 @@ export default function PlannerComponent({
 
       <TouchableOpacity onPress={generateMeals}>
         <View style={styles.generateButton}>
+          <IconSymbol name="sparkles" color={Colors.brand.accent} size={25} />
           <Text style={styles.generateText}>Generate Meal</Text>
         </View>
       </TouchableOpacity>

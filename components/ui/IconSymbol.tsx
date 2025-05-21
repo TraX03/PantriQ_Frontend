@@ -1,12 +1,12 @@
+import {
+  Feather,
+  Ionicons,
+  MaterialCommunityIcons,
+  MaterialIcons,
+  Octicons,
+} from "@expo/vector-icons";
 import React from "react";
 import { OpaqueColorValue, StyleProp, TextStyle } from "react-native";
-import {
-  Ionicons,
-  MaterialIcons,
-  Feather,
-  Octicons,
-  MaterialCommunityIcons,
-} from "@expo/vector-icons";
 
 const MAPPING = {
   house: { name: "home-outline", type: "Ionicons" },
@@ -49,6 +49,7 @@ const MAPPING = {
     type: "MaterialIcons",
   },
   "arrow.2.circlepath": { name: "refresh-ccw", type: "Feather" },
+  sparkles: { name: "sparkles-sharp", type: "Ionicons" },
 } as const;
 
 export type IconSymbolName = keyof typeof MAPPING;

@@ -77,25 +77,31 @@ export const useRecipeController = () => {
         : [];
 
       const metadata = parseMetadata(recipeDoc.metadata);
-      const currentUser = await getCurrentUser();
 
-      const interactions = await listDocuments(
-        AppwriteConfig.INTERACTIONS_COLLECTION_ID,
-        [
-          Query.equal("post_id", recipeDoc.$id),
-          Query.equal("user_id", currentUser.$id),
-        ]
-      );
+      try {
+        const currentUser = await getCurrentUser();
+        if (currentUser) {
+          const interactions = await listDocuments(
+            AppwriteConfig.INTERACTIONS_COLLECTION_ID,
+            [
+              Query.equal("post_id", recipeDoc.$id),
+              Query.equal("user_id", currentUser.$id),
+            ]
+          );
 
-      const like = interactions.find((doc) => doc.type === "like");
-      const bookmark = interactions.find((doc) => doc.type === "bookmark");
+          const like = interactions.find((doc) => doc.type === "like");
+          const bookmark = interactions.find((doc) => doc.type === "bookmark");
 
-      recipe.setFields({
-        isLiked: !!like,
-        likeDocId: like?.$id,
-        isBookmarked: !!bookmark,
-        bookmarkDocId: bookmark?.$id,
-      });
+          recipe.setFields({
+            isLiked: !!like,
+            likeDocId: like?.$id,
+            isBookmarked: !!bookmark,
+            bookmarkDocId: bookmark?.$id,
+          });
+        }
+      } catch (err) {
+        console.warn("Skipping interactions: user not authenticated.");
+      }
 
       return {
         recipe: {

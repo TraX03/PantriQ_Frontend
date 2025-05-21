@@ -20,38 +20,35 @@ export interface PlannerState {
   meals: Meal[];
 }
 
-export const usePlannerController = () => {
-  const mealtimes = ["Breakfast", "Lunch", "Dinner", "Snacks"];
+const MEALTIMES = ["Breakfast", "Lunch", "Dinner", "Snacks"];
+const today = startOfDay(new Date());
+const MIN_DATE = addDays(today, -30);
 
-  const initialMeals = mealtimes.map((mealtime) => ({
+const clampDate = (date: Date) => (date < MIN_DATE ? MIN_DATE : date);
+const getWeekStart = (date: Date) =>
+  startOfDay(addDays(date, -((date.getDay() + 6) % 7)));
+
+export const usePlannerController = () => {
+  const initialMeals = MEALTIMES.map((mealtime) => ({
     mealtime,
     recipe: null,
   }));
 
   const planner = useFieldState<PlannerState>({
     showDatePicker: false,
-    selectedDate: new Date(),
+    selectedDate: today,
     meals: initialMeals,
   });
 
   const { meals, selectedDate, setFieldState } = planner;
 
-  const today = startOfDay(new Date());
-  const minDate = addDays(today, -30);
-  const maxDate = addDays(today, 30);
-  const weekStart = startOfDay(
-    addDays(selectedDate, -((selectedDate.getDay() + 6) % 7))
-  );
-
-  const clampDate = (date: Date) =>
-    date < minDate ? minDate : date > maxDate ? maxDate : date;
+  const weekStart = getWeekStart(selectedDate);
 
   const handleChangeWeek = (direction: "prev" | "next") => {
     const offset = direction === "prev" ? -7 : 7;
     const newWeekStart = addDays(weekStart, offset);
     const dayIndex = differenceInCalendarDays(selectedDate, weekStart);
-    let newSelectedDate = addDays(newWeekStart, dayIndex);
-    newSelectedDate = clampDate(newSelectedDate);
+    const newSelectedDate = clampDate(addDays(newWeekStart, dayIndex));
     setFieldState("selectedDate", newSelectedDate);
   };
 
@@ -64,37 +61,32 @@ export const usePlannerController = () => {
             [Query.equal("category", meal.mealtime)]
           );
 
-          if (recipes.length === 0) {
-            console.warn("no recipe found");
+          if (!recipes.length) {
+            console.warn(`No recipes found for ${meal.mealtime}`);
             return meal;
           }
 
-          const random = recipes[Math.floor(Math.random() * recipes.length)];
-
+          const randomRecipe =
+            recipes[Math.floor(Math.random() * recipes.length)];
           return {
             ...meal,
             recipe: {
-              name: random.title,
-              image: getImageUrl(random.image[0]),
-              id: random.$id,
+              name: randomRecipe.title,
+              image: getImageUrl(randomRecipe.image[0]),
+              id: randomRecipe.$id,
             },
           };
-        } catch (err) {
-          console.error("Error fetching recipes:", err);
+        } catch (error) {
+          console.error("Error fetching recipes:", error);
           return meal;
         }
       })
     );
-
     setFieldState("meals", updatedMeals);
   };
 
   return {
-    date: {
-      minDate,
-      maxDate,
-      weekStart,
-    },
+    date: { minDate: MIN_DATE, weekStart },
     planner,
     generateMeals,
     handleChangeWeek,
