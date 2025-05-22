@@ -87,7 +87,7 @@ export default function ProfileComponent({
             }
           >
             <IconSymbol
-              name="pencil.and.outline"
+              name="pencil.circle"
               size={28}
               color={Colors.brand.accent}
             />

@@ -1,3 +1,4 @@
+import BottomSheetModal from "@/components/BottomSheetModal";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { Colors } from "@/constants/Colors";
 import { useFieldState } from "@/hooks/useFieldState";
@@ -14,7 +15,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { PlannerState } from "./controller";
+import { availableMealtimes, Meal, PlannerState } from "./controller";
 
 type DateInfo = {
   minDate: Date;
@@ -26,6 +27,8 @@ type Props = {
   generateMeals: () => void;
   date: DateInfo;
   handleChangeWeek: (direction: "prev" | "next") => void;
+  getMealsForDate: (date: Date) => Meal[];
+  addMealtime: (mealtime: string) => void;
 };
 
 export default function PlannerComponent({
@@ -33,9 +36,12 @@ export default function PlannerComponent({
   generateMeals,
   date,
   handleChangeWeek,
+  getMealsForDate,
+  addMealtime,
 }: Props) {
   const scrollRef = useRef<ScrollView>(null);
-  const { selectedDate, showDatePicker, setFieldState } = planner;
+  const { selectedDate, showDatePicker, setFieldState, showMealtimeModal } =
+    planner;
   const { weekStart, minDate } = date;
 
   const formattedWeek = isThisWeek(selectedDate, { weekStartsOn: 1 })
@@ -46,172 +52,203 @@ export default function PlannerComponent({
       )}`;
 
   return (
-    <View style={homeStyles.container}>
-      <View style={homeStyles.header}>
-        <View className="flex-row justify-between items-center w-full">
-          <Text style={styles.headerTitle}>Meal Planner</Text>
-          <View className="flex-row items-center gap-2">
-            <Pressable
-              onPress={() => {
-                setFieldState("selectedDate", new Date());
-                scrollRef.current?.scrollTo({ y: 0, animated: true });
-              }}
-            >
-              <IconSymbol
-                name="arrow.clockwise.circle"
-                color={Colors.brand.main}
-              />
-            </Pressable>
-            <Pressable>
-              <IconSymbol name="ellipsis.circle" color={Colors.brand.main} />
-            </Pressable>
-          </View>
-        </View>
-      </View>
+    <>
+      <BottomSheetModal
+        isVisible={showMealtimeModal}
+        onClose={() => setFieldState("showMealtimeModal", false)}
+        options={availableMealtimes.map((meal) => ({
+          key: meal,
+          label: meal,
+          onPress: () => addMealtime(meal),
+        }))}
+        zIndex={10}
+      />
 
-      <View style={styles.weekContainer}>
-        <Pressable onPress={() => handleChangeWeek("prev")}>
-          <IconSymbol name="chevron.left" color={Colors.brand.main} />
-        </Pressable>
-
-        <TouchableOpacity onPress={() => setFieldState("showDatePicker", true)}>
-          <Text style={styles.weekText}>{formattedWeek}</Text>
-        </TouchableOpacity>
-
-        {showDatePicker && (
-          <DateTimePicker
-            value={selectedDate}
-            mode="date"
-            display="default"
-            minimumDate={minDate}
-            onChange={(event, date) => {
-              setFieldState("showDatePicker", false);
-              if (date) setFieldState("selectedDate", startOfDay(date));
-            }}
-          />
-        )}
-
-        <Pressable onPress={() => handleChangeWeek("next")}>
-          <IconSymbol name="chevron.right" color={Colors.brand.main} />
-        </Pressable>
-      </View>
-
-      <ScrollView
-        ref={scrollRef}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: 130 }}
-      >
-        <View className="mt-2 py-1.5">
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ paddingHorizontal: 13 }}
-          >
-            {Array.from({ length: 7 }).map((_, index) => {
-              const day = addDays(weekStart, index);
-              const isSelected =
-                format(day, "yyyy-MM-dd") ===
-                format(selectedDate, "yyyy-MM-dd");
-              const isWithinAllowedRange = day >= minDate;
-
-              return (
-                <TouchableOpacity
-                  key={index}
-                  onPress={() => {
-                    if (!isWithinAllowedRange) {
-                      alert("Meal plan only retains the previous 30 days.");
-                    } else {
-                      setFieldState("selectedDate", startOfDay(day));
-                    }
-                  }}
-                  className="px-4 py-1.5 mr-2.5 rounded-lg"
-                  style={{
-                    backgroundColor: isSelected
-                      ? Colors.brand.main
-                      : Colors.text.placeholder,
-                    opacity: isWithinAllowedRange ? 1 : 0.4,
-                  }}
-                >
-                  <Text
-                    style={[
-                      styles.dayText,
-                      {
-                        color: isSelected
-                          ? Colors.brand.accent
-                          : Colors.ui.base,
-                      },
-                    ]}
-                  >
-                    {format(day, "EEE")}
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
-          </ScrollView>
-        </View>
-
-        <View className="px-4">
-          <View className="flex-row justify-between items-center mt-4">
-            <Text style={styles.dateText}>
-              {format(selectedDate, "d, LLLL yyyy")}
-            </Text>
-            <Pressable
-              onPress={() => setFieldState("selectedDate", new Date())}
-            >
-              <IconSymbol
-                name="arrow.2.circlepath"
-                color={Colors.brand.main}
-                size={22}
-              />
-            </Pressable>
-          </View>
-
-          {planner.meals.map((meal, index) => (
-            <View key={index} style={styles.mealtimeContainer}>
-              <View className="flex-row justify-between items-center mb-3">
-                <Text style={styles.mealtimeTitle}>{meal.mealtime}</Text>
+      <View style={homeStyles.container}>
+        <View style={homeStyles.header}>
+          <View className="flex-row justify-between items-center w-full">
+            <Text style={styles.headerTitle}>Meal Planner</Text>
+            <View className="flex-row items-center gap-2">
+              <Pressable
+                onPress={() => {
+                  setFieldState("selectedDate", new Date());
+                  scrollRef.current?.scrollTo({ y: 0, animated: true });
+                }}
+              >
                 <IconSymbol
-                  name="ellipsis"
+                  name="arrow.clockwise.circle"
                   color={Colors.brand.main}
-                  size={22}
                 />
-              </View>
-
-              <View className="flex-row items-start gap-3 flex-1">
-                {meal.recipe && (
-                  <View className="flex-col gap-2 w-[130px]">
-                    <Image
-                      source={{ uri: meal.recipe.image }}
-                      style={styles.addMealButton}
-                      resizeMode="cover"
-                    />
-                    <Text style={styles.recipeTitle}>{meal.recipe.name}</Text>
-                  </View>
-                )}
-
-                <TouchableOpacity
-                  onPress={() => {}}
-                  style={styles.addMealButton}
-                >
-                  <IconSymbol name="plus" color={Colors.ui.overlay} size={30} />
-                </TouchableOpacity>
-              </View>
+              </Pressable>
+              <Pressable>
+                <IconSymbol name="ellipsis.circle" color={Colors.brand.main} />
+              </Pressable>
             </View>
-          ))}
-
-          <View style={styles.addContianer}>
-            <Text style={styles.addText}>Add Mealtime</Text>
-            <IconSymbol name="plus" color={Colors.ui.overlay} size={20} />
           </View>
         </View>
-      </ScrollView>
 
-      <TouchableOpacity onPress={generateMeals}>
-        <View style={styles.generateButton}>
-          <IconSymbol name="sparkles" color={Colors.brand.accent} size={25} />
-          <Text style={styles.generateText}>Generate Meal</Text>
+        <View style={styles.weekContainer}>
+          <Pressable onPress={() => handleChangeWeek("prev")}>
+            <IconSymbol name="chevron.left" color={Colors.brand.main} />
+          </Pressable>
+
+          <TouchableOpacity
+            onPress={() => setFieldState("showDatePicker", true)}
+          >
+            <Text style={styles.weekText}>{formattedWeek}</Text>
+          </TouchableOpacity>
+
+          {showDatePicker && (
+            <DateTimePicker
+              value={selectedDate}
+              mode="date"
+              display="default"
+              minimumDate={minDate}
+              onChange={(event, date) => {
+                setFieldState("showDatePicker", false);
+                if (date) setFieldState("selectedDate", startOfDay(date));
+              }}
+            />
+          )}
+
+          <Pressable onPress={() => handleChangeWeek("next")}>
+            <IconSymbol name="chevron.right" color={Colors.brand.main} />
+          </Pressable>
         </View>
-      </TouchableOpacity>
-    </View>
+
+        <ScrollView
+          ref={scrollRef}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ paddingBottom: 130 }}
+        >
+          <View className="mt-2 py-1.5">
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={{ paddingHorizontal: 13 }}
+            >
+              {Array.from({ length: 7 }).map((_, index) => {
+                const day = addDays(weekStart, index);
+                const isSelected =
+                  format(day, "yyyy-MM-dd") ===
+                  format(selectedDate, "yyyy-MM-dd");
+                const isEnabled = day >= minDate;
+
+                return (
+                  <TouchableOpacity
+                    key={index}
+                    onPress={() => {
+                      if (day < minDate) {
+                        alert("Meal plan only retains the previous 30 days.");
+                      } else {
+                        setFieldState("selectedDate", startOfDay(day));
+                      }
+                    }}
+                    className="px-4 py-1.5 mr-2.5 rounded-lg"
+                    style={{
+                      backgroundColor: isSelected
+                        ? Colors.brand.main
+                        : Colors.text.placeholder,
+                      opacity: isEnabled ? 1 : 0.4,
+                    }}
+                  >
+                    <Text
+                      style={[
+                        styles.dayText,
+                        {
+                          color: isSelected
+                            ? Colors.brand.accent
+                            : Colors.ui.base,
+                        },
+                      ]}
+                    >
+                      {format(day, "EEE")}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </ScrollView>
+          </View>
+
+          <View className="px-4">
+            <View className="flex-row justify-between items-center mt-4">
+              <Text style={styles.dateText}>
+                {format(selectedDate, "d, LLLL yyyy")}
+              </Text>
+              <Pressable
+                onPress={() => setFieldState("selectedDate", new Date())}
+              >
+                <IconSymbol
+                  name="arrow.2.circlepath"
+                  color={Colors.brand.main}
+                  size={20}
+                />
+              </Pressable>
+            </View>
+
+            {getMealsForDate(selectedDate).map((meal) => (
+              <View key={meal.mealtime} style={styles.mealtimeContainer}>
+                <View className="flex-row justify-between items-center mb-3">
+                  <Text style={styles.mealtimeTitle}>{meal.mealtime}</Text>
+                  <IconSymbol
+                    name="ellipsis"
+                    color={Colors.brand.main}
+                    size={22}
+                  />
+                </View>
+
+                <View className="flex-row items-start flex-1">
+                  <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    contentContainerStyle={{ gap: 12 }}
+                  >
+                    {meal.recipes.map((recipe) => (
+                      <View
+                        key={recipe.id}
+                        className="flex-col gap-2 w-[130px]"
+                      >
+                        <Image
+                          source={{ uri: recipe.image }}
+                          style={styles.addMealButton}
+                          resizeMode="cover"
+                        />
+                        <Text style={styles.recipeTitle}>{recipe.name}</Text>
+                      </View>
+                    ))}
+
+                    <TouchableOpacity
+                      onPress={() => {}}
+                      style={styles.addMealButton}
+                    >
+                      <IconSymbol
+                        name="plus"
+                        color={Colors.ui.overlay}
+                        size={30}
+                      />
+                    </TouchableOpacity>
+                  </ScrollView>
+                </View>
+              </View>
+            ))}
+
+            <TouchableOpacity
+              onPress={() => setFieldState("showMealtimeModal", true)}
+              style={styles.addContianer}
+            >
+              <Text style={styles.addText}>Add Mealtime</Text>
+              <IconSymbol name="plus" color={Colors.ui.overlay} size={20} />
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+
+        <TouchableOpacity onPress={generateMeals}>
+          <View style={styles.generateButton}>
+            <IconSymbol name="plus" color={Colors.brand.accent} size={22} />
+            <Text style={styles.generateText}>Generate</Text>
+          </View>
+        </TouchableOpacity>
+      </View>
+    </>
   );
 }

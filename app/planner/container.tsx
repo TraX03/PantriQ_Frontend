@@ -1,44 +1,59 @@
+import { useIsFocused } from "@react-navigation/native";
 import { addDays, format, startOfDay } from "date-fns";
 import { useEffect } from "react";
 import PlannerComponent from "./component";
 import usePlannerController from "./controller";
 
 export default function PlannerContainer() {
-  const { date, planner, generateMeals, handleChangeWeek } =
-    usePlannerController();
-  const { selectedDate, setFieldState } = planner;
-  const { weekStart, minDate } = date;
+  const isFocused = useIsFocused();
+
+  const {
+    date: { weekStart, minDate },
+    planner: { selectedDate, setFieldState },
+    planner,
+    generateMeals,
+    handleChangeWeek,
+    getMealsForDate,
+    fetchMealsForDate,
+    addMealtime,
+  } = usePlannerController();
 
   useEffect(() => {
-    const weekDates = Array.from({ length: 7 }).map((_, i) =>
+    const formatDate = (d: Date) => format(d, "yyyy-MM-dd");
+    const weekDates = Array.from({ length: 7 }, (_, i) =>
       startOfDay(addDays(weekStart, i))
     );
 
-    const validWeekDates = weekDates.filter((day) => day >= minDate);
-    const isSelectedDateValid = validWeekDates.some(
-      (d) => format(d, "yyyy-MM-dd") === format(selectedDate, "yyyy-MM-dd")
+    const validDates = weekDates.filter((date) => date >= minDate);
+    const isCurrentSelectionValid = validDates.some(
+      (date) => formatDate(date) === formatDate(selectedDate)
     );
 
-    if (!isSelectedDateValid && validWeekDates.length > 0) {
-      const validBeforeOrOn = validWeekDates.filter((d) => d <= selectedDate);
-      const newSelectedDate =
-        validBeforeOrOn.length > 0 ? validBeforeOrOn.at(-1) : validWeekDates[0];
-      if (
-        newSelectedDate &&
-        format(newSelectedDate, "yyyy-MM-dd") !==
-          format(selectedDate, "yyyy-MM-dd")
-      ) {
-        setFieldState("selectedDate", newSelectedDate);
+    if (!isCurrentSelectionValid && validDates.length > 0) {
+      const fallbackDate =
+        validDates.filter((date) => date <= selectedDate).at(-1) ??
+        validDates[0];
+
+      if (formatDate(fallbackDate) !== formatDate(selectedDate)) {
+        setFieldState("selectedDate", fallbackDate);
       }
     }
   }, [weekStart, selectedDate, minDate, setFieldState]);
+
+  useEffect(() => {
+    if (isFocused) {
+      fetchMealsForDate(selectedDate);
+    }
+  }, [isFocused, selectedDate]);
 
   return (
     <PlannerComponent
       planner={planner}
       generateMeals={generateMeals}
-      date={date}
+      date={{ weekStart, minDate }}
       handleChangeWeek={handleChangeWeek}
+      getMealsForDate={getMealsForDate}
+      addMealtime={addMealtime}
     />
   );
 }

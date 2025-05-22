@@ -77,8 +77,8 @@ export const styles = StyleSheet.create({
     position: "absolute",
     bottom: 30,
     right: 20,
-    width: 80,
-    height: 80,
+    width: 70,
+    height: 70,
     borderRadius: 40,
     backgroundColor: Colors.brand.main,
     alignItems: "center",
@@ -88,8 +88,8 @@ export const styles = StyleSheet.create({
   },
   generateText: {
     color: Colors.brand.accent,
-    fontSize: 14,
+    fontSize: 12,
     textAlign: "center",
-    fontFamily: "RobotoMedium",
+    fontFamily: "RobotoRegular",
   },
 });

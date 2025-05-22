@@ -30,7 +30,8 @@
     },
     "plugins": [
       "expo-router",
-      "./plugins/custom-android-styles.js"
+      "./plugins/custom-android-styles.js",
+      "./plugins/withAbiFilters.js"
     ],
     "experiments": {
       "typedRoutes": true

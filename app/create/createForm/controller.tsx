@@ -159,7 +159,7 @@ export const useCreateFormController = () => {
         collectionMap[postType],
         payloadMap[postType],
         ID.unique(),
-        [Permission.read(Role.any()), Permission.write(Role.user(userId))]
+        [Permission.write(Role.user(userId))]
       );
 
       Alert.alert(
