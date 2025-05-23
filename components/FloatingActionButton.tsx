@@ -3,18 +3,26 @@ import {
   Image,
   TouchableOpacity,
   TouchableOpacityProps,
-  View,
+  View
 } from "react-native";
 
 const imageSource = require("@/assets/images/add-button.png");
 
-const FloatingActionButton: React.FC<TouchableOpacityProps> = (props) => {
+interface Props extends TouchableOpacityProps {
+  bottomOffset?: number;
+}
+
+const FloatingActionButton: React.FC<Props> = ({
+  bottomOffset = 22,
+  ...props
+}) => {
   const { width, height } = Image.resolveAssetSource(imageSource);
   const aspectRatio = useMemo(() => width / height, [width, height]);
 
   return (
     <TouchableOpacity
       className="absolute bottom-7 z-10 self-center"
+      style={{ bottom: bottomOffset }}
       activeOpacity={0.8}
       {...props}
     >

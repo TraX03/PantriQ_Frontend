@@ -7,8 +7,10 @@
     "preview": {
       "distribution": "internal",
       "android": {
-        "buildType": "apk"
-      }
+        "buildType": "apk",
+        "ndk": "23.1.7779620"
+      },
+      "environment": "preview"
     },
     "production": {
       "android": {

@@ -3,7 +3,7 @@ import { useRouter } from "expo-router";
 import { useSelector } from "react-redux";
 
 export function useRequireLogin() {
-  const isLoggedIn = useSelector((state: RootState) => state.auth.isLoggedIn);
+  const isLoggedIn = useSelector((state: RootState) => !!state.auth.user);
   const router = useRouter();
 
   const checkLogin = (next: string | (() => void)) => {

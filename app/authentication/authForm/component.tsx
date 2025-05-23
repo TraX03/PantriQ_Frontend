@@ -80,7 +80,7 @@ export default function AuthFormComponent({
 
           <Image
             source={require("@/assets/images/pantriQ.png")}
-            className="w-full h-[150px] self-center"
+            className="w-full h-[150px] self-center mt-2.5"
             resizeMode="contain"
           />
 
@@ -120,7 +120,7 @@ export default function AuthFormComponent({
             </Text>
           </TouchableOpacity>
 
-          <View className="flex-row items-center justify-center mb-6">
+          <View className="flex-row items-center justify-center mb-6 mt-6">
             <View style={styles.dividerStyle} />
             <Text style={styles.dividerText}> or continue with</Text>
             <View style={styles.dividerStyle} />

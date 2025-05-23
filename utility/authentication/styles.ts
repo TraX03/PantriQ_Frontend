@@ -61,7 +61,6 @@ export const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 16,
-    paddingVertical: 8,
     borderRadius: 12,
     borderWidth: 2,
     marginBottom: 6,

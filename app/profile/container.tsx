@@ -16,7 +16,7 @@ export default function ProfileContainer() {
     (state: RootState) => state.profile
   );
   const isLoading = useSelector((state: RootState) => state.loading.loading);
-  const isLoggedIn = useSelector((state: RootState) => state.auth.isLoggedIn);
+  const isLoggedIn = useSelector((state: RootState) => !!state.auth.user);
 
   const { profile, fetchPostsByUser } = useProfileController();
 

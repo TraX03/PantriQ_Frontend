@@ -1,5 +1,5 @@
 import BottomSheetModal from "@/components/BottomSheetModal";
-import FloatingAddButton from "@/components/FloatingAddButton";
+import FloatingActionButton from "@/components/FloatingActionButton";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { Colors } from "@/constants/Colors";
 import { TabConfig } from "@/constants/TabConfig";
@@ -7,9 +7,12 @@ import { useRequireLogin } from "@/hooks/useRequireLogin";
 import { router, Tabs } from "expo-router";
 import React, { useState } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function TabLayout() {
   const { checkLogin } = useRequireLogin();
+  const insets = useSafeAreaInsets();
+
   const [showModal, setShowModal] = useState(false);
 
   const renderTabScreen = (tab: any, index: number) => {
@@ -44,10 +47,6 @@ export default function TabLayout() {
               }
             />
           ),
-          tabBarStyle: {
-            height: 60,
-            zIndex: 1,
-          },
         }}
       />
     );
@@ -71,17 +70,19 @@ export default function TabLayout() {
             fontSize: 13,
           },
           tabBarStyle: {
-            height: 60,
             backgroundColor: Colors.brand.accent,
+            paddingTop: 2,
+            zIndex: 1,
           },
         }}
       >
         {TabConfig.map(renderTabScreen)}
       </Tabs>
 
-      <View style={styles.dent} />
+      <View style={[styles.dent, { bottom: 12 + insets.bottom }]} />
 
-      <FloatingAddButton
+      <FloatingActionButton
+        bottomOffset={12 + insets.bottom}
         onPress={() => checkLogin(() => setShowModal((prev) => !prev))}
       />
 

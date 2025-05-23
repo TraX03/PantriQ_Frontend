@@ -3,12 +3,10 @@ import { Models } from "react-native-appwrite";
 
 interface AuthState {
   user: Models.User<{}> | null;
-  isLoggedIn: boolean;
 }
 
 const initialState: AuthState = {
   user: null,
-  isLoggedIn: false,
 };
 
 const authSlice = createSlice({
@@ -17,7 +15,6 @@ const authSlice = createSlice({
   reducers: {
     setUser(state, action: PayloadAction<Models.User<{}> | null>) {
       state.user = action.payload;
-      state.isLoggedIn = action.payload !== null;
     },
   },
 });

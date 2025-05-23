@@ -21,6 +21,7 @@
         "foregroundImage": "./assets/images/pantriQ-icon.png",
         "backgroundColor": "#ffffff"
       },
+      "edgeToEdgeEnabled": true,
       "package": "com.anonymous.pantriQ"
     },
     "web": {
@@ -31,7 +32,9 @@
     "plugins": [
       "expo-router",
       "./plugins/custom-android-styles.js",
-      "./plugins/withAbiFilters.js"
+      "./plugins/withAbiFilters.js",
+      "expo-font",
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true
