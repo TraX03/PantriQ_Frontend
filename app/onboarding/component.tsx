@@ -1,138 +1,190 @@
+import OnboardingPage from "@/components/Onboarding";
+import { Mode } from "@/components/SearchWithSuggestions";
 import { Colors } from "@/constants/Colors";
-import { Ionicons } from "@expo/vector-icons";
+import { useFieldState } from "@/hooks/useFieldState";
+import { SuggestionType } from "@/hooks/useSuggestionList";
+import { styles } from "@/utility/onboarding/styles";
 import { Stack } from "expo-router";
 import React from "react";
-import { Pressable, ScrollView, Text, View } from "react-native";
+import { Pressable, Text, View } from "react-native";
+import { OnboardingState } from "./controller";
 
-export default function OnboardingComponent() {
-  const suggestions = [
-    "Gluten",
-    "Dairy",
-    "Egg",
-    "Soy",
-    "Peanut",
-    "Wheat",
-    "Milk",
-    "Fish",
+type Props = {
+  onboarding: ReturnType<typeof useFieldState<OnboardingState>>;
+  handleNext: () => void;
+  handlePrevious: () => void;
+  addCustomSuggestion: (pageIndex: number, suggestion: string) => void;
+};
+
+export const pages: {
+  title: string;
+  description: string;
+  suggestions: string[];
+  placeholder: string;
+  mode: Mode;
+  suggestionType?: SuggestionType;
+}[] = [
+  {
+    title: "Any ingredient to avoid?",
+    description:
+      "Tell us if there are any ingredients you'd like to avoid, and we'll tailor your meal plan accordingly.",
+    suggestions: [
+      "Chicken",
+      "Beef",
+      "Egg",
+      "Soy",
+      "Peanut",
+      "Wheat",
+      "Milk",
+      "Fish",
+    ],
+    placeholder: "Ingredient",
+    mode: "suggestion-then-custom",
+    suggestionType: "ingredient",
+  },
+  {
+    title: "Do you follow any of these diets?",
+    description:
+      "Share your diet preferences so we can personalize your meal plan to match your needs.",
+    suggestions: [
+      "None",
+      "Vegan",
+      "Paleo",
+      "Low-Carb",
+      "Vegetarian",
+      "Keto",
+      "Mediterranean",
+      "Dairy Free",
+      "Gluten Free",
+    ],
+    placeholder: "Diet",
+    mode: "datamuse-only",
+  },
+  {
+    title: "Which cuisine best matches your daily meals?",
+    description:
+      "Tell us which cuisine you eat most often so we can personalize your meal plan.",
+    suggestions: [
+      "Italian",
+      "British",
+      "Thai",
+      "Indian",
+      "Japanese",
+      "Chinese",
+      "Malaysian",
+      "Indonesian",
+    ],
+    placeholder: "Cuisine",
+    mode: "suggestion-then-custom",
+    suggestionType: "area",
+  },
+];
+
+export default function OnboardingComponent({
+  onboarding,
+  handleNext,
+  handlePrevious,
+  addCustomSuggestion,
+}: Props) {
+  const {
+    currentPage,
+    ingredientAvoid,
+    diet,
+    region,
+    customSuggestions,
+    setFieldState,
+  } = onboarding;
+
+  const selectedStates = [ingredientAvoid, diet, region];
+  const setters = [
+    (value: typeof ingredientAvoid) => setFieldState("ingredientAvoid", value),
+    (value: typeof diet) => setFieldState("diet", value),
+    (value: typeof region) => setFieldState("region", value),
   ];
+
+  const pageIndex = currentPage - 1;
+  const current = pages[pageIndex];
 
   return (
     <>
       <Stack.Screen options={{ headerShown: false }} />
-      <View
-        className="flex-1 px-7 pb-10"
-        style={{ backgroundColor: Colors.brand.accent, paddingTop: 65 }}
-      >
-        {/* Top Nav */}
-        <View className="flex-row justify-between items-center mb-6">
-          <View className="flex-row" style={{ gap: 6 }}>
-            {[1, 2, 3, 4].map((num, i) => (
-              <View
-                key={i}
-                className={`w-7 h-7 rounded-full items-center justify-center`}
-                style={{
-                  backgroundColor:
-                    num === 1 ? Colors.ui.buttonFill : Colors.ui.backgroundDark,
-                }}
-              >
-                <Text
+      <View style={styles.container}>
+        <View className="flex-row justify-between items-center mb-6 mt-4">
+          <View className="flex-row gap-2">
+            {Array.from({ length: pages.length }, (_, i) => {
+              const step = i + 1;
+              const isCurrent = step === currentPage;
+              const isCompleted = step < currentPage;
+
+              return (
+                <View
+                  key={step}
+                  className="w-7 h-7 rounded-full items-center justify-center"
                   style={{
-                    color: num === 1 ? Colors.brand.accent : Colors.brand.base,
-                    fontSize: 13,
-                    fontFamily: "RobotoRegular",
+                    backgroundColor: isCurrent
+                      ? Colors.ui.buttonFill
+                      : isCompleted
+                      ? Colors.brand.accent
+                      : Colors.ui.backgroundDark,
+                    borderWidth: isCompleted ? 1 : 0,
+                    borderColor: isCompleted
+                      ? Colors.brand.base
+                      : "transparent",
                   }}
                 >
-                  {num}
-                </Text>
-              </View>
-            ))}
+                  <Text
+                    style={[
+                      styles.numText,
+                      {
+                        color: isCurrent
+                          ? Colors.brand.accent
+                          : Colors.brand.base,
+                      },
+                    ]}
+                  >
+                    {step}
+                  </Text>
+                </View>
+              );
+            })}
           </View>
-          <Pressable>
-            <Text
-              style={{
-                fontSize: 18,
-                color: Colors.text.link,
-                fontFamily: "RobotoSemiBold",
-              }}
-            >
-              Skip
-            </Text>
+          <Pressable onPress={handleNext}>
+            <Text style={styles.skipText}>Skip</Text>
           </Pressable>
         </View>
 
-        {/* Title and Description */}
-        <View>
-          <Text
-            className="mb-5 mt-8 w-[70%]"
-            style={{
-              fontFamily: "RobotoSemiBold",
-              fontSize: 28,
-              lineHeight: 32,
-            }}
-          >
-            Any ingredient to avoid?
-          </Text>
-          <Text
-            className="w-[78%] text-[15px] mb-5"
-            style={{
-              color: Colors.text.secondary,
-              letterSpacing: 0.25,
-              lineHeight: 20,
-            }}
-          >
-            Tell us if there are any ingredients you'd like to avoid, and we'll
-            tailor your meal plan accordingly.
-          </Text>
-        </View>
+        {current && (
+          <OnboardingPage
+            {...current}
+            selectedItems={selectedStates[pageIndex]}
+            onChange={setters[pageIndex]}
+            customSuggestions={customSuggestions[pageIndex]}
+            onAddCustomSuggestion={(item) =>
+              addCustomSuggestion(pageIndex, item)
+            }
+          />
+        )}
 
-        {/* Suggestions */}
-        <View className="mt-7 flex-1">
-          <ScrollView
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={{
-              flexDirection: "row",
-              flexWrap: "wrap",
-              gap: 10,
-            }}
-          >
-            {suggestions.map((item, idx) => (
-              <View
-                key={idx}
-                className="px-6 py-2 rounded-full border"
-                style={{ borderColor: Colors.text.faint }}
-              >
-                <Text
-                  className="text-sm"
-                  style={{ color: Colors.brand.base, fontSize: 13 }}
-                >
-                  {item}
-                </Text>
-              </View>
-            ))}
-            <View
-              className="px-6 py-2 rounded-full border"
-              style={{ borderColor: Colors.text.faint }}
+        <View className="flex-row justify-between mt-6">
+          {currentPage > 1 ? (
+            <Pressable
+              style={[
+                styles.button,
+                { backgroundColor: Colors.ui.grayButtonFill },
+              ]}
+              onPress={handlePrevious}
             >
-              <Ionicons name="add" size={16} color={Colors.ui.base} />
-            </View>
-          </ScrollView>
+              <Text style={[styles.buttonText, { color: Colors.brand.base }]}>
+                Previous
+              </Text>
+            </Pressable>
+          ) : (
+            <View className="w-[100px]" />
+          )}
+          <Pressable style={styles.button} onPress={handleNext}>
+            <Text style={styles.buttonText}>Next</Text>
+          </Pressable>
         </View>
-
-        {/* Next Button */}
-        <Pressable
-          className="py-3 rounded-xl mt-8 w-[30%] mb-12"
-          style={{
-            alignSelf: "flex-end",
-            backgroundColor: Colors.ui.buttonFill,
-          }}
-        >
-          <Text
-            className="text-white text-center"
-            style={{ fontFamily: "RobotoMedium" }}
-          >
-            Next
-          </Text>
-        </Pressable>
       </View>
     </>
   );

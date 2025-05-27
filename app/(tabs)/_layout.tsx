@@ -2,6 +2,7 @@ import BottomSheetModal from "@/components/BottomSheetModal";
 import FloatingActionButton from "@/components/FloatingActionButton";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { Colors } from "@/constants/Colors";
+import { Routes } from "@/constants/Routes";
 import { TabConfig } from "@/constants/TabConfig";
 import { useRequireLogin } from "@/hooks/useRequireLogin";
 import { router, Tabs } from "expo-router";
@@ -95,7 +96,10 @@ export default function TabLayout() {
             label: "Create new recipe",
             onPress: () => {
               setShowModal(false);
-              router.push("/create/recipe");
+              router.push({
+                pathname: Routes.CreateForm,
+                params: { type: "recipe" },
+              });
             },
           },
           {
@@ -103,7 +107,10 @@ export default function TabLayout() {
             label: "Create new post",
             onPress: () => {
               setShowModal(false);
-              router.push("/create/tips");
+              router.push({
+                pathname: Routes.CreateForm,
+                params: { type: "tips" },
+              });
             },
           },
           {
@@ -111,7 +118,10 @@ export default function TabLayout() {
             label: "Create new community",
             onPress: () => {
               setShowModal(false);
-              router.push("/create/community");
+              router.push({
+                pathname: Routes.CreateForm,
+                params: { type: "community" },
+              });
             },
           },
         ]}

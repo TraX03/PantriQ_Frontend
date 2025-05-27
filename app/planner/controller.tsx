@@ -33,13 +33,36 @@ export interface PlannerState {
 }
 
 export const availableMealtimes = [
-  "Breakfast",
-  "Brunch",
-  "Lunch",
-  "Afternoon Tea",
-  "Dinner",
-  "Supper",
-  "Snacks",
+  {
+    id: "Breakfast",
+    label: "Breakfast",
+    categories: ["Breakfast"],
+  },
+  {
+    id: "Lunch",
+    label: "Lunch",
+    categories: ["Chicken", "Beef", "Vegetarian", "Pasta"],
+  },
+  {
+    id: "AfternoonTea",
+    label: "Afternoon Tea",
+    categories: ["Dessert", "Miscellaneous", "Side"],
+  },
+  {
+    id: "Dinner",
+    label: "Dinner",
+    categories: ["Beef", "Lamb", "Pork", "Seafood", "Vegetarian"],
+  },
+  {
+    id: "Supper",
+    label: "Supper",
+    categories: ["Pasta", "Seafood", "Pork", "Lamb"],
+  },
+  {
+    id: "Snacks",
+    label: "Snacks",
+    categories: ["Side", "Dessert", "Miscellaneous"],
+  },
 ];
 
 const today = startOfDay(new Date());
@@ -72,24 +95,32 @@ export const usePlannerController = () => {
 
   const getMealsForDate = (date: Date): Meal[] => {
     const key = format(date, "yyyy-MM-dd");
-    return (
-      mealsByDate[key] ??
-      availableMealtimes.map((mealtime) => ({
-        mealtime,
-        recipes: [],
-      }))
-    );
+    return mealsByDate[key] ?? [];
   };
 
   const fetchRandomRecipes = async (mealtime: string) => {
     try {
-      const recipes = await listDocuments(
-        AppwriteConfig.RECIPES_COLLECTION_ID,
-        [Query.equal("category", mealtime)]
-      );
-      if (!recipes.length) return [];
+      const mealtimeConfig = availableMealtimes.find((m) => m.id === mealtime);
+      const categories = mealtimeConfig?.categories ?? [];
 
-      const selected = recipes.sort(() => Math.random() - 0.5).slice(0, 2);
+      let allRecipes: any[] = [];
+
+      for (const category of categories) {
+        const recipes = await listDocuments(
+          AppwriteConfig.RECIPES_COLLECTION_ID,
+          [Query.equal("category", category)]
+        );
+        allRecipes.push(...recipes);
+      }
+
+      if (!allRecipes.length) return [];
+
+      // Only 1 recipe for Breakfast, 2 for others
+      const numberToSelect = mealtime === "Breakfast" ? 1 : 2;
+
+      const selected = allRecipes
+        .sort(() => Math.random() - 0.5)
+        .slice(0, numberToSelect);
 
       return selected.map((r) => ({
         name: r.title,

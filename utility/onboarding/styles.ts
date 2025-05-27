@@ -1,0 +1,59 @@
+import { Colors } from "@/constants/Colors";
+import { StyleSheet } from "react-native";
+
+export const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    paddingHorizontal: 28,
+    paddingBottom: 40,
+    backgroundColor: Colors.brand.accent,
+    paddingTop: 65,
+  },
+  title: {
+    marginBottom: 20,
+    marginTop: 32,
+    width: "80%",
+    fontFamily: "RobotoSemiBold",
+    fontSize: 28,
+    lineHeight: 32,
+  },
+  description: {
+    width: "80%",
+    fontSize: 15,
+    marginBottom: 18,
+    color: Colors.text.secondary,
+    letterSpacing: 0.25,
+    lineHeight: 20,
+  },
+  numText: {
+    fontSize: 13,
+    fontFamily: "RobotoRegular",
+  },
+  skipText: {
+    fontSize: 18,
+    color: Colors.text.link,
+    fontFamily: "RobotoSemiBold",
+  },
+  button: {
+    paddingVertical: 12,
+    borderRadius: 10,
+    marginTop: 32,
+    width: "30%",
+    marginBottom: 48,
+    alignSelf: "flex-end",
+    backgroundColor: Colors.ui.buttonFill,
+  },
+  buttonText: {
+    fontFamily: "RobotoMedium",
+    textAlign: "center",
+    color: Colors.brand.accent,
+  },
+  optionModal: {
+    height: "60%",
+    width: "100%",
+    paddingHorizontal: 10,
+    paddingTop: 20,
+    paddingBottom: 90,
+    marginBottom: -25,
+  },
+});

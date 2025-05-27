@@ -36,4 +36,15 @@ export const styles = StyleSheet.create({
     color: Colors.brand.dark,
     fontSize: 14,
   },
+  endText: {
+    color: Colors.text.gray,
+    fontFamily: "RobotoRegular",
+    fontSize: 14,
+    marginHorizontal: 10,
+  },
+  divider: {
+    width: 60,
+    height: 1,
+    backgroundColor: Colors.text.gray,
+  },
 });

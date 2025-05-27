@@ -2,6 +2,7 @@ import ErrorScreen from "@/components/ErrorScreen";
 import HeaderBar from "@/components/HeaderBar";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { Colors } from "@/constants/Colors";
+import { Routes } from "@/constants/Routes";
 import { ProfileData } from "@/redux/slices/profileSlice";
 import { styles } from "@/utility/profile/styles";
 import { router, Stack } from "expo-router";
@@ -30,9 +31,7 @@ export default function SettingsComponent({ profileData, onLogout }: Props) {
         contentContainerStyle={{ flexGrow: 1 }}
       >
         <HeaderBar title="Settings" />
-        <TouchableOpacity
-          onPress={() => router.push("/profile/settings/editProfile/container")}
-        >
+        <TouchableOpacity onPress={() => router.push(Routes.EditProfile)}>
           <View style={styles.settingsTab}>
             <View
               style={[

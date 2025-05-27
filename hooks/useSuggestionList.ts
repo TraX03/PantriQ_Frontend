@@ -5,7 +5,7 @@ import {
 } from "@/services/MealDbApi";
 import { useEffect, useState } from "react";
 
-type SuggestionType = "ingredient" | "category" | "area";
+export type SuggestionType = "ingredient" | "category" | "area";
 
 const fetchMap: Record<SuggestionType, () => Promise<string[]>> = {
   ingredient: fetchIngredients,

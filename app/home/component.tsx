@@ -1,8 +1,10 @@
 import PostCard, { Post } from "@/components/PostCard";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { Colors } from "@/constants/Colors";
+import { Routes } from "@/constants/Routes";
 import { useFieldState } from "@/hooks/useFieldState";
 import { styles } from "@/utility/home/styles";
+import { router } from "expo-router";
 import {
   Pressable,
   RefreshControl,
@@ -54,6 +56,15 @@ export default function HomeComponent({
               ))}
           </View>
         ))}
+        <View className="w-full">
+          <View className="items-center justify-center mb-10">
+            <View className="flex-row items-center justify-center mb-6 mt-6">
+              <View style={styles.divider} />
+              <Text style={styles.endText}>You're at the end</Text>
+              <View style={styles.divider} />
+            </View>
+          </View>
+        </View>
       </View>
     );
   };
@@ -85,7 +96,7 @@ export default function HomeComponent({
         </View>
 
         <View className="flex-row items-center gap-2">
-          <Pressable>
+          <Pressable onPress={() => router.push(Routes.Search)}>
             <IconSymbol name="magnifyingglass" color={Colors.brand.main} />
           </Pressable>
           <Pressable>

@@ -4,10 +4,11 @@ import { Text, TouchableOpacity, View } from "react-native";
 import { IconSymbol } from "./ui/IconSymbol";
 
 type HeaderBarProps = {
-  title: string;
+  title?: string;
+  titleComponent?: React.ReactNode;
 };
 
-const HeaderBar = ({ title }: HeaderBarProps) => {
+const HeaderBar = ({ title, titleComponent }: HeaderBarProps) => {
   const router = useRouter();
 
   return (
@@ -15,7 +16,13 @@ const HeaderBar = ({ title }: HeaderBarProps) => {
       <TouchableOpacity onPress={() => router.back()}>
         <IconSymbol name="chevron.left" color={Colors.brand.dark} size={30} />
       </TouchableOpacity>
-      <Text className="text-xl font-semibold ml-4">{title}</Text>
+      <View className="flex-1 ml-4">
+        {titleComponent ? (
+          titleComponent
+        ) : (
+          <Text className="text-xl font-semibold">{title}</Text>
+        )}
+      </View>
     </View>
   );
 };

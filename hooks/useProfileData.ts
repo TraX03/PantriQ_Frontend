@@ -60,6 +60,9 @@ export function useProfileData() {
         followingCount: userData.following_count,
         profileBg: backgroundUrl,
         metadata: userData.metadata,
+        mealRegion: userData.region_pref,
+        avoidIngredients: userData.avoid_ingredients,
+        diet: userData.region_pref,
       };
       dispatch(setProfileData(mappedProfileData));
     } catch (error) {

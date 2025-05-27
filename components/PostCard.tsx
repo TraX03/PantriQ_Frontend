@@ -1,4 +1,5 @@
 import { Colors } from "@/constants/Colors";
+import { Routes } from "@/constants/Routes";
 import { router } from "expo-router";
 import { Image, Pressable, Text, TouchableOpacity, View } from "react-native";
 import styles from "./styles";
@@ -15,6 +16,7 @@ export type Post = {
   profilePic?: string;
   membersCount?: number;
   recipesCount?: number;
+  description?: string;
 };
 
 type PostCardProps = {
@@ -28,7 +30,12 @@ export default function PostCard({ post }: PostCardProps) {
     const { membersCount, recipesCount } = post;
     return (
       <TouchableOpacity
-        onPress={() => router.push(`/posts/${id}`)}
+        onPress={() =>
+          router.push({
+            pathname: Routes.PostDetail,
+            params: { id: id },
+          })
+        }
         className="mb-4"
       >
         <View style={styles.container}>
@@ -60,7 +67,12 @@ export default function PostCard({ post }: PostCardProps) {
   const { author, profilePic } = post;
   return (
     <TouchableOpacity
-      onPress={() => router.push(`/posts/${id}`)}
+      onPress={() =>
+        router.push({
+          pathname: Routes.PostDetail,
+          params: { id: id },
+        })
+      }
       className="mb-4"
     >
       <View style={styles.container}>

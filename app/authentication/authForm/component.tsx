@@ -2,6 +2,7 @@ import InputBox from "@/components/InputBox";
 import NotificationModal from "@/components/NotifcationModal";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { Colors } from "@/constants/Colors";
+import { Routes } from "@/constants/Routes";
 import { useFieldState } from "@/hooks/useFieldState";
 import { router } from "expo-router";
 import React from "react";
@@ -143,9 +144,10 @@ export default function AuthFormComponent({
           <View className="items-center mb-10">
             <TouchableOpacity
               onPress={() =>
-                router.replace(
-                  `/authentication/${isSignIn ? "sign-up" : "sign-in"}`
-                )
+                router.push({
+                  pathname: Routes.AuthForm,
+                  params: { mode: isSignIn ? "sign-up" : "sign-in" },
+                })
               }
             >
               <Text style={styles.dividerText}>

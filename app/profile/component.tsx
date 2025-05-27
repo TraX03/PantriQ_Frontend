@@ -2,6 +2,7 @@ import ErrorScreen from "@/components/ErrorScreen";
 import PostCard from "@/components/PostCard";
 import { IconSymbol, IconSymbolName } from "@/components/ui/IconSymbol";
 import { Colors } from "@/constants/Colors";
+import { Routes } from "@/constants/Routes";
 import { useFieldState } from "@/hooks/useFieldState";
 import { ProfileData } from "@/redux/slices/profileSlice";
 import { getImageUrl } from "@/utility/imageUtils";
@@ -92,9 +93,7 @@ export default function ProfileComponent({
               color={Colors.brand.accent}
             />
           </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => router.push("/profile/settings/container")}
-          >
+          <TouchableOpacity onPress={() => router.push(Routes.Settings)}>
             <IconSymbol
               name="square.grid.2x2"
               size={27}
@@ -118,7 +117,12 @@ export default function ProfileComponent({
               <Text style={styles.username}>{username}</Text>
               {!isLoggedIn && (
                 <TouchableOpacity
-                  onPress={() => router.push("/authentication/sign-in")}
+                  onPress={() =>
+                    router.push({
+                      pathname: Routes.AuthForm,
+                      params: { mode: "sign-in" },
+                    })
+                  }
                   style={styles.loginButton}
                 >
                   <Text style={styles.loginText}>Login</Text>

@@ -39,7 +39,7 @@ export const styles = StyleSheet.create({
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
     paddingVertical: 20,
-    paddingBottom: 70,
+    paddingBottom: 80,
     marginBottom: -30,
     elevation: 8,
   },
@@ -48,7 +48,7 @@ export const styles = StyleSheet.create({
     width: "100%",
     paddingHorizontal: 16,
     paddingTop: 20,
-    paddingBottom: 60,
+    paddingBottom: 90,
     marginBottom: -25,
   },
 

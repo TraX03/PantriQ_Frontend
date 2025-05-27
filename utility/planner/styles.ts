@@ -8,7 +8,7 @@ export const styles = StyleSheet.create({
     color: Colors.text.highlight,
   },
   weekContainer: {
-    paddingVertical: 12,
+    paddingVertical: 10,
     backgroundColor: Colors.brand.accent,
     flexDirection: "row",
     alignItems: "center",
@@ -64,7 +64,7 @@ export const styles = StyleSheet.create({
     alignItems: "center",
     borderBottomColor: Colors.ui.overlay,
     borderBottomWidth: 1.5,
-    marginHorizontal: 9,
+    marginHorizontal: 5,
     marginTop: 18,
     marginBottom: 12,
   },
@@ -91,5 +91,9 @@ export const styles = StyleSheet.create({
     fontSize: 12,
     textAlign: "center",
     fontFamily: "RobotoRegular",
+  },
+  mealTimeModal: {
+    paddingBottom: 50,
+    marginBottom: -20,
   },
 });

@@ -1,4 +1,5 @@
 import { AppwriteConfig } from "@/constants/AppwriteConfig";
+import { Routes } from "@/constants/Routes";
 import { setUser } from "@/redux/slices/authSlice";
 import { setLoading } from "@/redux/slices/loadingSlice";
 import { AppDispatch } from "@/redux/store";
@@ -77,7 +78,7 @@ export function useAuthentication() {
     try {
       await account.deleteSession("current");
       dispatch(setUser(null));
-      router.replace("/");
+      router.replace(Routes.Home);
       fetchProfile();
     } catch (error) {
       handleError("Logout", error);

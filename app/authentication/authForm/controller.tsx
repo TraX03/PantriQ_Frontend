@@ -1,4 +1,5 @@
 import { AuthErrors, ValidationErrors } from "@/constants/Errors";
+import { Routes } from "@/constants/Routes";
 import { useAuthentication } from "@/hooks/useAuthentication";
 import { useFieldState } from "@/hooks/useFieldState";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -100,7 +101,7 @@ export const useAuthController = (mode: AuthMode) => {
     try {
       if (mode === "signUp") {
         await signUp(email, password, extractUsername(email));
-        router.replace("/");
+        router.replace(Routes.Home);
       } else {
         await login(email, password);
         const redirectTo = typeof redirect === "string" ? redirect : "/";

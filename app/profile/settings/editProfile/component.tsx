@@ -3,6 +3,7 @@ import HeaderBar from "@/components/HeaderBar";
 import IconButton from "@/components/IconButton";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { Colors } from "@/constants/Colors";
+import { Routes } from "@/constants/Routes";
 import { ProfileData } from "@/redux/slices/profileSlice";
 import { getOverlayStyle } from "@/utility/imageUtils";
 import { maskEmail } from "@/utility/maskUtils";
@@ -153,7 +154,7 @@ export default function EditProfileComponent({
                 key={key}
                 onPress={() =>
                   router.push({
-                    pathname: "/profile/settings/editProfile/[key]",
+                    pathname: Routes.EditFieldForm,
                     params: {
                       key,
                       size,

@@ -66,7 +66,7 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     borderColor: Colors.ui.shadow,
     borderWidth: 1.5,
-    paddingBottom: (StatusBar.currentHeight ?? 0) + 50,
+    paddingBottom: (StatusBar.currentHeight ?? 0) + 80,
     marginBottom: -3,
   },
   addModalText: {
@@ -109,6 +109,51 @@ const styles = StyleSheet.create({
     lineHeight: 22,
     fontSize: 15,
     fontFamily: "RobotoRegular",
+  },
+  userCardContainer: {
+    padding: 14,
+    borderRadius: 12,
+    marginBottom: 16,
+    backgroundColor: Colors.brand.accent,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  usernameText: {
+    fontFamily: "RobotoMedium",
+    fontSize: 16,
+    color: Colors.brand.base,
+    marginBottom: 6,
+  },
+  bioText: {
+    fontFamily: "RobotoRegular",
+    fontSize: 14,
+    color: Colors.text.gray,
+    width: "80%",
+  },
+  modalAddButton: {
+    marginLeft: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    backgroundColor: Colors.ui.buttonFill,
+    borderRadius: 8,
+    flex: 1,
+    alignItems: "center",
+  },
+  resultText: {
+    color: Colors.brand.base,
+    fontSize: 16,
+  },
+  endText: {
+    color: Colors.text.secondary,
+    fontSize: 14,
+  },
+  addText: {
+    color: Colors.text.secondary,
+    fontSize: 14,
+    textDecorationLine: "underline",
+    marginTop: 4,
+    textAlign: "right",
   },
 });
 

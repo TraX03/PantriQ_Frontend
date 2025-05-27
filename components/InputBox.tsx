@@ -25,6 +25,7 @@ type InputBoxProps = TextInputProps & {
   lines?: number;
   value: string;
   onChangeText: (text: string) => void;
+  clearColor?: string;
 };
 
 export default function InputBox({
@@ -39,6 +40,7 @@ export default function InputBox({
   lines,
   value,
   onChangeText,
+  clearColor,
   ...props
 }: InputBoxProps) {
   return (
@@ -76,7 +78,7 @@ export default function InputBox({
           >
             <IconSymbol
               name="multiply.circle"
-              color={Colors.ui.overlay}
+              color={clearColor || Colors.ui.overlay}
               size={18}
             />
           </TouchableOpacity>

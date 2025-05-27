@@ -22,6 +22,12 @@ type DateInfo = {
   weekStart: Date;
 };
 
+type MealTime = {
+  id: string;
+  label: string;
+  categories: string[];
+};
+
 type Props = {
   planner: ReturnType<typeof useFieldState<PlannerState>>;
   generateMeals: () => void;
@@ -56,12 +62,13 @@ export default function PlannerComponent({
       <BottomSheetModal
         isVisible={showMealtimeModal}
         onClose={() => setFieldState("showMealtimeModal", false)}
-        options={availableMealtimes.map((meal) => ({
-          key: meal,
-          label: meal,
-          onPress: () => addMealtime(meal),
+        options={availableMealtimes.map((meal: MealTime) => ({
+          key: meal.id,
+          label: meal.label,
+          onPress: () => addMealtime(meal.id),
         }))}
-        zIndex={10}
+        zIndex={20}
+        modalStyle={styles.mealTimeModal}
       />
 
       <View style={homeStyles.container}>
