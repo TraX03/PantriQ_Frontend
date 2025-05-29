@@ -34,18 +34,26 @@ export default function BottomSheetModal({
   modalStyle,
   children,
 }: BottomSheetModalProps) {
-  const { translateY, shouldRender } = useSlide(isVisible);
+  const [internalVisible, setInternalVisible] = useState(isVisible);
   const [overlayColor, setOverlayColor] = useState(Colors.ui.overlay);
+
+  const { translateY, shouldRender } = useSlide(internalVisible, () => {
+    onClose();
+  });
 
   useEffect(() => {
     if (isVisible) {
+      setInternalVisible(true);
       setOverlayColor(Colors.ui.overlay);
+    } else {
+      setOverlayColor("transparent");
+      setInternalVisible(false);
     }
   }, [isVisible]);
 
-  const handlePress = () => {
+  const handleOverlayPress = () => {
     setOverlayColor("transparent");
-    onClose();
+    setInternalVisible(false);
   };
 
   if (!shouldRender) return null;
@@ -59,7 +67,7 @@ export default function BottomSheetModal({
     >
       <TouchableOpacity
         activeOpacity={1}
-        onPress={handlePress}
+        onPress={handleOverlayPress}
         style={[
           StyleSheet.absoluteFillObject,
           { backgroundColor: overlayColor },
@@ -75,7 +83,17 @@ export default function BottomSheetModal({
         <View style={styles.divider} />
         {children ??
           options?.map(({ key, label, onPress }) => (
-            <TouchableOpacity key={key} className="py-1" onPress={onPress}>
+            <TouchableOpacity
+              key={key}
+              className="py-1"
+              onPress={() => {
+                setOverlayColor("transparent");
+                setInternalVisible(false);
+                setTimeout(() => {
+                  onPress();
+                }, 300);
+              }}
+            >
               <Animated.Text style={styles.addModalText}>{label}</Animated.Text>
             </TouchableOpacity>
           ))}

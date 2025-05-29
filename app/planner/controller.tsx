@@ -115,7 +115,6 @@ export const usePlannerController = () => {
 
       if (!allRecipes.length) return [];
 
-      // Only 1 recipe for Breakfast, 2 for others
       const numberToSelect = mealtime === "Breakfast" ? 1 : 2;
 
       const selected = allRecipes

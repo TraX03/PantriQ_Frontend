@@ -7,34 +7,29 @@ import { ScreenWrapper } from "@/components/ScreenWrapper";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { Colors } from "@/constants/Colors";
 import { useFieldState } from "@/hooks/useFieldState";
+import { useInteraction } from "@/hooks/useInteraction";
 import { styles } from "@/utility/posts/styles";
 import { router } from "expo-router";
 import React from "react";
 import {
-  Alert,
   Dimensions,
   FlatList,
   Image,
+  Pressable,
   ScrollView,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { RecipeState } from "./controller";
 
 type Props = {
   recipe: ReturnType<typeof useFieldState<RecipeState>>;
-  deleteRecipeById: (recipeId: string) => Promise<void>;
-  toggleInteraction: (type: "like" | "bookmark") => Promise<void>;
+  handleDelete: () => void;
 };
 
-export default function RecipeComponent({
-  recipe,
-  deleteRecipeById,
-  toggleInteraction,
-}: Props) {
+export default function RecipeComponent({ recipe, handleDelete }: Props) {
   const {
     recipeData,
     setFieldState,
@@ -43,15 +38,18 @@ export default function RecipeComponent({
     imageIndex,
     metadata,
     showStepsModal,
-    isInstructionsOverflow: instructionsOverflow,
+    isInstructionsOverflow,
+    setFields,
   } = recipe;
+
   const { width } = Dimensions.get("window");
-  const insets = useSafeAreaInsets();
 
-  if (!recipeData) {
+  if (!recipeData)
     return <ErrorScreen message="Recipe not found or is invalid." />;
-  }
 
+  const { isLiked, isBookmarked, toggleLike, toggleBookmark } = useInteraction(
+    recipeData.id
+  );
   const isBackgroundDark = metadata.images?.[imageIndex]?.isDark ?? false;
 
   return (
@@ -67,33 +65,11 @@ export default function RecipeComponent({
         modalStyle={styles.postSettings}
         zIndex={10}
         options={[
-          {
-            key: "delete",
-            label: "Delete Post",
-            onPress: () => {
-              setFieldState("showModal", false);
-              setTimeout(() => {
-                Alert.alert(
-                  "Delete Recipe",
-                  "Are you sure you want to delete this recipe?",
-                  [
-                    { text: "Cancel", style: "cancel" },
-                    {
-                      text: "Delete",
-                      style: "destructive",
-                      onPress: () => deleteRecipeById(recipeData.id),
-                    },
-                  ]
-                );
-              }, 300);
-            },
-          },
+          { key: "delete", label: "Delete Post", onPress: handleDelete },
           {
             key: "logout",
             label: "Log Out",
-            onPress: () => {
-              setFieldState("showModal", false);
-            },
+            onPress: () => setFieldState("showModal", false),
           },
         ]}
       />
@@ -122,7 +98,7 @@ export default function RecipeComponent({
             <View className="relative">
               <FlatList
                 data={recipeData.images}
-                keyExtractor={(item, index) => `${item}-${index}`}
+                keyExtractor={(_, index) => `${index}`}
                 horizontal
                 pagingEnabled
                 showsHorizontalScrollIndicator={false}
@@ -144,19 +120,17 @@ export default function RecipeComponent({
                 <View style={styles.indicatorContainer}>
                   {recipeData.images.map((_, idx) => (
                     <View
-                      key={`dot-${idx}`}
+                      key={idx}
                       className="w-2.5 h-2.5 rounded-full"
-                      style={[
-                        {
-                          backgroundColor: isBackgroundDark
-                            ? recipe.imageIndex === idx
-                              ? Colors.brand.accent
-                              : Colors.ui.whiteOverlay
-                            : recipe.imageIndex === idx
-                            ? Colors.ui.inactive
-                            : Colors.ui.overlayLight,
-                        },
-                      ]}
+                      style={{
+                        backgroundColor: isBackgroundDark
+                          ? imageIndex === idx
+                            ? Colors.brand.accent
+                            : Colors.ui.whiteOverlay
+                          : imageIndex === idx
+                          ? Colors.ui.inactive
+                          : Colors.ui.overlayLight,
+                      }}
                     />
                   ))}
                 </View>
@@ -174,16 +148,14 @@ export default function RecipeComponent({
                     onPress={() =>
                       setFieldState(
                         "fullscreenImage",
-                        recipeData.images[recipe.imageIndex]
+                        recipeData.images[imageIndex]
                       )
                     }
                     isBackgroundDark={isBackgroundDark}
                   />
                   <IconButton
                     name="ellipsis"
-                    onPress={() =>
-                      setFieldState("showModal", !recipe.showModal)
-                    }
+                    onPress={() => setFieldState("showModal", !showModal)}
                     isBackgroundDark={isBackgroundDark}
                   />
                 </View>
@@ -199,25 +171,24 @@ export default function RecipeComponent({
                     <Text style={styles.authorName}>{recipeData.author}</Text>
                   </Text>
                 </View>
+
                 <View className="items-end">
                   <View className="flex-row gap-1.5">
-                    <TouchableOpacity onPress={() => toggleInteraction("like")}>
+                    <Pressable onPress={toggleLike}>
                       <IconSymbol
-                        name={recipe.isLiked ? "heart.fill" : "heart"}
+                        name={isLiked ? "heart.fill" : "heart"}
                         color={Colors.brand.main}
                       />
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      onPress={() => toggleInteraction("bookmark")}
-                    >
+                    </Pressable>
+
+                    <Pressable onPress={toggleBookmark}>
                       <IconSymbol
-                        name={
-                          recipe.isBookmarked ? "bookmark.fill" : "bookmark"
-                        }
+                        name={isBookmarked ? "bookmark.fill" : "bookmark"}
                         color={Colors.brand.main}
                       />
-                    </TouchableOpacity>
+                    </Pressable>
                   </View>
+
                   <Text style={styles.statsText}>
                     {recipeData.rating.toFixed(1)} Rating |{" "}
                     {recipeData.commentCount} Comment
@@ -246,9 +217,9 @@ export default function RecipeComponent({
                 <View style={{ maxHeight: 350 }}>
                   <ScrollView
                     scrollEnabled={false}
-                    onContentSizeChange={(w, h) => {
-                      setFieldState("isInstructionsOverflow", h > 350);
-                    }}
+                    onContentSizeChange={(_, h) =>
+                      setFieldState("isInstructionsOverflow", h > 350)
+                    }
                   >
                     {recipeData.instructions
                       .filter(Boolean)
@@ -257,7 +228,7 @@ export default function RecipeComponent({
                       ))}
                   </ScrollView>
                 </View>
-                {instructionsOverflow && (
+                {isInstructionsOverflow && (
                   <TouchableOpacity
                     onPress={() => setFieldState("showStepsModal", true)}
                     className="mt-4 self-center"

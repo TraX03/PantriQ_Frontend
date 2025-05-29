@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Animated, Dimensions } from "react-native";
 
-export function useSlide(isVisible: boolean) {
+export function useSlide(isVisible: boolean, onAnimateOutDone?: () => void) {
   const translateY = useRef(new Animated.Value(300)).current;
   const [shouldRender, setShouldRender] = useState(isVisible);
   const cancelUnmount = useRef(false);
@@ -24,6 +24,7 @@ export function useSlide(isVisible: boolean) {
       }).start(() => {
         if (!cancelUnmount.current) {
           setShouldRender(false);
+          onAnimateOutDone?.();
         }
       });
     }

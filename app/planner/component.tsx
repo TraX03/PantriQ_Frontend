@@ -1,11 +1,13 @@
 import BottomSheetModal from "@/components/BottomSheetModal";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { Colors } from "@/constants/Colors";
+import { Routes } from "@/constants/Routes";
 import { useFieldState } from "@/hooks/useFieldState";
 import { styles as homeStyles } from "@/utility/home/styles";
 import { styles } from "@/utility/planner/styles";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { addDays, endOfWeek, format, isThisWeek, startOfDay } from "date-fns";
+import { router } from "expo-router";
 import React, { useRef } from "react";
 import {
   Image,
@@ -15,6 +17,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import Toast from "react-native-toast-message";
 import { availableMealtimes, Meal, PlannerState } from "./controller";
 
 type DateInfo = {
@@ -145,8 +148,11 @@ export default function PlannerComponent({
                   <TouchableOpacity
                     key={index}
                     onPress={() => {
-                      if (day < minDate) {
-                        alert("Meal plan only retains the previous 30 days.");
+                      if (day > minDate) {
+                        Toast.show({
+                          type: "error",
+                          text1: "Meal plan only retains the previous 30 days.",
+                        });
                       } else {
                         setFieldState("selectedDate", startOfDay(day));
                       }
@@ -215,11 +221,20 @@ export default function PlannerComponent({
                         key={recipe.id}
                         className="flex-col gap-2 w-[130px]"
                       >
-                        <Image
-                          source={{ uri: recipe.image }}
-                          style={styles.addMealButton}
-                          resizeMode="cover"
-                        />
+                        <TouchableOpacity
+                          onPress={() => {
+                            router.push({
+                              pathname: Routes.PostDetail,
+                              params: { id: recipe.id },
+                            });
+                          }}
+                        >
+                          <Image
+                            source={{ uri: recipe.image }}
+                            style={styles.addMealButton}
+                            resizeMode="cover"
+                          />
+                        </TouchableOpacity>
                         <Text style={styles.recipeTitle}>{recipe.name}</Text>
                       </View>
                     ))}

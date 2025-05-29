@@ -33,9 +33,9 @@ export const useOnboardingController = () => {
 
   const addCustomSuggestion = (pageIndex: number, suggestion: string) => {
     const updatedSuggestions = [...customSuggestions];
-    const current = new Set(updatedSuggestions[pageIndex]);
-    current.add(suggestion);
-    updatedSuggestions[pageIndex] = Array.from(current);
+    const suggestionsSet = new Set(updatedSuggestions[pageIndex]);
+    suggestionsSet.add(suggestion);
+    updatedSuggestions[pageIndex] = Array.from(suggestionsSet);
     setFieldState("customSuggestions", updatedSuggestions);
   };
 
@@ -47,15 +47,13 @@ export const useOnboardingController = () => {
         diet,
         region_pref: region,
       });
-    } catch (err) {
-      console.error("Failed to save onboarding data:", err);
+    } catch (error) {
+      console.error("Failed to save onboarding data:", error);
     }
   };
 
   const handleNext = async () => {
-    const isFinalPage = currentPage === pages.length;
-
-    if (isFinalPage) {
+    if (currentPage === pages.length) {
       await saveOnboardingData();
       router.replace(Routes.Home);
     } else {
@@ -64,16 +62,21 @@ export const useOnboardingController = () => {
   };
 
   const handlePrevious = () => {
-    if (currentPage > 1) {
-      setFieldState("currentPage", currentPage - 1);
-    }
+    if (currentPage > 1) setFieldState("currentPage", currentPage - 1);
   };
+
+  const isNextEnabled = (() => {
+    const selectedStates = [ingredientAvoid, diet, region];
+    const selected = selectedStates[currentPage - 1];
+    return Array.isArray(selected) ? selected.length > 0 : Boolean(selected);
+  })();
 
   return {
     onboarding,
     handleNext,
     handlePrevious,
     addCustomSuggestion,
+    isNextEnabled,
   };
 };
 

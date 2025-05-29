@@ -46,7 +46,10 @@ export default function SearchWithSuggestion({
 
     const debounceFetch = setTimeout(async () => {
       const results = await fetchSuggestions(trimmedText);
-      setDatamuseSuggestions(results);
+      const capitalized = results.map(
+        (item) => item.charAt(0).toUpperCase() + item.slice(1)
+      );
+      setDatamuseSuggestions(capitalized);
     }, 300);
 
     return () => clearTimeout(debounceFetch);

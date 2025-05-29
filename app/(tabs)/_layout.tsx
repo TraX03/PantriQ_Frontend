@@ -72,7 +72,7 @@ export default function TabLayout() {
           },
           tabBarStyle: {
             backgroundColor: Colors.brand.accent,
-            paddingTop: 2,
+            paddingVertical: 2,
             zIndex: 1,
           },
         }}

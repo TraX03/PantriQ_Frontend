@@ -1,5 +1,6 @@
 import { Colors } from "@/constants/Colors";
 import { Routes } from "@/constants/Routes";
+import { useInteraction } from "@/hooks/useInteraction";
 import { router } from "expo-router";
 import { Image, Pressable, Text, TouchableOpacity, View } from "react-native";
 import styles from "./styles";
@@ -12,6 +13,7 @@ export type Post = {
   type: PostType;
   title: string;
   image: string;
+  area?: string;
   author?: string;
   profilePic?: string;
   membersCount?: number;
@@ -25,6 +27,9 @@ type PostCardProps = {
 
 export default function PostCard({ post }: PostCardProps) {
   const { type, title, image, id } = post;
+  const { isLiked, isBookmarked, toggleLike, toggleBookmark } = useInteraction(
+    post.id
+  );
 
   if (type === "community") {
     const { membersCount, recipesCount } = post;
@@ -105,8 +110,20 @@ export default function PostCard({ post }: PostCardProps) {
               )}
             </View>
             <View className="flex-row items-center space-x-1 pl-2.5">
-              <IconSymbol name="heart" color={Colors.ui.base} size={22} />
-              <IconSymbol name="bookmark" color={Colors.ui.base} size={22} />
+              <Pressable onPress={toggleLike}>
+                <IconSymbol
+                  name={isLiked ? "heart.fill" : "heart"}
+                  color={isLiked ? Colors.brand.main : Colors.brand.base}
+                  size={21}
+                />
+              </Pressable>
+              <Pressable onPress={toggleBookmark}>
+                <IconSymbol
+                  name={isBookmarked ? "bookmark.fill" : "bookmark"}
+                  color={isBookmarked ? Colors.brand.main : Colors.brand.base}
+                  size={21}
+                />
+              </Pressable>
             </View>
           </View>
         </View>

@@ -2,8 +2,13 @@ import OnboardingComponent from "./component";
 import useOnboardingController from "./controller";
 
 export default function OnboardingContainer() {
-  const { onboarding, handleNext, handlePrevious, addCustomSuggestion } =
-    useOnboardingController();
+  const {
+    onboarding,
+    handleNext,
+    handlePrevious,
+    addCustomSuggestion,
+    isNextEnabled,
+  } = useOnboardingController();
 
   return (
     <OnboardingComponent
@@ -11,6 +16,7 @@ export default function OnboardingContainer() {
       handleNext={handleNext}
       handlePrevious={handlePrevious}
       addCustomSuggestion={addCustomSuggestion}
+      isNextEnabled={isNextEnabled}
     />
   );
 }

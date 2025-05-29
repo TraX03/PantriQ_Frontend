@@ -1,5 +1,7 @@
 import { Post } from "@/components/PostCard";
+import { AppwriteConfig } from "@/constants/AppwriteConfig";
 import { useFieldState } from "@/hooks/useFieldState";
+import { getCurrentUser, getDocumentById } from "@/services/appwrite";
 import { fetchPosts } from "@/utility/fetchPosts";
 import { useCallback } from "react";
 
@@ -30,9 +32,18 @@ export const useHomeController = () => {
 
   const refreshPosts = useCallback(async () => {
     setFieldState("refreshing", true);
-    const fetchedPosts = await fetchPosts(100);
+
+    const user = await getCurrentUser();
+    const userDoc = await getDocumentById(
+      AppwriteConfig.USERS_COLLECTION_ID,
+      user.$id
+    );
+
+    const regionPref = userDoc?.region_pref;
+    const posts = await fetchPosts(100, regionPref);
+
     setFields({
-      posts: fetchedPosts,
+      posts,
       refreshing: false,
     });
   }, [fetchPosts]);

@@ -155,6 +155,26 @@ const styles = StyleSheet.create({
     marginTop: 4,
     textAlign: "right",
   },
+  toastContainer: {
+    backgroundColor: Colors.ui.inactive,
+    padding: 12,
+    borderRadius: 8,
+    marginHorizontal: 20,
+    maxWidth: "70%",
+    marginTop: 10,
+    elevation: 4,
+  },
+  toastText: {
+    color: Colors.brand.accent,
+    fontSize: 16,
+    fontWeight: "600",
+    textAlign: "center",
+  },
+  toastSubText: {
+    color: Colors.text.placeholder,
+    fontSize: 14,
+    marginTop: 4,
+  },
 });
 
 export default styles;

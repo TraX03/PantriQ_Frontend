@@ -4,6 +4,7 @@ import { styles } from "@/utility/onboarding/styles";
 import { styles as searchStyles } from "@/utility/search/styles";
 import { useState } from "react";
 import { Pressable, ScrollView, Text, View } from "react-native";
+import Toast from "react-native-toast-message";
 import BottomSheetModal from "./BottomSheetModal";
 import SearchWithSuggestion, { Mode } from "./SearchWithSuggestions";
 import { IconSymbol } from "./ui/IconSymbol";
@@ -35,23 +36,37 @@ export default function OnboardingPage({
 }: OnboardingProps) {
   const [isModalVisible, setIsModalVisible] = useState(false);
 
+  const normalized = (text: string) => text.toLowerCase();
   const toggleItem = (item: string) => {
-    onChange(
-      selectedItems.includes(item)
-        ? selectedItems.filter((i) => i !== item)
-        : [...selectedItems, item]
-    );
+    const updatedItems = selectedItems.includes(item)
+      ? selectedItems.filter((i) => i !== item)
+      : [...selectedItems, item];
+
+    onChange(updatedItems);
   };
 
   const handleCustomSelect = (item: string) => {
-    if (!customSuggestions.includes(item)) {
+    const normItem = normalized(item);
+    const all = [...suggestions, ...customSuggestions].map(normalized);
+    const selected = selectedItems.map(normalized);
+
+    if (!all.includes(normItem)) {
       onAddCustomSuggestion(item);
     }
-    toggleItem(item);
+
+    if (!selected.includes(normItem)) {
+      toggleItem(item);
+    } else {
+      Toast.show({
+        type: "info",
+        text1: `"${item}" is already selected`,
+      });
+    }
+
     setIsModalVisible(false);
   };
 
-  const combinedSuggestions = Array.from(
+  const allSuggestions = Array.from(
     new Set([...suggestions, ...customSuggestions])
   );
 
@@ -81,8 +96,9 @@ export default function OnboardingPage({
           showsVerticalScrollIndicator={false}
           contentContainerClassName="flex-row flex-wrap gap-2.5"
         >
-          {combinedSuggestions.map((item) => {
+          {allSuggestions.map((item) => {
             const isSelected = selectedItems.includes(item);
+
             return (
               <Pressable
                 key={item}

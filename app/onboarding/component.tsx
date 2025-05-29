@@ -9,13 +9,6 @@ import React from "react";
 import { Pressable, Text, View } from "react-native";
 import { OnboardingState } from "./controller";
 
-type Props = {
-  onboarding: ReturnType<typeof useFieldState<OnboardingState>>;
-  handleNext: () => void;
-  handlePrevious: () => void;
-  addCustomSuggestion: (pageIndex: number, suggestion: string) => void;
-};
-
 export const pages: {
   title: string;
   description: string;
@@ -31,9 +24,9 @@ export const pages: {
     suggestions: [
       "Chicken",
       "Beef",
-      "Egg",
+      "Eggs",
       "Soy",
-      "Peanut",
+      "Peanuts",
       "Wheat",
       "Milk",
       "Fish",
@@ -47,7 +40,6 @@ export const pages: {
     description:
       "Share your diet preferences so we can personalize your meal plan to match your needs.",
     suggestions: [
-      "None",
       "Vegan",
       "Paleo",
       "Low-Carb",
@@ -72,7 +64,7 @@ export const pages: {
       "Japanese",
       "Chinese",
       "Malaysian",
-      "Indonesian",
+      "American",
     ],
     placeholder: "Cuisine",
     mode: "suggestion-then-custom",
@@ -80,11 +72,20 @@ export const pages: {
   },
 ];
 
+type Props = {
+  onboarding: ReturnType<typeof useFieldState<OnboardingState>>;
+  handleNext: () => void;
+  handlePrevious: () => void;
+  addCustomSuggestion: (pageIndex: number, suggestion: string) => void;
+  isNextEnabled: boolean;
+};
+
 export default function OnboardingComponent({
   onboarding,
   handleNext,
   handlePrevious,
   addCustomSuggestion,
+  isNextEnabled,
 }: Props) {
   const {
     currentPage,
@@ -95,6 +96,7 @@ export default function OnboardingComponent({
     setFieldState,
   } = onboarding;
 
+  const pageIndex = currentPage - 1;
   const selectedStates = [ingredientAvoid, diet, region];
   const setters = [
     (value: typeof ingredientAvoid) => setFieldState("ingredientAvoid", value),
@@ -102,16 +104,16 @@ export default function OnboardingComponent({
     (value: typeof region) => setFieldState("region", value),
   ];
 
-  const pageIndex = currentPage - 1;
-  const current = pages[pageIndex];
+  const currentPageData = pages[pageIndex];
 
   return (
     <>
       <Stack.Screen options={{ headerShown: false }} />
+
       <View style={styles.container}>
         <View className="flex-row justify-between items-center mb-6 mt-4">
           <View className="flex-row gap-2">
-            {Array.from({ length: pages.length }, (_, i) => {
+            {pages.map((_, i) => {
               const step = i + 1;
               const isCurrent = step === currentPage;
               const isCompleted = step < currentPage;
@@ -148,14 +150,15 @@ export default function OnboardingComponent({
               );
             })}
           </View>
+
           <Pressable onPress={handleNext}>
             <Text style={styles.skipText}>Skip</Text>
           </Pressable>
         </View>
 
-        {current && (
+        {currentPageData && (
           <OnboardingPage
-            {...current}
+            {...currentPageData}
             selectedItems={selectedStates[pageIndex]}
             onChange={setters[pageIndex]}
             customSuggestions={customSuggestions[pageIndex]}
@@ -181,7 +184,12 @@ export default function OnboardingComponent({
           ) : (
             <View className="w-[100px]" />
           )}
-          <Pressable style={styles.button} onPress={handleNext}>
+
+          <Pressable
+            style={[styles.button, { opacity: isNextEnabled ? 1 : 0.5 }]}
+            onPress={isNextEnabled ? handleNext : undefined}
+            disabled={!isNextEnabled}
+          >
             <Text style={styles.buttonText}>Next</Text>
           </Pressable>
         </View>

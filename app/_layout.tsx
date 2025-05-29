@@ -1,3 +1,4 @@
+import CustomToast from "@/components/CustomToast";
 import LoadingScreen from "@/components/LoadingScreen";
 import { useHydrateUser } from "@/hooks/useHydrateUser";
 import store from "@/redux/store";
@@ -7,6 +8,7 @@ import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
 import "react-native-reanimated";
+import Toast, { BaseToastProps } from "react-native-toast-message";
 import { Provider } from "react-redux";
 import "./global.css";
 
@@ -40,6 +42,12 @@ export default function RootLayout() {
     AfacadMedium: require("../assets/fonts/Afacad-Medium.ttf"),
   });
 
+  const toastConfig = {
+    info: (props: BaseToastProps) => <CustomToast {...props} />,
+    success: (props: BaseToastProps) => <CustomToast {...props} />,
+    error: (props: BaseToastProps) => <CustomToast {...props} />,
+  };
+
   useEffect(() => {
     if (loaded) {
       SplashScreen.hideAsync();
@@ -53,6 +61,7 @@ export default function RootLayout() {
   return (
     <Provider store={store}>
       <RootContent />
+      <Toast config={toastConfig} />
     </Provider>
   );
 }

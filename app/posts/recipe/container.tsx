@@ -11,8 +11,7 @@ type Props = {
 
 export default function RecipeContainer({ recipeId }: Props) {
   const dispatch = useDispatch<AppDispatch>();
-  const { recipe, getRecipe, deleteRecipe, toggleInteraction } =
-    useRecipeController();
+  const { recipe, getRecipe, confirmDeleteRecipe } = useRecipeController();
 
   useEffect(() => {
     const loadRecipe = async () => {
@@ -36,8 +35,7 @@ export default function RecipeContainer({ recipeId }: Props) {
   return (
     <RecipeComponent
       recipe={recipe}
-      deleteRecipeById={deleteRecipe}
-      toggleInteraction={toggleInteraction}
+      handleDelete={confirmDeleteRecipe}
     />
   );
 }

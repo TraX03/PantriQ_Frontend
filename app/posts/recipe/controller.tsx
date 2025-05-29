@@ -4,7 +4,6 @@ import { setLoading } from "@/redux/slices/loadingSlice";
 import { setRefreshProfile } from "@/redux/slices/profileSlice";
 import { AppDispatch } from "@/redux/store";
 import {
-  createDocument,
   deleteDocument,
   getCurrentUser,
   getDocumentById,
@@ -161,7 +160,6 @@ export const useRecipeController = () => {
         { text: "OK", onPress: () => router.back() },
       ]);
     } catch (error) {
-      console.error("Failed to delete recipe:", error);
       Alert.alert("Error", "Failed to delete the recipe. Please try again.");
       throw error;
     } finally {
@@ -170,45 +168,28 @@ export const useRecipeController = () => {
     }
   };
 
-  const toggleInteraction = async (type: "like" | "bookmark") => {
-    const isActive = type === "like" ? recipe.isLiked : recipe.isBookmarked;
-    const docId = type === "like" ? recipe.likeDocId : recipe.bookmarkDocId;
-    const currentUser = await getCurrentUser();
-
-    try {
-      if (isActive && docId) {
-        await deleteDocument(AppwriteConfig.INTERACTIONS_COLLECTION_ID, docId);
-
-        recipe.setFields({
-          [type === "like" ? "isLiked" : "isBookmarked"]: false,
-          [type === "like" ? "likeDocId" : "bookmarkDocId"]: undefined,
-        });
-      } else {
-        const newDoc = await createDocument(
-          AppwriteConfig.INTERACTIONS_COLLECTION_ID,
+  const confirmDeleteRecipe = () => {
+    recipe.setFieldState("showModal", false);
+    setTimeout(() => {
+      Alert.alert(
+        "Delete Recipe",
+        "Are you sure you want to delete this recipe?",
+        [
+          { text: "Cancel", style: "cancel" },
           {
-            user_id: currentUser.$id,
-            post_id: recipe.recipeData?.id,
-            type,
-            created_at: new Date().toISOString(),
-          }
-        );
-
-        recipe.setFields({
-          [type === "like" ? "isLiked" : "isBookmarked"]: true,
-          [type === "like" ? "likeDocId" : "bookmarkDocId"]: newDoc.$id,
-        });
-      }
-    } catch (error) {
-      console.warn("Interaction toggle failed:", error);
-    }
+            text: "Delete",
+            style: "destructive",
+            onPress: () => deleteRecipe(recipe.recipeData!.id),
+          },
+        ]
+      );
+    }, 300);
   };
 
   return {
     recipe,
     getRecipe,
-    deleteRecipe,
-    toggleInteraction,
+    confirmDeleteRecipe,
   };
 };
 
