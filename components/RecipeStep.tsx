@@ -1,3 +1,4 @@
+import { Instruction } from "@/app/create/createForm/controller";
 import { Colors } from "@/constants/Colors";
 import { getImageUrl } from "@/utility/imageUtils";
 import React, { useState } from "react";
@@ -8,25 +9,21 @@ import { IconSymbol } from "./ui/IconSymbol";
 
 interface RecipeStepProps {
   index: number;
-  step: string;
+  step: Instruction;
 }
 
-const RecipeStep: React.FC<RecipeStepProps> = ({ index, step }) => {
+export const RecipeStep: React.FC<RecipeStepProps> = ({ index, step }) => {
   const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
 
-  const [imageId, ...rest] = step.includes(" - ")
-    ? step.split(" - ")
-    : ["", step];
-  const instructionText = rest.join(" - ").trim();
+  // Capitalize first letter and ensure the instruction ends with punctuation
+  const formatInstruction = (text: string) => {
+    if (!text) return "";
+    const capitalized = text.charAt(0).toUpperCase() + text.slice(1);
+    return /[.!?]$/.test(text) ? capitalized : capitalized + ".";
+  };
 
-  const hasImage = imageId.trim().length > 10;
-  const cleanedInstruction = instructionText
-    .replace(/^step\s*\d+[\.\-\:\)]*\s*/i, "")
-    .trim();
-  const finalText =
-    cleanedInstruction.charAt(0).toUpperCase() +
-    cleanedInstruction.slice(1) +
-    (/[.!?]$/.test(cleanedInstruction) ? "" : ".");
+  const finalText = formatInstruction(step.text || "");
+  const imageUri = step.image ? getImageUrl(step.image) : null;
 
   return (
     <>
@@ -34,21 +31,20 @@ const RecipeStep: React.FC<RecipeStepProps> = ({ index, step }) => {
         imageUri={fullscreenImage}
         onClose={() => setFullscreenImage(null)}
       />
-
       <View className="mb-7">
         <Text style={styles.stepText}>STEP {index + 1}</Text>
 
-        {hasImage && (
+        {imageUri && (
           <View className="mb-2 relative">
             <Image
-              source={{ uri: getImageUrl(imageId.trim()) }}
+              source={{ uri: imageUri }}
               style={styles.stepImage}
               resizeMode="cover"
             />
             <TouchableOpacity
               className="absolute top-3 right-3 p-1 rounded-full"
               style={{ backgroundColor: Colors.ui.overlayLight }}
-              onPress={() => setFullscreenImage(getImageUrl(imageId.trim()))}
+              onPress={() => setFullscreenImage(imageUri)}
             >
               <IconSymbol
                 name="arrow.up.left.and.arrow.down.right"
@@ -64,5 +60,3 @@ const RecipeStep: React.FC<RecipeStepProps> = ({ index, step }) => {
     </>
   );
 };
-
-export default RecipeStep;

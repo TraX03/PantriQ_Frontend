@@ -1,8 +1,9 @@
 import { AppwriteConfig } from "@/constants/AppwriteConfig";
 import { createDocument } from "@/services/appwrite";
 import { TheMealDB_Config } from "@/services/MealDbApi";
+import { detectBackgroundDarkness } from "@/utility/imageUtils";
 
-const parseIngredients = (meal: any) => {
+const parseIngredients = (meal: any): string[] => {
   const ingredients = [];
 
   for (let i = 1; i <= 20; i++) {
@@ -10,52 +11,67 @@ const parseIngredients = (meal: any) => {
     const measure = meal[`strMeasure${i}`];
 
     if (ingredient && ingredient.trim() && measure && measure.trim()) {
-      ingredients.push({
-        name: ingredient,
-        quantity: measure,
-      });
+      ingredients.push(
+        JSON.stringify({
+          name: ingredient.trim(),
+          quantity: measure.trim(),
+        })
+      );
     }
   }
   return ingredients;
 };
 
-const flattenIngredients = (
-  ingredients: { name: string; quantity: string }[]
-): string[] => {
-  return ingredients.map(
-    (ingredient) => `${ingredient.name} - ${ingredient.quantity}`
+const parseInstructions = (instructions: string): string[] => {
+  const steps = instructions
+    .split(".")
+    .map((text) => text.replace(/^step\s*\d+[\.\-\:\)]*\s*/i, "").trim())
+    .filter((text) => text.length > 0);
+
+  return steps.map((text) =>
+    JSON.stringify({
+      text,
+      image: undefined,
+    })
   );
 };
 
-const parseInstructions = (instructions: string): string[] => {
-  const instructionSteps = instructions
-    .split(".")
-    .map((step) => step.trim())
-    .filter((step) => step.length > 0);
-
-  return instructionSteps;
-};
-
 export const fetchAndSaveMeals = async () => {
-  const { DATABASE_ID, RECIPES_COLLECTION_ID } = AppwriteConfig;
   const { THEMEALDB_ID, BASE_URL } = TheMealDB_Config;
 
   try {
-    const res = await fetch(`${BASE_URL}/search.php?f=z`);
+    const res = await fetch(`${BASE_URL}/search.php?f=y`);
     const data = await res.json();
     const meals: any[] = data.meals || [];
 
     for (const meal of meals) {
       try {
-        await createDocument(RECIPES_COLLECTION_ID, {
+        const ingredients = parseIngredients(meal);
+        const instructions = parseInstructions(meal.strInstructions);
+        const images = [meal.strMealThumb];
+
+        const metadata = {
+          images: await Promise.all(
+            images.map(async (uri: string) => {
+              try {
+                return { isDark: await detectBackgroundDarkness(uri) };
+              } catch {
+                return { isDark: false };
+              }
+            })
+          ),
+        };
+
+        await createDocument(AppwriteConfig.RECIPES_COLLECTION_ID, {
           title: meal.strMeal,
-          image: [meal.strMealThumb],
+          image: images,
           author_id: THEMEALDB_ID,
-          ingredients: flattenIngredients(parseIngredients(meal)),
-          instructions: parseInstructions(meal.strInstructions),
+          ingredients,
+          instructions,
           area: meal.strArea,
           category: [meal.strCategory],
           created_at: new Date().toISOString(),
+          metadata: JSON.stringify(metadata),
         });
 
         console.log(`Saved: ${meal.strMeal}`);

@@ -7,7 +7,7 @@ import { setLoading } from "@/redux/slices/loadingSlice";
 import { setRefreshProfile } from "@/redux/slices/profileSlice";
 import { AppDispatch } from "@/redux/store";
 import { createDocument, getCurrentUser } from "@/services/appwrite";
-import { detectBackgroundDarkness } from "@/utility/imageUtils";
+import { detectBackgroundDarkness, isValidUrl } from "@/utility/imageUtils";
 import * as FileSystem from "expo-file-system";
 import * as ImagePicker from "expo-image-picker";
 import { router, useLocalSearchParams } from "expo-router";
@@ -15,15 +15,26 @@ import mime from "mime";
 import { useCallback, useMemo } from "react";
 import { Alert, Keyboard } from "react-native";
 import { ID, Permission, Role } from "react-native-appwrite";
+import Toast from "react-native-toast-message";
 import { useDispatch } from "react-redux";
+
+export interface Ingredient {
+  name: string;
+  quantity: string;
+}
+
+export interface Instruction {
+  text: string;
+  image?: string;
+}
 
 export interface CreateFormState {
   title: string;
   content: string;
   images: string[];
   postType: PostType;
-  ingredient: { name: string; quantity: string }[];
-  instructions: { image?: string; text: string }[];
+  ingredient: Ingredient[];
+  instructions: Instruction[];
   category: { name: string }[];
   area: string;
   focusedIndex: { [K in EntryType]?: number | null };
@@ -49,48 +60,33 @@ export const useCreateFormController = () => {
   const handlePickImage = useCallback(async () => {
     if (create.images.length >= 5) return;
     const file = await pickImageFile();
-    if (file) {
-      create.setFieldState("images", [...create.images, file.uri]);
-    }
-  }, [create]);
+    if (file) create.setFieldState("images", [...create.images, file.uri]);
+  }, [create, pickImageFile]);
 
   const uploadImage = useCallback(
     async (uri: string, userId: string) => {
       const name = uri.split("/").pop() ?? `image-${Date.now()}`;
       const type = mime.getType(uri) ?? "image/jpeg";
-
       const fileInfo = await FileSystem.getInfoAsync(uri);
       if (!fileInfo.exists) return null;
-
       return uploadFile({ uri, name, type, size: fileInfo.size ?? 0 }, userId);
     },
     [uploadFile]
   );
 
   const handleSubmit = useCallback(async () => {
-    const {
-      title,
-      content,
-      postType,
-      images,
-      ingredient,
-      instructions,
-      category,
-      area,
-    } = create;
-
     dispatch(setLoading(true));
     try {
       const user = await getCurrentUser();
       const userId = user.$id;
 
       const uploadedImageIds = (
-        await Promise.all(images.map((uri) => uploadImage(uri, userId)))
+        await Promise.all(create.images.map((uri) => uploadImage(uri, userId)))
       ).filter((id): id is string => !!id);
 
       const metadata = {
         images: await Promise.all(
-          images.map(async (uri) => {
+          create.images.map(async (uri) => {
             try {
               return { isDark: await detectBackgroundDarkness(uri) };
             } catch {
@@ -99,7 +95,6 @@ export const useCreateFormController = () => {
           })
         ),
       };
-
       const commonFields = {
         image: uploadedImageIds,
         created_at: new Date().toISOString(),
@@ -109,45 +104,48 @@ export const useCreateFormController = () => {
       const payloadMap: Record<PostType, any> = {
         discussion: {
           ...commonFields,
-          title,
-          content,
-          type: postType,
+          title: create.title,
+          content: create.content,
+          type: create.postType,
           author_id: userId,
         },
         tips: {
           ...commonFields,
-          title,
-          content,
-          type: postType,
+          title: create.title,
+          content: create.content,
+          type: create.postType,
           author_id: userId,
         },
         community: {
           ...commonFields,
-          name: title,
-          description: content,
+          name: create.title,
+          description: create.content,
           image: uploadedImageIds[0],
           creator_id: userId,
         },
         recipe: {
           ...commonFields,
-          title,
-          description: content,
+          title: create.title,
+          description: create.content,
           author_id: userId,
-          ingredients: ingredient.map((i) => `${i.name} - ${i.quantity}`),
+          ingredients: create.ingredient.map((i) => JSON.stringify(i)),
           instructions: await Promise.all(
-            instructions.map(async ({ image, text }) => {
-              if (image?.startsWith("file://")) {
-                const id = await uploadImage(image, userId);
-                return id ? `${id} - ${text}` : text;
-              }
-              return image ? `${image} - ${text}` : text;
+            create.instructions.map(async ({ image, text }) => {
+              const uploadedImage =
+                image && !isValidUrl(image)
+                  ? await uploadImage(image, userId)
+                  : image;
+
+              return JSON.stringify({
+                text,
+                image: uploadedImage ?? undefined,
+              });
             })
           ),
-          category: category.map((c) => c.name),
-          area,
+          category: create.category.map((c) => c.name),
+          area: create.area,
         },
       };
-
       const collectionMap: Record<PostType, string> = {
         recipe: AppwriteConfig.RECIPES_COLLECTION_ID,
         discussion: AppwriteConfig.POSTS_COLLECTION_ID,
@@ -156,19 +154,19 @@ export const useCreateFormController = () => {
       };
 
       await createDocument(
-        collectionMap[postType],
-        payloadMap[postType],
+        collectionMap[create.postType],
+        payloadMap[create.postType],
         ID.unique(),
         [Permission.write(Role.user(userId))]
       );
-
-      Alert.alert(
-        "Success",
-        `${postType[0].toUpperCase() + postType.slice(1)} created successfully!`
-      );
+      Toast.show({
+        type: "success",
+        text1: `${
+          create.postType[0].toUpperCase() + create.postType.slice(1)
+        } created successfully!`,
+      });
       router.back();
-    } catch (err) {
-      console.error("Error creating post:", err);
+    } catch {
       Alert.alert(
         "Error",
         `Failed to create ${create.postType}. Please try again.`
@@ -180,6 +178,7 @@ export const useCreateFormController = () => {
   }, [create, dispatch, uploadImage]);
 
   const isFormValid = useMemo(() => {
+    const hasText = (str: string) => str.trim().length > 0;
     const {
       title,
       content,
@@ -190,7 +189,6 @@ export const useCreateFormController = () => {
       category,
       postType,
     } = create;
-    const hasText = (str: string) => str.trim().length > 0;
 
     if (postType === "recipe") {
       return (
@@ -231,7 +229,6 @@ export const useCreateFormController = () => {
   const modifyEntry = useCallback(
     (type: keyof CreateFormState, action: "add" | "remove", index?: number) => {
       if (type === "area") return;
-
       const updated = [...(create[type] as any[])];
       if (action === "add") {
         updated.push(
@@ -250,23 +247,16 @@ export const useCreateFormController = () => {
       if (type === "area") {
         create.setFields({
           area: suggestion,
-          focusedIndex: {
-            ...create.focusedIndex,
-            [type]: null,
-          },
+          focusedIndex: { ...create.focusedIndex, [type]: null },
         });
         Keyboard.dismiss();
         return;
       }
-
       const updated = [...(create[type] as any[])];
       updated[index].name = suggestion;
       create.setFields({
         [type]: updated,
-        focusedIndex: {
-          ...create.focusedIndex,
-          [type]: null,
-        },
+        focusedIndex: { ...create.focusedIndex, [type]: null },
       });
       Keyboard.dismiss();
     },
@@ -296,23 +286,19 @@ export const useCreateFormController = () => {
   const updateInstructionImage = useCallback(
     async (index: number, shouldRemove = false) => {
       const updated = [...create.instructions];
-
       if (shouldRemove) {
         updated[index].image = undefined;
-        create.setFieldState("instructions", updated);
-        return;
+      } else {
+        const result = await ImagePicker.launchImageLibraryAsync({
+          mediaTypes: "images",
+          allowsEditing: true,
+          quality: 1,
+        });
+        if (!result.canceled && result.assets.length > 0) {
+          updated[index].image = result.assets[0].uri;
+        }
       }
-
-      const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: "images",
-        allowsEditing: true,
-        quality: 1,
-      });
-
-      if (!result.canceled && result.assets.length > 0) {
-        updated[index].image = result.assets[0].uri;
-        create.setFieldState("instructions", updated);
-      }
+      create.setFieldState("instructions", updated);
     },
     [create]
   );

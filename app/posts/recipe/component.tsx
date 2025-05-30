@@ -2,7 +2,7 @@ import BottomSheetModal from "@/components/BottomSheetModal";
 import ErrorScreen from "@/components/ErrorScreen";
 import FullscreenImageViewer from "@/components/FullscreenImageViewer";
 import IconButton from "@/components/IconButton";
-import RecipeStep from "@/components/RecipeStep";
+import { RecipeStep } from "@/components/RecipeStep";
 import { ScreenWrapper } from "@/components/ScreenWrapper";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { Colors } from "@/constants/Colors";
@@ -39,7 +39,6 @@ export default function RecipeComponent({ recipe, handleDelete }: Props) {
     metadata,
     showStepsModal,
     isInstructionsOverflow,
-    setFields,
   } = recipe;
 
   const { width } = Dimensions.get("window");
@@ -199,7 +198,7 @@ export default function RecipeComponent({ recipe, handleDelete }: Props) {
               <View className="mt-7">
                 <Text style={styles.sectionTitle}>Ingredients</Text>
                 {recipeData.ingredients.map((item, index) => {
-                  const [name, quantity] = item.split("-").map((s) => s.trim());
+                  const { name, quantity } = item;
                   return (
                     <View
                       key={index}

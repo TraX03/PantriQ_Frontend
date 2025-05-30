@@ -1,3 +1,4 @@
+import { Ingredient, Instruction } from "@/app/create/createForm/controller";
 import { AppwriteConfig } from "@/constants/AppwriteConfig";
 import { useFieldState } from "@/hooks/useFieldState";
 import { setLoading } from "@/redux/slices/loadingSlice";
@@ -16,6 +17,7 @@ import { fetchUsers } from "@/utility/userCacheUtils";
 import { router } from "expo-router";
 import { Alert } from "react-native";
 import { Query } from "react-native-appwrite";
+import Toast from "react-native-toast-message";
 import { useDispatch } from "react-redux";
 
 export interface Recipe {
@@ -23,8 +25,8 @@ export interface Recipe {
   title: string;
   author: string;
   images: string[];
-  ingredients: string[];
-  instructions: string[];
+  ingredients: Ingredient[];
+  instructions: Instruction[];
   rating: number;
   commentCount: number;
   category?: string[];
@@ -67,39 +69,37 @@ export const useRecipeController = () => {
         AppwriteConfig.RECIPES_COLLECTION_ID,
         recipeId
       );
-      const authorId = recipeDoc.author_id;
-      const usersMap = await fetchUsers([authorId]);
-      const author = usersMap.get(authorId);
 
+      const [usersMap, currentUser] = await Promise.all([
+        fetchUsers([recipeDoc.author_id]),
+        getCurrentUser().catch(() => null),
+      ]);
+
+      const author = usersMap.get(recipeDoc.author_id);
       const images = Array.isArray(recipeDoc.image)
         ? recipeDoc.image.map(getImageUrl)
         : [];
 
       const metadata = parseMetadata(recipeDoc.metadata);
 
-      try {
-        const currentUser = await getCurrentUser();
-        if (currentUser) {
-          const interactions = await listDocuments(
-            AppwriteConfig.INTERACTIONS_COLLECTION_ID,
-            [
-              Query.equal("post_id", recipeDoc.$id),
-              Query.equal("user_id", currentUser.$id),
-            ]
-          );
+      if (currentUser) {
+        const interactions = await listDocuments(
+          AppwriteConfig.INTERACTIONS_COLLECTION_ID,
+          [
+            Query.equal("post_id", recipeDoc.$id),
+            Query.equal("user_id", currentUser.$id),
+          ]
+        );
 
-          const like = interactions.find((doc) => doc.type === "like");
-          const bookmark = interactions.find((doc) => doc.type === "bookmark");
+        const like = interactions.find((doc) => doc.type === "like");
+        const bookmark = interactions.find((doc) => doc.type === "bookmark");
 
-          recipe.setFields({
-            isLiked: !!like,
-            likeDocId: like?.$id,
-            isBookmarked: !!bookmark,
-            bookmarkDocId: bookmark?.$id,
-          });
-        }
-      } catch (err) {
-        console.warn("Skipping interactions: user not authenticated.");
+        recipe.setFields({
+          isLiked: !!like,
+          likeDocId: like?.$id,
+          isBookmarked: !!bookmark,
+          bookmarkDocId: bookmark?.$id,
+        });
       }
 
       return {
@@ -108,15 +108,43 @@ export const useRecipeController = () => {
           title: recipeDoc.title,
           author: author?.name || "Unknown",
           images,
-          ingredients: recipeDoc.ingredients,
-          instructions: recipeDoc.instructions,
+          ingredients: Array.isArray(recipeDoc.ingredients)
+            ? recipeDoc.ingredients.map((item) => {
+                try {
+                  const parsed = JSON.parse(item);
+                  return {
+                    name: parsed.name,
+                    quantity: parsed.quantity,
+                  };
+                } catch {
+                  return { name: "", quantity: "" };
+                }
+              })
+            : [],
+          instructions: Array.isArray(recipeDoc.instructions)
+            ? recipeDoc.instructions.map((item) => {
+                try {
+                  const parsed = JSON.parse(item);
+                  return {
+                    text: parsed.text,
+                    image: parsed.image
+                      ? isValidUrl(parsed.image)
+                        ? parsed.image
+                        : getImageUrl(parsed.image)
+                      : undefined,
+                  };
+                } catch {
+                  return { text: "", image: undefined };
+                }
+              })
+            : [],
           rating: recipeDoc.rating ?? 0,
           commentCount: recipeDoc.commentCount ?? 0,
         },
         metadata,
       };
     } catch (error) {
-      console.error("Failed to fetch recipe or author:", error);
+      console.error("Failed to fetch recipe:", error);
       throw error;
     }
   };
@@ -129,39 +157,48 @@ export const useRecipeController = () => {
         AppwriteConfig.RECIPES_COLLECTION_ID,
         recipeId
       );
-      const imageRefs = recipeDoc.image || [];
-      const instructionRefs = recipeDoc.instructions || [];
 
-      const extractDeletableFileIds = (refs: string[]) =>
+      const { image = [], instructions = [] } = recipeDoc;
+
+      const extractFileIdsFromStrings = (refs: string[]) =>
         refs
           .map((item) => item.split(" - ")[0].trim())
-          .filter((id) => !!id && !isValidUrl(id));
+          .filter((id) => id && !isValidUrl(id));
 
-      const fileIds = [
-        ...extractDeletableFileIds(imageRefs),
-        ...extractDeletableFileIds(instructionRefs),
-      ];
+      const imageFileIds = extractFileIdsFromStrings(image);
 
-      await Promise.all(
-        fileIds.map(async (fileId) => {
+      const instructionFileIds = instructions
+        .map((inst: string) => {
           try {
-            await storage.deleteFile(AppwriteConfig.BUCKET_ID, fileId);
-          } catch (err) {
-            console.warn(`Failed to delete file ${fileId}:`, err);
+            const parsed = JSON.parse(inst);
+            const imageId = parsed.image;
+            if (imageId && !isValidUrl(imageId)) return imageId.trim();
+            return null;
+          } catch {
+            return null;
           }
         })
+        .filter((id: string | null): id is string => Boolean(id));
+
+      const fileIds = [...imageFileIds, ...instructionFileIds];
+
+      await Promise.all(
+        fileIds.map((fileId) =>
+          storage.deleteFile(AppwriteConfig.BUCKET_ID, fileId)
+        )
       );
 
       await deleteDocument(AppwriteConfig.RECIPES_COLLECTION_ID, recipeId);
 
       recipe.setFieldState("recipeData", null);
+      router.back();
 
-      Alert.alert("Success", "Recipe deleted successfully.", [
-        { text: "OK", onPress: () => router.back() },
-      ]);
+      Toast.show({
+        type: "success",
+        text1: `Recipe deleted successfully.`,
+      });
     } catch (error) {
       Alert.alert("Error", "Failed to delete the recipe. Please try again.");
-      throw error;
     } finally {
       dispatch(setRefreshProfile(true));
       dispatch(setLoading(false));
@@ -179,7 +216,10 @@ export const useRecipeController = () => {
           {
             text: "Delete",
             style: "destructive",
-            onPress: () => deleteRecipe(recipe.recipeData!.id),
+            onPress: () => {
+              const id = recipe.recipeData?.id;
+              if (id) deleteRecipe(id);
+            },
           },
         ]
       );

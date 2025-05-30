@@ -1,12 +1,12 @@
-import { Routes } from "@/constants/Routes";
 import { useAuthentication } from "@/hooks/useAuthentication";
-import { router } from "expo-router";
+import { fetchAndSaveMeals } from "@/scripts/fetch-store-meals";
 
 export const useSettingsController = () => {
   const { logout } = useAuthentication();
 
   const handleLogout = () => {
-    router.replace(Routes.Onboarding);
+    // router.replace(Routes.Onboarding);
+    fetchAndSaveMeals();
   };
 
   return {
