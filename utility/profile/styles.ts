@@ -5,24 +5,24 @@ export const styles = StyleSheet.create({
   // Layout Containers
   container: {
     flex: 1,
-    backgroundColor: Colors.ui.background,
+    backgroundColor: Colors.surface.background,
   },
   centeredContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: Colors.brand.accent,
+    backgroundColor: Colors.brand.onPrimary,
     paddingHorizontal: 8,
   },
   profileSection: {
-    backgroundColor: Colors.brand.accent,
+    backgroundColor: Colors.brand.onPrimary,
     paddingHorizontal: 20,
     paddingTop: 65,
     paddingBottom: 30,
   },
   headerContainer: {
     flex: 1,
-    backgroundColor: Colors.brand.accent,
+    backgroundColor: Colors.brand.onPrimary,
     paddingTop: 60,
   },
   avatarContainer: {
@@ -33,7 +33,7 @@ export const styles = StyleSheet.create({
     elevation: 7,
   },
   postListContainer: {
-    backgroundColor: Colors.ui.background,
+    backgroundColor: Colors.surface.background,
     borderTopLeftRadius: 10,
     borderTopRightRadius: 10,
     marginTop: -15,
@@ -60,7 +60,7 @@ export const styles = StyleSheet.create({
   username: {
     fontSize: 20,
     fontFamily: "RobotoSemiBold",
-    color: Colors.brand.accent,
+    color: Colors.brand.onPrimary,
   },
   followInfo: {
     marginTop: 10,
@@ -73,7 +73,7 @@ export const styles = StyleSheet.create({
     fontFamily: "RobotoRegular",
   },
   tabTitleText: {
-    color: Colors.ui.base,
+    color: Colors.text.primary,
     fontFamily: "RobotoMedium",
   },
   tabText: {
@@ -83,47 +83,47 @@ export const styles = StyleSheet.create({
   genderOptionText: {
     fontSize: 14,
     fontFamily: "RobotoRegular",
-    color: Colors.ui.base,
+    color: Colors.text.primary,
   },
   indicatorText: {
     marginTop: 8,
     fontSize: 12,
     textAlign: "right",
     fontFamily: "RobotoRegular",
-    color: Colors.text.gray,
+    color: Colors.text.disabled,
   },
   inputPlaceholder: {
     fontFamily: "RobotoRegular",
-    color: Colors.ui.base,
+    color: Colors.text.primary,
   },
   logoutButtonText: {
     fontSize: 16,
     fontFamily: "RobotoMedium",
-    color: Colors.brand.accent,
+    color: Colors.brand.onPrimary,
   },
   saveButtonText: {
     textAlign: "center",
     fontSize: 14,
     fontFamily: "RobotoMedium",
-    color: Colors.brand.accent,
+    color: Colors.brand.onPrimary,
   },
   bioText: {
-    color: Colors.brand.accent,
+    color: Colors.brand.onPrimary,
     fontFamily: "RobotoRegular",
     paddingTop: 25,
   },
   loginText: {
-    color: Colors.brand.accent,
+    color: Colors.brand.onPrimary,
     fontFamily: "RobotoRegular",
   },
   profileTabText: {
-    color: Colors.brand.accent,
+    color: Colors.brand.onPrimary,
     marginTop: 6,
     fontSize: 13,
     fontFamily: "RobotoRegular",
   },
   noPostText: {
-    color: Colors.text.faint,
+    color: Colors.text.disabled,
     fontFamily: "RobotoRegular",
     alignSelf: "center",
     marginTop: 10,
@@ -134,7 +134,7 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 10,
-    backgroundColor: Colors.ui.buttonFill,
+    backgroundColor: Colors.surface.buttonPrimary,
     marginTop: 30,
     alignSelf: "center",
   },
@@ -144,7 +144,7 @@ export const styles = StyleSheet.create({
     borderRadius: 12,
     width: 100,
     alignSelf: "flex-end",
-    backgroundColor: Colors.ui.buttonFill,
+    backgroundColor: Colors.surface.buttonPrimary,
   },
   changeBgButton: {
     position: "absolute",
@@ -162,7 +162,7 @@ export const styles = StyleSheet.create({
     borderRadius: 9999,
     paddingHorizontal: 24,
     paddingVertical: 4,
-    backgroundColor: Colors.ui.overlay,
+    backgroundColor: Colors.overlay.base,
     marginLeft: 4,
   },
 
@@ -173,7 +173,7 @@ export const styles = StyleSheet.create({
     paddingVertical: 8,
     borderRadius: 8,
     borderWidth: 0.5,
-    borderColor: Colors.ui.border,
+    borderColor: Colors.surface.border,
   },
   input: {
     paddingHorizontal: 16,
@@ -182,7 +182,7 @@ export const styles = StyleSheet.create({
     fontSize: 14,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: Colors.ui.border,
+    borderColor: Colors.surface.border,
   },
 
   // Misc Components
@@ -195,11 +195,11 @@ export const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 5,
-    backgroundColor: Colors.brand.main,
+    backgroundColor: Colors.brand.primary,
   },
   fieldTab: {
     paddingVertical: 3,
-    backgroundColor: Colors.brand.accent,
+    backgroundColor: Colors.brand.onPrimary,
     borderColor: Colors.text.placeholder,
   },
   profileTab: {
@@ -207,7 +207,7 @@ export const styles = StyleSheet.create({
     justifyContent: "center",
     padding: 12,
     borderRadius: 12,
-    backgroundColor: Colors.ui.lightBlueOverlay,
+    backgroundColor: Colors.overlay.lightBlue,
     minWidth: 90,
     height: 80,
     marginRight: 12,
@@ -215,15 +215,15 @@ export const styles = StyleSheet.create({
   tabHeader: {
     flexDirection: "row",
     justifyContent: "space-around",
-    borderBottomColor: Colors.text.faint,
+    borderBottomColor: Colors.text.disabled,
     borderBottomWidth: 1,
     paddingVertical: 13,
-    backgroundColor: Colors.brand.accent,
+    backgroundColor: Colors.brand.onPrimary,
     borderTopLeftRadius: 10,
     borderTopRightRadius: 10,
   },
   settingsTab: {
-    borderColor: Colors.ui.border,
+    borderColor: Colors.surface.border,
     borderTopWidth: 1.2,
     borderBottomWidth: 1.2,
     padding: 25,
@@ -234,10 +234,10 @@ export const styles = StyleSheet.create({
     flexDirection: "row",
     marginBottom: 16,
     paddingHorizontal: 10,
-    backgroundColor: Colors.brand.accent,
+    backgroundColor: Colors.brand.onPrimary,
     height: 40,
     alignItems: "center",
-    borderBottomColor: Colors.ui.border,
+    borderBottomColor: Colors.surface.border,
     borderBottomWidth: 1,
     gap: 20,
   },

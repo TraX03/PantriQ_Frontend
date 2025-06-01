@@ -9,7 +9,7 @@ import { Pressable, ScrollView, Text, View } from "react-native";
 import styles from "./styles";
 export type Mode = "datamuse-only" | "suggestion-then-custom";
 
-type Props = {
+type SearchSuggestionProps = {
   onSelectItem: (item: string) => void;
   mode: Mode;
   placeholder: string;
@@ -21,7 +21,7 @@ export default function SearchWithSuggestion({
   mode,
   placeholder,
   suggestionType,
-}: Props) {
+}: SearchSuggestionProps) {
   const [searchText, setSearchText] = useState("");
   const [isCustomFlow, setIsCustomFlow] = useState(mode === "datamuse-only");
   const [datamuseSuggestions, setDatamuseSuggestions] = useState<string[]>([]);
@@ -79,7 +79,7 @@ export default function SearchWithSuggestion({
             } ${placeholder.toLowerCase()}...`}
             icon={isCustomFlow ? undefined : "magnifyingglass"}
             containerStyle={searchStyles.searchBar}
-            clearColor={Colors.brand.main}
+            clearColor={Colors.brand.primary}
           />
         </View>
 
@@ -88,7 +88,7 @@ export default function SearchWithSuggestion({
             onPress={() => handleSelect(trimmedText)}
             style={styles.modalAddButton}
           >
-            <IconSymbol name="plus" size={16} color={Colors.brand.accent} />
+            <IconSymbol name="plus" size={16} color={Colors.brand.onPrimary} />
           </Pressable>
         )}
       </View>

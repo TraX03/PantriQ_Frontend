@@ -14,7 +14,7 @@ const HeaderBar = ({ title, titleComponent }: HeaderBarProps) => {
   return (
     <View className="flex-row items-center px-4 py-3">
       <TouchableOpacity onPress={() => router.back()}>
-        <IconSymbol name="chevron.left" color={Colors.brand.dark} size={30} />
+        <IconSymbol name="chevron.left" color={Colors.brand.primaryDark} size={30} />
       </TouchableOpacity>
       <View className="flex-1 ml-4">
         {titleComponent ? (

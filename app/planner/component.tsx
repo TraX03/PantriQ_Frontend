@@ -87,11 +87,14 @@ export default function PlannerComponent({
               >
                 <IconSymbol
                   name="arrow.clockwise.circle"
-                  color={Colors.brand.main}
+                  color={Colors.brand.primary}
                 />
               </Pressable>
               <Pressable>
-                <IconSymbol name="ellipsis.circle" color={Colors.brand.main} />
+                <IconSymbol
+                  name="ellipsis.circle"
+                  color={Colors.brand.primary}
+                />
               </Pressable>
             </View>
           </View>
@@ -99,7 +102,7 @@ export default function PlannerComponent({
 
         <View style={styles.weekContainer}>
           <Pressable onPress={() => handleChangeWeek("prev")}>
-            <IconSymbol name="chevron.left" color={Colors.brand.main} />
+            <IconSymbol name="chevron.left" color={Colors.brand.primary} />
           </Pressable>
 
           <TouchableOpacity
@@ -122,7 +125,7 @@ export default function PlannerComponent({
           )}
 
           <Pressable onPress={() => handleChangeWeek("next")}>
-            <IconSymbol name="chevron.right" color={Colors.brand.main} />
+            <IconSymbol name="chevron.right" color={Colors.brand.primary} />
           </Pressable>
         </View>
 
@@ -160,7 +163,7 @@ export default function PlannerComponent({
                     className="px-4 py-1.5 mr-2.5 rounded-lg"
                     style={{
                       backgroundColor: isSelected
-                        ? Colors.brand.main
+                        ? Colors.brand.primary
                         : Colors.text.placeholder,
                       opacity: isEnabled ? 1 : 0.4,
                     }}
@@ -170,8 +173,8 @@ export default function PlannerComponent({
                         styles.dayText,
                         {
                           color: isSelected
-                            ? Colors.brand.accent
-                            : Colors.ui.base,
+                            ? Colors.brand.onPrimary
+                            : Colors.text.primary,
                         },
                       ]}
                     >
@@ -193,7 +196,7 @@ export default function PlannerComponent({
               >
                 <IconSymbol
                   name="arrow.2.circlepath"
-                  color={Colors.brand.main}
+                  color={Colors.brand.primary}
                   size={20}
                 />
               </Pressable>
@@ -205,7 +208,7 @@ export default function PlannerComponent({
                   <Text style={styles.mealtimeTitle}>{meal.mealtime}</Text>
                   <IconSymbol
                     name="ellipsis"
-                    color={Colors.brand.main}
+                    color={Colors.brand.primary}
                     size={22}
                   />
                 </View>
@@ -245,7 +248,7 @@ export default function PlannerComponent({
                     >
                       <IconSymbol
                         name="plus"
-                        color={Colors.ui.overlay}
+                        color={Colors.overlay.base}
                         size={30}
                       />
                     </TouchableOpacity>
@@ -259,14 +262,14 @@ export default function PlannerComponent({
               style={styles.addContianer}
             >
               <Text style={styles.addText}>Add Mealtime</Text>
-              <IconSymbol name="plus" color={Colors.ui.overlay} size={20} />
+              <IconSymbol name="plus" color={Colors.overlay.base} size={20} />
             </TouchableOpacity>
           </View>
         </ScrollView>
 
         <TouchableOpacity onPress={generateMeals}>
           <View style={styles.generateButton}>
-            <IconSymbol name="plus" color={Colors.brand.accent} size={22} />
+            <IconSymbol name="plus" color={Colors.brand.onPrimary} size={22} />
             <Text style={styles.generateText}>Generate</Text>
           </View>
         </TouchableOpacity>

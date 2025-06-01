@@ -45,7 +45,6 @@ export async function fetchPosts(
     membersCount: doc.members_count,
     recipesCount: doc.recipes_count,
   });
-
   try {
     const [postDocs, recipeDocs, communityDocs] = await Promise.all([
       fetchAllDocuments(AppwriteConfig.POSTS_COLLECTION_ID),

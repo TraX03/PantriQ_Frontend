@@ -124,13 +124,13 @@ export default function OnboardingComponent({
                   className="w-7 h-7 rounded-full items-center justify-center"
                   style={{
                     backgroundColor: isCurrent
-                      ? Colors.ui.buttonFill
+                      ? Colors.surface.buttonPrimary
                       : isCompleted
-                      ? Colors.brand.accent
-                      : Colors.ui.backgroundDark,
+                      ? Colors.brand.onPrimary
+                      : Colors.surface.backgroundMuted,
                     borderWidth: isCompleted ? 1 : 0,
                     borderColor: isCompleted
-                      ? Colors.brand.base
+                      ? Colors.brand.onBackground
                       : "transparent",
                   }}
                 >
@@ -139,8 +139,8 @@ export default function OnboardingComponent({
                       styles.numText,
                       {
                         color: isCurrent
-                          ? Colors.brand.accent
-                          : Colors.brand.base,
+                          ? Colors.brand.onPrimary
+                          : Colors.brand.onBackground,
                       },
                     ]}
                   >
@@ -173,11 +173,11 @@ export default function OnboardingComponent({
             <Pressable
               style={[
                 styles.button,
-                { backgroundColor: Colors.ui.grayButtonFill },
+                { backgroundColor: Colors.surface.buttonSecondary },
               ]}
               onPress={handlePrevious}
             >
-              <Text style={[styles.buttonText, { color: Colors.brand.base }]}>
+              <Text style={[styles.buttonText, { color: Colors.brand.onBackground }]}>
                 Previous
               </Text>
             </Pressable>

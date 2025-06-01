@@ -53,7 +53,7 @@ export default function SettingsComponent({ profileData, onLogout }: Props) {
 
             <IconSymbol
               name="chevron.right"
-              color={Colors.ui.overlay}
+              color={Colors.overlay.base}
               size={20}
             />
           </View>

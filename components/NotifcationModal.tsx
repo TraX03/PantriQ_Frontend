@@ -25,13 +25,13 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
     >
       <Pressable
         className="flex-1 justify-center items-center"
-        style={{ backgroundColor: Colors.ui.overlay }}
+        style={{ backgroundColor: Colors.overlay.base }}
         onPress={onClose}
       >
         <Pressable
           onPress={() => {}}
           className="rounded-2xl p-6 w-80 shadow-lg"
-          style={{ backgroundColor: Colors.brand.accent }}
+          style={{ backgroundColor: Colors.brand.onPrimary }}
         >
           <Image
             source={require("@/assets/images/error-icon.png")}
@@ -48,7 +48,7 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
           <Pressable
             onPress={onClose}
             className="mt-4 self-end px-7 py-2 rounded-full"
-            style={{ backgroundColor: Colors.ui.buttonFill }}
+            style={{ backgroundColor: Colors.surface.buttonPrimary }}
           >
             <Text style={styles.buttonText}>OK</Text>
           </Pressable>

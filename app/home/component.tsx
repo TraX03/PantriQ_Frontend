@@ -85,7 +85,9 @@ export default function HomeComponent({
                   styles.tabText,
                   {
                     color:
-                      activeTab === tab ? Colors.brand.main : Colors.text.faint,
+                      activeTab === tab
+                        ? Colors.brand.primary
+                        : Colors.text.disabled,
                   },
                 ]}
               >
@@ -97,10 +99,10 @@ export default function HomeComponent({
 
         <View className="flex-row items-center gap-2">
           <Pressable onPress={() => router.push(Routes.Search)}>
-            <IconSymbol name="magnifyingglass" color={Colors.brand.main} />
+            <IconSymbol name="magnifyingglass" color={Colors.brand.primary} />
           </Pressable>
           <Pressable>
-            <IconSymbol name="bell" color={Colors.brand.main} />
+            <IconSymbol name="bell" color={Colors.brand.primary} />
           </Pressable>
         </View>
       </View>
@@ -111,7 +113,7 @@ export default function HomeComponent({
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            colors={[Colors.brand.main]}
+            colors={[Colors.brand.primary]}
           />
         }
       >
@@ -129,15 +131,17 @@ export default function HomeComponent({
                 className="px-5 py-1.5 mr-2.5 rounded-full"
                 style={{
                   backgroundColor: isActive
-                    ? Colors.brand.main
-                    : Colors.ui.backgroundLight,
+                    ? Colors.brand.primary
+                    : Colors.surface.backgroundSoft,
                 }}
               >
                 <Text
                   style={[
                     styles.suggestText,
                     {
-                      color: isActive ? Colors.brand.accent : Colors.ui.base,
+                      color: isActive
+                        ? Colors.brand.onPrimary
+                        : Colors.text.primary,
                     },
                   ]}
                 >

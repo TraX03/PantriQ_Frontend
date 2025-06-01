@@ -3,9 +3,11 @@ import ErrorScreen from "@/components/ErrorScreen";
 import FullscreenImageViewer from "@/components/FullscreenImageViewer";
 import IconButton from "@/components/IconButton";
 import { RecipeStep } from "@/components/RecipeStep";
+import ScoreCircle from "@/components/ScoreCircle";
 import { ScreenWrapper } from "@/components/ScreenWrapper";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { Colors } from "@/constants/Colors";
+import { Routes } from "@/constants/Routes";
 import { useFieldState } from "@/hooks/useFieldState";
 import { useInteraction } from "@/hooks/useInteraction";
 import { styles } from "@/utility/posts/styles";
@@ -27,9 +29,21 @@ import { RecipeState } from "./controller";
 type Props = {
   recipe: ReturnType<typeof useFieldState<RecipeState>>;
   handleDelete: () => void;
+  getNutritionEntry: (
+    data: any,
+    key: "nutrients" | "properties",
+    name: string
+  ) => {
+    amount: number;
+    unit: string;
+  };
 };
 
-export default function RecipeComponent({ recipe, handleDelete }: Props) {
+export default function RecipeComponent({
+  recipe,
+  handleDelete,
+  getNutritionEntry,
+}: Props) {
   const {
     recipeData,
     setFieldState,
@@ -39,6 +53,8 @@ export default function RecipeComponent({ recipe, handleDelete }: Props) {
     metadata,
     showStepsModal,
     isInstructionsOverflow,
+    nutritionData,
+    expanded,
   } = recipe;
 
   const { width } = Dimensions.get("window");
@@ -50,6 +66,16 @@ export default function RecipeComponent({ recipe, handleDelete }: Props) {
     recipeData.id
   );
   const isBackgroundDark = metadata.images?.[imageIndex]?.isDark ?? false;
+
+  const nutrients = {
+    calories: getNutritionEntry(nutritionData, "nutrients", "Calories"),
+    fat: getNutritionEntry(nutritionData, "nutrients", "Fat"),
+    carbs: getNutritionEntry(nutritionData, "nutrients", "Carbohydrates"),
+  };
+
+  const calories = Math.round(nutrients.calories.amount);
+  const fat = Math.round(nutrients.fat.amount);
+  const carbs = Math.round(nutrients.carbs.amount);
 
   return (
     <>
@@ -124,11 +150,11 @@ export default function RecipeComponent({ recipe, handleDelete }: Props) {
                       style={{
                         backgroundColor: isBackgroundDark
                           ? imageIndex === idx
-                            ? Colors.brand.accent
-                            : Colors.ui.whiteOverlay
+                            ? Colors.brand.onPrimary
+                            : Colors.overlay.white
                           : imageIndex === idx
-                          ? Colors.ui.inactive
-                          : Colors.ui.overlayLight,
+                          ? Colors.surface.disabled
+                          : Colors.overlay.light,
                       }}
                     />
                   ))}
@@ -176,14 +202,14 @@ export default function RecipeComponent({ recipe, handleDelete }: Props) {
                     <Pressable onPress={toggleLike}>
                       <IconSymbol
                         name={isLiked ? "heart.fill" : "heart"}
-                        color={Colors.brand.main}
+                        color={Colors.brand.primary}
                       />
                     </Pressable>
 
                     <Pressable onPress={toggleBookmark}>
                       <IconSymbol
                         name={isBookmarked ? "bookmark.fill" : "bookmark"}
-                        color={Colors.brand.main}
+                        color={Colors.brand.primary}
                       />
                     </Pressable>
                   </View>
@@ -194,9 +220,60 @@ export default function RecipeComponent({ recipe, handleDelete }: Props) {
                   </Text>
                 </View>
               </View>
+            </View>
 
-              <View className="mt-7">
-                <Text style={styles.sectionTitle}>Ingredients</Text>
+            <TouchableOpacity
+              style={styles.nutrientContainer}
+              onPress={() =>
+                router.push({
+                  pathname: Routes.Nutrition,
+                  params: { recipeId: recipeData.id },
+                })
+              }
+            >
+              <View className="flex-1 flex-row items-center px-7">
+                <ScoreCircle score={nutritionData?.healthScore ?? 0} />
+
+                <View className="ml-8 gap-3">
+                  <View className="items-center mx-2">
+                    <Text className="text-[15px]">
+                      {calories} {nutrients.calories.unit}
+                    </Text>
+                    <Text style={styles.nutrientLabel}>Calories</Text>
+                  </View>
+
+                  <View className="flex-row gap-4">
+                    {[
+                      {
+                        label: "Carbs",
+                        value: `${carbs} ${nutrients.carbs.unit}`,
+                      },
+                      { label: "Fat", value: `${fat} ${nutrients.fat.unit}` },
+                    ].map(({ label, value }) => (
+                      <View key={label} className="items-center mx-2">
+                        <Text className="text-[15px]">{value}</Text>
+                        <Text style={styles.nutrientLabel}>{label}</Text>
+                      </View>
+                    ))}
+                  </View>
+                </View>
+              </View>
+
+              <IconSymbol
+                name="chevron.right"
+                color={Colors.overlay.base}
+                size={25}
+              />
+            </TouchableOpacity>
+
+            <View style={styles.contentContainer}>
+              <Text style={styles.sectionTitle}>Ingredients</Text>
+
+              <View
+                style={
+                  !expanded ? { maxHeight: 150, overflow: "hidden" } : undefined
+                }
+              >
                 {recipeData.ingredients.map((item, index) => {
                   const { name, quantity } = item;
                   return (
@@ -211,13 +288,24 @@ export default function RecipeComponent({ recipe, handleDelete }: Props) {
                 })}
               </View>
 
+              {recipeData.ingredients.length > 5 && (
+                <TouchableOpacity
+                  onPress={() => setFieldState("expanded", !expanded)}
+                  className="mt-3 self-end"
+                >
+                  <Text style={styles.buttonText}>
+                    {expanded ? "View Less" : "View More"}
+                  </Text>
+                </TouchableOpacity>
+              )}
+
               <View className="mt-7">
                 <Text style={styles.sectionTitle}>Instructions</Text>
-                <View style={{ maxHeight: 350 }}>
+                <View style={{ maxHeight: 270 }}>
                   <ScrollView
                     scrollEnabled={false}
                     onContentSizeChange={(_, h) =>
-                      setFieldState("isInstructionsOverflow", h > 350)
+                      setFieldState("isInstructionsOverflow", h > 270)
                     }
                   >
                     {recipeData.instructions
@@ -230,9 +318,9 @@ export default function RecipeComponent({ recipe, handleDelete }: Props) {
                 {isInstructionsOverflow && (
                   <TouchableOpacity
                     onPress={() => setFieldState("showStepsModal", true)}
-                    className="mt-4 self-center"
+                    className="mt-4 self-end"
                   >
-                    <Text style={styles.buttonText}>See All Steps</Text>
+                    <Text style={styles.buttonText}>View All Steps</Text>
                   </TouchableOpacity>
                 )}
               </View>

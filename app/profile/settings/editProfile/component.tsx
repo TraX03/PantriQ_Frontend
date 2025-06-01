@@ -99,7 +99,7 @@ export default function EditProfileComponent({
         <ImageBackground
           source={{ uri: profileBg }}
           style={{
-            backgroundColor: !profileBg ? Colors.brand.dark : undefined,
+            backgroundColor: !profileBg ? Colors.brand.primaryDark : undefined,
           }}
           imageStyle={{ opacity: 0.8 }}
           className="justify-center items-center h-[210px]"
@@ -135,7 +135,9 @@ export default function EditProfileComponent({
             <IconSymbol
               name="photo"
               color={
-                isBackgroundDark ? Colors.brand.main : Colors.ui.backgroundLight
+                isBackgroundDark
+                  ? Colors.brand.primary
+                  : Colors.surface.backgroundSoft
               }
               size={20}
             />
@@ -178,7 +180,9 @@ export default function EditProfileComponent({
                       style={[
                         styles.tabText,
                         {
-                          color: isSetNow ? Colors.ui.overlay : Colors.ui.base,
+                          color: isSetNow
+                            ? Colors.overlay.base
+                            : Colors.text.primary,
                           maxWidth: title === "Bio" ? 180 : undefined,
                         },
                       ]}
@@ -189,7 +193,7 @@ export default function EditProfileComponent({
                     </Text>
                     <IconSymbol
                       name="chevron.right"
-                      color={Colors.ui.overlay}
+                      color={Colors.overlay.base}
                       size={20}
                     />
                   </View>

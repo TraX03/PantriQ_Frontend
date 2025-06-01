@@ -32,14 +32,22 @@ export const useHomeController = () => {
 
   const refreshPosts = useCallback(async () => {
     setFieldState("refreshing", true);
+    let regionPref: string | undefined;
 
-    const user = await getCurrentUser();
-    const userDoc = await getDocumentById(
-      AppwriteConfig.USERS_COLLECTION_ID,
-      user.$id
-    );
+    try {
+      const user = await getCurrentUser();
 
-    const regionPref = userDoc?.region_pref;
+      if (user) {
+        const userDoc = await getDocumentById(
+          AppwriteConfig.USERS_COLLECTION_ID,
+          user.$id
+        );
+        regionPref = userDoc?.region_pref;
+      }
+    } catch (error) {
+      regionPref = undefined;
+    }
+
     const posts = await fetchPosts(100, regionPref);
 
     setFields({

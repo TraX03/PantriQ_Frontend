@@ -8,11 +8,11 @@ import {
 
 const imageSource = require("@/assets/images/add-button.png");
 
-interface Props extends TouchableOpacityProps {
+interface FloatingButtonProps extends TouchableOpacityProps {
   bottomOffset?: number;
 }
 
-const FloatingActionButton: React.FC<Props> = ({
+const FloatingActionButton: React.FC<FloatingButtonProps> = ({
   bottomOffset = 22,
   ...props
 }) => {

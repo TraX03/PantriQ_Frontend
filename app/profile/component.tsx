@@ -72,11 +72,11 @@ export default function ProfileComponent({
         source={{ uri: profileBg }}
         style={[
           styles.profileSection,
-          { backgroundColor: profileBg ? undefined : Colors.brand.main },
+          { backgroundColor: profileBg ? undefined : Colors.brand.primary },
         ]}
       >
         <LinearGradient
-          colors={["transparent", Colors.ui.shade]}
+          colors={["transparent", Colors.overlay.subtleDark]}
           locations={[0, 0.3]}
           style={StyleSheet.absoluteFillObject}
         />
@@ -90,14 +90,14 @@ export default function ProfileComponent({
             <IconSymbol
               name="pencil.circle"
               size={28}
-              color={Colors.brand.accent}
+              color={Colors.brand.onPrimary}
             />
           </TouchableOpacity>
           <TouchableOpacity onPress={() => router.push(Routes.Settings)}>
             <IconSymbol
               name="square.grid.2x2"
               size={27}
-              color={Colors.brand.accent}
+              color={Colors.brand.onPrimary}
             />
           </TouchableOpacity>
         </View>
@@ -145,7 +145,11 @@ export default function ProfileComponent({
               activeOpacity={0.8}
               onPress={() => {}}
             >
-              <IconSymbol name={icon} size={26} color={Colors.brand.accent} />
+              <IconSymbol
+                name={icon}
+                size={26}
+                color={Colors.brand.onPrimary}
+              />
               <Text style={styles.profileTabText}>{title}</Text>
             </TouchableOpacity>
           ))}
@@ -165,7 +169,9 @@ export default function ProfileComponent({
                 style={{
                   fontSize: 17,
                   color:
-                    activeTab === tab ? Colors.brand.main : Colors.text.faint,
+                    activeTab === tab
+                      ? Colors.brand.primary
+                      : Colors.text.disabled,
                   fontFamily:
                     activeTab === tab ? "RobotoBold" : "RobotoRegular",
                 }}
@@ -188,7 +194,9 @@ export default function ProfileComponent({
                 style={{
                   fontSize: 15,
                   color:
-                    postSubTab === sub ? Colors.brand.main : Colors.text.faint,
+                    postSubTab === sub
+                      ? Colors.brand.primary
+                      : Colors.text.disabled,
                   fontFamily:
                     postSubTab === sub ? "RobotoBold" : "RobotoRegular",
                 }}
@@ -205,7 +213,10 @@ export default function ProfileComponent({
               if (postLoading) {
                 return (
                   <View style={styles.loadingContianer}>
-                    <ActivityIndicator size="large" color={Colors.brand.main} />
+                    <ActivityIndicator
+                      size="large"
+                      color={Colors.brand.primary}
+                    />
                   </View>
                 );
               }

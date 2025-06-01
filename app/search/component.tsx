@@ -49,7 +49,7 @@ export default function SearchComponent({
                 placeholder="Search..."
                 icon="magnifyingglass"
                 containerStyle={styles.searchBar}
-                clearColor={Colors.brand.main}
+                clearColor={Colors.brand.primary}
                 onSubmitEditing={() => handleSearch()}
               />
             }
@@ -66,7 +66,7 @@ export default function SearchComponent({
                 <TouchableOpacity onPress={handleClear}>
                   <IconSymbol
                     name="trash"
-                    color={Colors.brand.main}
+                    color={Colors.brand.primary}
                     size={22}
                   />
                 </TouchableOpacity>

@@ -34,7 +34,7 @@ export default function SearchResultComponent({
                   styles.tabText,
                   {
                     color:
-                      activeTab === tab ? Colors.brand.dark : Colors.text.gray,
+                      activeTab === tab ? Colors.brand.primaryDark : Colors.text.disabled,
                   },
                 ]}
               >
@@ -53,7 +53,7 @@ export default function SearchResultComponent({
             <IconSymbol
               name="line.horizontal.3.decrease"
               size={22}
-              color={filterActive ? Colors.brand.main : Colors.ui.base}
+              color={filterActive ? Colors.brand.primary : Colors.text.primary}
               selectedIcon={filterActive ? 1 : 0}
             />
           </Pressable>
@@ -61,7 +61,7 @@ export default function SearchResultComponent({
             <IconSymbol
               name="list.bullet.indent"
               size={22}
-              color={orderActive ? Colors.brand.main : Colors.ui.base}
+              color={orderActive ? Colors.brand.primary : Colors.text.primary}
             />
           </Pressable>
         </View>

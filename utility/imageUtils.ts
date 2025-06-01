@@ -31,7 +31,7 @@ const isColorDark = (hex: string) => {
 
 export const detectBackgroundDarkness = async (
   imageUrl: string,
-  fallbackColor = Colors.brand.base
+  fallbackColor = Colors.brand.onBackground
 ): Promise<boolean> => {
   try {
     const result = await ImageColors.getColors(getImageUrl(imageUrl), {
@@ -53,13 +53,15 @@ export const detectBackgroundDarkness = async (
 export const getOverlayStyle = (isDark: boolean, isIcon?: boolean) => {
   if (isIcon) {
     return {
-      color: isDark ? Colors.ui.buttonFill : Colors.ui.backgroundLight,
+      color: isDark
+        ? Colors.surface.buttonPrimary
+        : Colors.surface.backgroundSoft,
     };
   }
 
   return {
-    backgroundColor: isDark ? Colors.ui.overlayLight : Colors.ui.overlayDark,
-    borderColor: isDark ? Colors.ui.buttonFill : "transparent",
+    backgroundColor: isDark ? Colors.overlay.light : Colors.overlay.dark,
+    borderColor: isDark ? Colors.surface.buttonPrimary : "transparent",
     borderWidth: 1.5,
   };
 };

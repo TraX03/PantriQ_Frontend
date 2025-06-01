@@ -9,7 +9,7 @@ export const styles = StyleSheet.create({
   },
   weekContainer: {
     paddingVertical: 10,
-    backgroundColor: Colors.brand.accent,
+    backgroundColor: Colors.brand.onPrimary,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
@@ -20,7 +20,7 @@ export const styles = StyleSheet.create({
   weekText: {
     fontFamily: "RobotoMedium",
     fontSize: 17,
-    color: Colors.ui.base,
+    color: Colors.text.primary,
   },
   dayText: {
     fontFamily: "RobotoRegular",
@@ -29,7 +29,7 @@ export const styles = StyleSheet.create({
   dateText: {
     fontFamily: "RobotoMedium",
     fontSize: 17,
-    color: Colors.brand.base,
+    color: Colors.brand.onBackground,
     marginRight: 8,
     marginVertical: 4,
   },
@@ -39,10 +39,10 @@ export const styles = StyleSheet.create({
     borderRadius: 8,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: Colors.ui.grayButtonFill,
+    backgroundColor: Colors.surface.buttonSecondary,
   },
   mealtimeContainer: {
-    backgroundColor: Colors.brand.accent,
+    backgroundColor: Colors.brand.onPrimary,
     width: "100%",
     padding: 13,
     borderRadius: 8,
@@ -51,10 +51,10 @@ export const styles = StyleSheet.create({
   mealtimeTitle: {
     fontFamily: "AfacadMedium",
     fontSize: 20,
-    color: Colors.brand.main,
+    color: Colors.brand.primary,
   },
   recipeTitle: {
-    color: Colors.brand.base,
+    color: Colors.brand.onBackground,
     fontFamily: "RobotoRegular",
     fontSize: 13,
   },
@@ -62,7 +62,7 @@ export const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    borderBottomColor: Colors.ui.overlay,
+    borderBottomColor: Colors.overlay.base,
     borderBottomWidth: 1.5,
     marginHorizontal: 5,
     marginTop: 18,
@@ -71,7 +71,7 @@ export const styles = StyleSheet.create({
   addText: {
     fontFamily: "AfacadMedium",
     fontSize: 20,
-    color: Colors.ui.overlay,
+    color: Colors.overlay.base,
   },
   generateButton: {
     position: "absolute",
@@ -80,14 +80,14 @@ export const styles = StyleSheet.create({
     width: 70,
     height: 70,
     borderRadius: 40,
-    backgroundColor: Colors.brand.main,
+    backgroundColor: Colors.brand.primary,
     alignItems: "center",
     justifyContent: "center",
     elevation: 6,
     paddingHorizontal: 4,
   },
   generateText: {
-    color: Colors.brand.accent,
+    color: Colors.brand.onPrimary,
     fontSize: 12,
     textAlign: "center",
     fontFamily: "RobotoRegular",

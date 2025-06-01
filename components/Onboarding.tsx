@@ -107,16 +107,20 @@ export default function OnboardingPage({
                   searchStyles.itemContainer,
                   {
                     backgroundColor: isSelected
-                      ? Colors.brand.dark
+                      ? Colors.brand.primaryDark
                       : "transparent",
-                    borderColor: isSelected ? "transparent" : Colors.ui.base,
+                    borderColor: isSelected
+                      ? "transparent"
+                      : Colors.text.primary,
                   },
                 ]}
               >
                 <Text
                   style={{
                     fontSize: 13,
-                    color: isSelected ? Colors.brand.accent : Colors.brand.base,
+                    color: isSelected
+                      ? Colors.brand.onPrimary
+                      : Colors.brand.onBackground,
                   }}
                 >
                   {item}
@@ -129,7 +133,7 @@ export default function OnboardingPage({
             onPress={() => setIsModalVisible(true)}
             style={[searchStyles.itemContainer, { paddingHorizontal: 20 }]}
           >
-            <IconSymbol name="plus" size={16} color={Colors.ui.base} />
+            <IconSymbol name="plus" size={16} color={Colors.text.primary} />
           </Pressable>
         </ScrollView>
       </View>

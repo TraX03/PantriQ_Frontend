@@ -7,14 +7,14 @@ import { useFieldState } from "@/hooks/useFieldState";
 import { router } from "expo-router";
 import React from "react";
 import {
-  Dimensions,
-  Image,
-  ImageBackground,
-  ScrollView,
-  StatusBar,
-  Text,
-  TouchableOpacity,
-  View,
+    Dimensions,
+    Image,
+    ImageBackground,
+    ScrollView,
+    StatusBar,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import { styles } from "../../../utility/authentication/styles";
 import { AuthFormState, AuthMode } from "./controller";
@@ -74,7 +74,7 @@ export default function AuthFormComponent({
           <TouchableOpacity onPress={() => router.back()}>
             <IconSymbol
               name="chevron.left"
-              color={Colors.brand.dark}
+              color={Colors.brand.primaryDark}
               size={30}
             />
           </TouchableOpacity>

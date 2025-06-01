@@ -35,7 +35,7 @@ export default function BottomSheetModal({
   children,
 }: BottomSheetModalProps) {
   const [internalVisible, setInternalVisible] = useState(isVisible);
-  const [overlayColor, setOverlayColor] = useState(Colors.ui.overlay);
+  const [overlayColor, setOverlayColor] = useState(Colors.overlay.base);
 
   const { translateY, shouldRender } = useSlide(internalVisible, () => {
     onClose();
@@ -44,7 +44,7 @@ export default function BottomSheetModal({
   useEffect(() => {
     if (isVisible) {
       setInternalVisible(true);
-      setOverlayColor(Colors.ui.overlay);
+      setOverlayColor(Colors.overlay.base);
     } else {
       setOverlayColor("transparent");
       setInternalVisible(false);

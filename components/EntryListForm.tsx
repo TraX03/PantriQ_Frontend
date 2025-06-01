@@ -95,7 +95,7 @@ export default function EntryListForm({
             <IconSymbol
               name="multiply.circle.fill"
               size={20}
-              color={Colors.brand.main}
+              color={Colors.brand.primary}
             />
           </TouchableOpacity>
         )}
@@ -126,7 +126,7 @@ export default function EntryListForm({
           onPress={() => controller.modifyEntry(type, "add")}
           className="mb-6 mt-2"
         >
-          <Text style={{ color: Colors.brand.main }}>+ Add {type}</Text>
+          <Text style={{ color: Colors.brand.primary }}>+ Add {type}</Text>
         </TouchableOpacity>
       )}
     </>

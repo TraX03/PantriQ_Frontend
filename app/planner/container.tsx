@@ -1,11 +1,14 @@
+import { RootState } from "@/redux/store";
 import { useIsFocused } from "@react-navigation/native";
 import { addDays, format, startOfDay } from "date-fns";
 import { useEffect } from "react";
+import { useSelector } from "react-redux";
 import PlannerComponent from "./component";
 import usePlannerController from "./controller";
 
 export default function PlannerContainer() {
   const isFocused = useIsFocused();
+  const isLoggedIn = useSelector((state: RootState) => !!state.auth.user);
 
   const {
     date: { weekStart, minDate },
@@ -41,10 +44,10 @@ export default function PlannerContainer() {
   }, [weekStart, selectedDate, minDate, setFieldState]);
 
   useEffect(() => {
-    if (isFocused) {
+    if (isFocused && isLoggedIn) {
       fetchMealsForDate(selectedDate);
     }
-  }, [isFocused, selectedDate]);
+  }, [isFocused, selectedDate, isLoggedIn]);
 
   return (
     <PlannerComponent

@@ -27,7 +27,7 @@ export default function PostTypeSelector({
             className="flex-row items-center px-4 py-2 rounded-full border"
             style={{
               borderColor:
-                postType === type ? Colors.brand.main : Colors.text.placeholder,
+                postType === type ? Colors.brand.primary : Colors.text.placeholder,
             }}
           >
             <View
@@ -35,7 +35,7 @@ export default function PostTypeSelector({
               style={{
                 borderColor:
                   postType === type
-                    ? Colors.brand.main
+                    ? Colors.brand.primary
                     : Colors.text.placeholder,
               }}
             >

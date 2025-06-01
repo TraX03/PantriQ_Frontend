@@ -5,10 +5,10 @@ export const styles = StyleSheet.create({
   // Containers
   container: {
     flex: 1,
-    backgroundColor: Colors.brand.accent,
+    backgroundColor: Colors.brand.onPrimary,
   },
   contentContainer: {
-    backgroundColor: Colors.brand.accent,
+    backgroundColor: Colors.brand.onPrimary,
     paddingHorizontal: 16,
     paddingTop: 25,
   },
@@ -70,35 +70,77 @@ export const styles = StyleSheet.create({
     marginBottom: 12,
   },
   authorText: {
-    color: Colors.text.faint,
+    color: Colors.text.disabled,
     marginTop: 6,
     fontFamily: "RobotoMedium",
     fontSize: 14,
   },
   authorName: {
-    color: Colors.brand.main,
+    color: Colors.brand.primary,
     textDecorationLine: "underline",
   },
   statsText: {
-    color: Colors.text.gray,
+    color: Colors.text.disabled,
     fontSize: 12,
     marginTop: 4,
   },
   ingredientName: {
-    color: Colors.ui.base,
+    color: Colors.text.primary,
     fontSize: 15,
     fontFamily: "RobotoRegular",
     flexShrink: 1,
   },
   quantityName: {
-    color: Colors.text.gray,
+    color: Colors.text.disabled,
     fontSize: 14,
     fontFamily: "RobotoRegular",
   },
   buttonText: {
-    color: Colors.brand.main,
+    color: Colors.brand.primary,
     fontFamily: "RobotoMedium",
     fontSize: 15,
     textDecorationLine: "underline",
+  },
+  nutrientLabel: {
+    fontSize: 18,
+    fontFamily: "RobotoMedium",
+    color: Colors.brand.primary,
+  },
+  nutrientContainer: {
+    width: "100%",
+    marginTop: 28,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 16,
+    paddingVertical: 15,
+    backgroundColor: Colors.overlay.ultraLightGray,
+  },
+  header: {
+    fontFamily: "RobotoSemiBold",
+    fontSize: 20,
+  },
+  subHeader: {
+    fontFamily: "RobotoSemiBold",
+    fontSize: 16,
+    marginBottom: 10,
+    color: Colors.text.primary,
+  },
+  infoContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingVertical: 4,
+    borderBottomWidth: 0.5,
+    borderColor: Colors.surface.buttonSecondary,
+  },
+  itemLabel: {
+    fontSize: 14,
+    color: Colors.text.light,
+    fontFamily: "RobotoRegular",
+  },
+  amount: {
+    fontSize: 14,
+    color: Colors.brand.onBackground,
+    fontFamily: "RobotoMedium",
   },
 });

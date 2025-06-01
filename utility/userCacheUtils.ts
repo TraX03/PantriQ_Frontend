@@ -1,6 +1,6 @@
 import { AppwriteConfig } from "@/constants/AppwriteConfig";
-import { getDocumentById, listDocuments } from "@/services/appwrite";
-import { Query } from "react-native-appwrite";
+import { client, listDocuments } from "@/services/appwrite";
+import { Query, RealtimeResponseEvent } from "react-native-appwrite";
 import { getImageUrl } from "./imageUtils";
 
 type UserInfo = {
@@ -10,10 +10,10 @@ type UserInfo = {
 
 const userCache = new Map<string, UserInfo>();
 
-/**
- * Fetches users by IDs with caching to minimize API calls.
- * Returns a map of userId -> UserInfo.
- */
+const setUserCache = (userId: string, info: UserInfo) => {
+  userCache.set(userId, info);
+};
+
 export const fetchUsers = async (
   ids: string[]
 ): Promise<Map<string, UserInfo>> => {
@@ -26,7 +26,7 @@ export const fetchUsers = async (
     ]);
 
     users.forEach((user) => {
-      userCache.set(user.$id, {
+      setUserCache(user.$id, {
         name: user.username ?? "Unknown",
         profilePic: user.avatar ? getImageUrl(user.avatar) : undefined,
       });
@@ -42,23 +42,23 @@ export const fetchUsers = async (
   return result;
 };
 
-const setUserCache = (userId: string, userInfo: UserInfo) => {
-  userCache.set(userId, userInfo);
-};
+export const subscribeToUserUpdates = () => {
+  const channel = `databases.${AppwriteConfig.DATABASE_ID}.collections.${AppwriteConfig.USERS_COLLECTION_ID}.documents`;
 
-export const syncUserCache = async (userId: string) => {
-  try {
-    const updatedUser = await getDocumentById(
-      AppwriteConfig.USERS_COLLECTION_ID,
-      userId
-    );
-    setUserCache(userId, {
-      name: updatedUser.username ?? "Unknown",
-      profilePic: updatedUser.avatar
-        ? getImageUrl(updatedUser.avatar)
-        : undefined,
-    });
-  } catch (err) {
-    console.warn("Failed to sync user cache:", err);
-  }
+  const unsubscribe = client.subscribe(
+    channel,
+    (res: RealtimeResponseEvent<any>) => {
+      const user = res.payload;
+      const userId = user.$id;
+
+      if (userCache.has(userId)) {
+        setUserCache(userId, {
+          name: user.username ?? "Unknown",
+          profilePic: user.avatar ? getImageUrl(user.avatar) : undefined,
+        });
+      }
+    }
+  );
+
+  return unsubscribe;
 };

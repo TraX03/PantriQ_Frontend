@@ -4,9 +4,9 @@ import { useProfileData } from "@/hooks/useProfileData";
 import { setLoading } from "@/redux/slices/loadingSlice";
 import { AppDispatch } from "@/redux/store";
 import { getCurrentUser, updateDocument } from "@/services/appwrite";
-import { syncUserCache } from "@/utility/userCacheUtils";
 import { router } from "expo-router";
 import { Alert } from "react-native";
+import Toast from "react-native-toast-message";
 import { useDispatch } from "react-redux";
 
 export interface EditFieldState {
@@ -57,12 +57,14 @@ export const useEditFieldController = (
         [key]: edit.value,
       });
 
-      await Promise.all([fetchProfile(), syncUserCache(user.$id)]);
+      await fetchProfile();
 
-      Alert.alert("Success", `${label} updated successfully.`);
+      Toast.show({
+        type: "success",
+        text1: `${label} updated successfully.`,
+      });
       router.back();
     } catch (err) {
-      console.error(err);
       Alert.alert("Error", `Failed to update ${label}. Please try again.`);
     } finally {
       dispatch(setLoading(false));

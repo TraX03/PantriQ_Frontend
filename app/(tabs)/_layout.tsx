@@ -57,8 +57,8 @@ export default function TabLayout() {
     <>
       <Tabs
         screenOptions={{
-          tabBarActiveTintColor: Colors.brand.main,
-          tabBarInactiveTintColor: Colors.ui.inactive,
+          tabBarActiveTintColor: Colors.brand.primary,
+          tabBarInactiveTintColor: Colors.surface.disabled,
           headerShown: false,
           tabBarButton: (props) => (
             <Pressable
@@ -71,7 +71,7 @@ export default function TabLayout() {
             fontSize: 13,
           },
           tabBarStyle: {
-            backgroundColor: Colors.brand.accent,
+            backgroundColor: Colors.brand.onPrimary,
             paddingVertical: 2,
             zIndex: 1,
           },
@@ -137,7 +137,7 @@ const styles = StyleSheet.create({
     bottom: 22,
     width: 85,
     height: 37,
-    backgroundColor: Colors.ui.background,
+    backgroundColor: Colors.surface.background,
     borderBottomLeftRadius: 10,
     borderBottomRightRadius: 10,
     zIndex: 1,

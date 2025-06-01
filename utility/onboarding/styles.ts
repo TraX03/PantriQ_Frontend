@@ -6,7 +6,7 @@ export const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 28,
     paddingBottom: 40,
-    backgroundColor: Colors.brand.accent,
+    backgroundColor: Colors.brand.onPrimary,
     paddingTop: 65,
   },
   title: {
@@ -41,12 +41,12 @@ export const styles = StyleSheet.create({
     width: "30%",
     marginBottom: 48,
     alignSelf: "flex-end",
-    backgroundColor: Colors.ui.buttonFill,
+    backgroundColor: Colors.surface.buttonPrimary,
   },
   buttonText: {
     fontFamily: "RobotoMedium",
     textAlign: "center",
-    color: Colors.brand.accent,
+    color: Colors.brand.onPrimary,
   },
   optionModal: {
     height: "60%",

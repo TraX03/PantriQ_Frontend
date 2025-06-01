@@ -5,11 +5,11 @@ import { styles as profileStyles } from "@/utility/profile/styles";
 import { Image, Text, View } from "react-native";
 import styles from "./styles";
 
-type Props = {
+type UserCardProps = {
   user: User;
 };
 
-export default function UserCard({ user }: Props) {
+export default function UserCard({ user }: UserCardProps) {
   return (
     <View style={styles.userCardContainer}>
       <View className="flex-row items-center flex-1">
@@ -33,7 +33,7 @@ export default function UserCard({ user }: Props) {
         </View>
       </View>
 
-      <IconSymbol name="chevron.right" color={Colors.ui.overlay} size={20} />
+      <IconSymbol name="chevron.right" color={Colors.overlay.base} size={20} />
     </View>
   );
 }

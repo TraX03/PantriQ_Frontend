@@ -113,14 +113,14 @@ export default function PostCard({ post }: PostCardProps) {
               <Pressable onPress={toggleLike}>
                 <IconSymbol
                   name={isLiked ? "heart.fill" : "heart"}
-                  color={isLiked ? Colors.brand.main : Colors.brand.base}
+                  color={isLiked ? Colors.brand.primary : Colors.brand.onBackground}
                   size={21}
                 />
               </Pressable>
               <Pressable onPress={toggleBookmark}>
                 <IconSymbol
                   name={isBookmarked ? "bookmark.fill" : "bookmark"}
-                  color={isBookmarked ? Colors.brand.main : Colors.brand.base}
+                  color={isBookmarked ? Colors.brand.primary : Colors.brand.onBackground}
                   size={21}
                 />
               </Pressable>

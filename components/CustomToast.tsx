@@ -1,12 +1,12 @@
 import { Text, View } from "react-native";
 import styles from "./styles";
 
-type Props = {
+type CustomToastProps = {
   text1?: string;
   text2?: string;
 };
 
-export default function CustomToast({ text1, text2 }: Props) {
+export default function CustomToast({ text1, text2 }: CustomToastProps) {
   return (
     <View style={styles.toastContainer}>
       <Text style={styles.toastText}>{text1}</Text>

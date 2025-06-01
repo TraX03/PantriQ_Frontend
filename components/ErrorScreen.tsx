@@ -16,7 +16,7 @@ const ErrorScreen: React.FC<ErrorScreenProps> = ({ message }) => (
     <View style={styles.centeredContainer}>
       <View className="absolute top-20 left-3 self-start">
         <TouchableOpacity onPress={() => router.back()}>
-          <IconSymbol name="chevron.left" color={Colors.brand.main} size={30} />
+          <IconSymbol name="chevron.left" color={Colors.brand.primary} size={30} />
         </TouchableOpacity>
       </View>
       <LottieView

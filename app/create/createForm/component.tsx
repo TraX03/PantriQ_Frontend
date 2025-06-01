@@ -113,7 +113,7 @@ export default function CreateFormComponent({ create, controller }: Props) {
                       >
                         <IconSymbol
                           name="multiply.circle"
-                          color={Colors.brand.light}
+                          color={Colors.brand.primaryLight}
                           size={24}
                         />
                       </TouchableOpacity>
@@ -127,7 +127,7 @@ export default function CreateFormComponent({ create, controller }: Props) {
                     >
                       <IconSymbol
                         name="plus"
-                        color={Colors.ui.overlay}
+                        color={Colors.overlay.base}
                         size={30}
                       />
                     </TouchableOpacity>

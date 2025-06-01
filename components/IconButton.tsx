@@ -34,7 +34,7 @@ const IconButton = ({
         name={name}
         size={iconSize}
         color={
-          isBackgroundDark ? Colors.ui.buttonFill : Colors.ui.backgroundLight
+          isBackgroundDark ? Colors.surface.buttonPrimary : Colors.surface.backgroundSoft
         }
       />
     </TouchableOpacity>

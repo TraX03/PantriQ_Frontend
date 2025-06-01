@@ -5,7 +5,7 @@ export const styles = StyleSheet.create({
   // Layout
   container: {
     flex: 1,
-    backgroundColor: Colors.ui.background,
+    backgroundColor: Colors.surface.background,
   },
   header: {
     flexDirection: "row",
@@ -14,14 +14,14 @@ export const styles = StyleSheet.create({
     paddingTop: 65,
     paddingHorizontal: 16,
     marginBottom: 2,
-    backgroundColor: Colors.brand.accent,
+    backgroundColor: Colors.brand.onPrimary,
     zIndex: 10,
     paddingBottom: 8,
   },
   suggestContainer: {
     paddingHorizontal: 8,
     paddingVertical: 12,
-    backgroundColor: Colors.brand.accent,
+    backgroundColor: Colors.brand.onPrimary,
     zIndex: 9,
   },
 
@@ -33,11 +33,11 @@ export const styles = StyleSheet.create({
   },
   suggestText: {
     fontFamily: "RobotoRegular",
-    color: Colors.brand.dark,
+    color: Colors.brand.primaryDark,
     fontSize: 14,
   },
   endText: {
-    color: Colors.text.gray,
+    color: Colors.text.disabled,
     fontFamily: "RobotoRegular",
     fontSize: 14,
     marginHorizontal: 10,
@@ -45,6 +45,6 @@ export const styles = StyleSheet.create({
   divider: {
     width: 60,
     height: 1,
-    backgroundColor: Colors.text.gray,
+    backgroundColor: Colors.text.disabled,
   },
 });

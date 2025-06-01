@@ -56,32 +56,32 @@ export default function InstructionsForm({
 
                 <TouchableOpacity
                   className="absolute top-3 right-3 p-1 rounded-full"
-                  style={{ backgroundColor: Colors.ui.overlayLight }}
+                  style={{ backgroundColor: Colors.overlay.light }}
                   onPress={() => setFullscreenImage(step.image!)}
                 >
                   <IconSymbol
                     name="arrow.up.left.and.arrow.down.right"
                     size={25}
-                    color={Colors.brand.base}
+                    color={Colors.brand.onBackground}
                   />
                 </TouchableOpacity>
 
                 <TouchableOpacity
                   className="absolute top-3 right-14 p-1 rounded-full"
-                  style={{ backgroundColor: Colors.ui.overlayLight }}
+                  style={{ backgroundColor: Colors.overlay.light }}
                   onPress={() => updateInstructionImage(index, true)}
                 >
                   <IconSymbol
                     name="trash"
                     size={25}
-                    color={Colors.brand.base}
+                    color={Colors.brand.onBackground}
                   />
                 </TouchableOpacity>
               </View>
             ) : (
               <TouchableOpacity
                 className="w-full h-40 justify-center items-center rounded mb-2"
-                style={{ backgroundColor: Colors.ui.grayButtonFill }}
+                style={{ backgroundColor: Colors.surface.buttonSecondary }}
                 onPress={() => {
                   updateInstructionImage(index);
                 }}

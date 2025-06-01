@@ -3,12 +3,12 @@ import { StyleSheet } from "react-native";
 
 const baseTextStyle = {
   fontFamily: "RobotoRegular",
-  color: Colors.brand.dark,
+  color: Colors.brand.primaryDark,
 };
 
 const mediumText = {
   fontFamily: "RobotoMedium",
-  color: Colors.brand.accent,
+  color: Colors.brand.onPrimary,
 };
 
 export const styles = StyleSheet.create({
@@ -22,7 +22,7 @@ export const styles = StyleSheet.create({
   },
   forgotPasswordText: {
     fontFamily: "RobotoBold",
-    color: Colors.brand.dark,
+    color: Colors.brand.primaryDark,
     textAlign: "right",
     marginBottom: 24,
   },
@@ -46,14 +46,14 @@ export const styles = StyleSheet.create({
     paddingVertical: 12,
     marginBottom: 65,
     borderRadius: 12,
-    backgroundColor: Colors.ui.buttonFill,
+    backgroundColor: Colors.surface.buttonPrimary,
   },
 
   // Divider
   dividerStyle: {
     width: 80,
     height: 1,
-    backgroundColor: Colors.brand.accent,
+    backgroundColor: Colors.brand.onPrimary,
   },
 
   //misc
@@ -64,7 +64,7 @@ export const styles = StyleSheet.create({
     borderRadius: 12,
     borderWidth: 2,
     marginBottom: 6,
-    backgroundColor: Colors.brand.accent,
-    borderColor: Colors.brand.main,
+    backgroundColor: Colors.brand.onPrimary,
+    borderColor: Colors.brand.primary,
   },
 });

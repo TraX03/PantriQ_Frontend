@@ -32,10 +32,11 @@ export default function EditFieldComponent({
 }: Props) {
   const { value, showDatePicker, setFieldState } = edit;
 
-  const renderFieldInput = () => {
-    switch (keyName) {
-      case "gender":
-        return (
+  return (
+    <KeyboardAvoidingView style={styles.headerContainer}>
+      <HeaderBar title={`Edit ${label}`} />
+      <View className="flex-1 px-4">
+        {keyName === "gender" ? (
           <View className="mt-4 space-y-3">
             {genderOptions.map((option) => {
               const isSelected = value === option;
@@ -50,7 +51,7 @@ export default function EditFieldComponent({
                     className="w-5 h-5 rounded-full border items-center justify-center"
                     style={{
                       borderColor: isSelected
-                        ? Colors.brand.main
+                        ? Colors.brand.primary
                         : Colors.text.placeholder,
                     }}
                   >
@@ -60,10 +61,7 @@ export default function EditFieldComponent({
               );
             })}
           </View>
-        );
-
-      case "birthday":
-        return (
+        ) : keyName === "birthday" ? (
           <>
             <TouchableOpacity
               onPress={() => setFieldState("showDatePicker", true)}
@@ -94,10 +92,7 @@ export default function EditFieldComponent({
               />
             )}
           </>
-        );
-
-      default:
-        return (
+        ) : (
           <View className="mt-4">
             <InputBox
               placeholder={`Enter your ${label.toLowerCase()}`}
@@ -109,15 +104,7 @@ export default function EditFieldComponent({
               isMultiline
             />
           </View>
-        );
-    }
-  };
-
-  return (
-    <KeyboardAvoidingView style={styles.headerContainer}>
-      <HeaderBar title={`Edit ${label}`} />
-      <View className="flex-1 px-4">
-        {renderFieldInput()}
+        )}
 
         <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
           <Text style={styles.saveButtonText}>Save</Text>

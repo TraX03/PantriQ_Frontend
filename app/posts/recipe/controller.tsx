@@ -24,6 +24,7 @@ export interface Recipe {
   id: string;
   title: string;
   author: string;
+  authorId: string;
   images: string[];
   ingredients: Ingredient[];
   instructions: Instruction[];
@@ -44,6 +45,8 @@ export interface RecipeState {
   bookmarkDocId?: string;
   showStepsModal: boolean;
   isInstructionsOverflow: boolean;
+  nutritionData: any;
+  expanded: boolean;
 }
 
 export const useRecipeController = () => {
@@ -61,7 +64,11 @@ export const useRecipeController = () => {
     bookmarkDocId: undefined,
     showStepsModal: false,
     isInstructionsOverflow: false,
+    nutritionData: null,
+    expanded: false,
   });
+
+  const { setFields, setFieldState } = recipe;
 
   const getRecipe = async (recipeId: string) => {
     try {
@@ -94,7 +101,7 @@ export const useRecipeController = () => {
         const like = interactions.find((doc) => doc.type === "like");
         const bookmark = interactions.find((doc) => doc.type === "bookmark");
 
-        recipe.setFields({
+        setFields({
           isLiked: !!like,
           likeDocId: like?.$id,
           isBookmarked: !!bookmark,
@@ -107,6 +114,7 @@ export const useRecipeController = () => {
           id: recipeDoc.$id,
           title: recipeDoc.title,
           author: author?.name || "Unknown",
+          authorId: recipeDoc.author_id,
           images,
           ingredients: Array.isArray(recipeDoc.ingredients)
             ? recipeDoc.ingredients.map((item) => {
@@ -145,7 +153,6 @@ export const useRecipeController = () => {
       };
     } catch (error) {
       console.error("Failed to fetch recipe:", error);
-      throw error;
     }
   };
 
@@ -190,7 +197,7 @@ export const useRecipeController = () => {
 
       await deleteDocument(AppwriteConfig.RECIPES_COLLECTION_ID, recipeId);
 
-      recipe.setFieldState("recipeData", null);
+      setFieldState("recipeData", null);
       router.back();
 
       Toast.show({
@@ -206,7 +213,7 @@ export const useRecipeController = () => {
   };
 
   const confirmDeleteRecipe = () => {
-    recipe.setFieldState("showModal", false);
+    setFieldState("showModal", false);
     setTimeout(() => {
       Alert.alert(
         "Delete Recipe",
@@ -226,10 +233,25 @@ export const useRecipeController = () => {
     }, 300);
   };
 
+  const getNutritionEntry = (
+    data: any,
+    key: "nutrients" | "properties",
+    name: string
+  ): { amount: number; unit: string } => {
+    const found = data?.nutrition?.[key]?.find(
+      (item: any) => item.name === name
+    );
+    return {
+      amount: found?.amount ?? 0,
+      unit: found?.unit ?? "",
+    };
+  };
+
   return {
     recipe,
     getRecipe,
     confirmDeleteRecipe,
+    getNutritionEntry,
   };
 };
 

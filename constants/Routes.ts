@@ -7,5 +7,6 @@ export const Routes = {
   Settings: "/profile/settings/container",
   EditProfile: "/profile/settings/editProfile/container",
   Onboarding: "/onboarding/container",
+  Nutrition: "/posts/recipe/nutrition/container",
   Home: "/",
 } as const;

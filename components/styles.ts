@@ -3,7 +3,7 @@ import { StatusBar, StyleSheet } from "react-native";
 
 const baseTextStyle = {
   fontFamily: "RobotoRegular",
-  color: Colors.text.faint,
+  color: Colors.text.disabled,
   fontSize: 12,
 };
 
@@ -11,7 +11,7 @@ const styles = StyleSheet.create({
   container: {
     borderRadius: 12,
     paddingBottom: 14,
-    backgroundColor: Colors.brand.accent,
+    backgroundColor: Colors.brand.onPrimary,
   },
   communityName: {
     fontSize: 16,
@@ -23,19 +23,19 @@ const styles = StyleSheet.create({
     paddingBottom: 8,
   },
   joinButton: {
-    backgroundColor: Colors.brand.light,
-    borderColor: Colors.brand.accent,
+    backgroundColor: Colors.brand.primaryLight,
+    borderColor: Colors.brand.onPrimary,
   },
   joinButtonText: {
     ...baseTextStyle,
-    color: Colors.brand.accent,
+    color: Colors.brand.onPrimary,
     fontSize: 14,
   },
   postTitle: {
     fontSize: 14,
     fontFamily: "RobotoMedium",
     marginBottom: 10,
-    color: Colors.ui.base,
+    color: Colors.text.primary,
   },
   author: {
     ...baseTextStyle,
@@ -51,12 +51,12 @@ const styles = StyleSheet.create({
   },
   errorDescription: {
     ...baseTextStyle,
-    color: Colors.ui.base,
+    color: Colors.text.primary,
     fontSize: 14,
   },
   buttonText: {
     fontFamily: "RobotoMedium",
-    color: Colors.brand.accent,
+    color: Colors.brand.onPrimary,
   },
   slideModalSheet: {
     backgroundColor: "white",
@@ -64,7 +64,7 @@ const styles = StyleSheet.create({
     padding: 16,
     width: 270,
     alignSelf: "center",
-    borderColor: Colors.ui.shadow,
+    borderColor: Colors.surface.shadow,
     borderWidth: 1.5,
     paddingBottom: (StatusBar.currentHeight ?? 0) + 80,
     marginBottom: -3,
@@ -75,7 +75,7 @@ const styles = StyleSheet.create({
   },
   modalContainer: {
     flex: 1,
-    backgroundColor: Colors.ui.fullScreenOverlay,
+    backgroundColor: Colors.overlay.fullscreen,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -97,7 +97,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: "RobotoMedium",
     marginBottom: 8,
-    color: Colors.brand.main,
+    color: Colors.brand.primary,
   },
   stepImage: {
     width: "100%",
@@ -105,7 +105,7 @@ const styles = StyleSheet.create({
     marginBottom: 18,
   },
   stepDescription: {
-    color: Colors.ui.base,
+    color: Colors.text.primary,
     lineHeight: 22,
     fontSize: 15,
     fontFamily: "RobotoRegular",
@@ -114,7 +114,7 @@ const styles = StyleSheet.create({
     padding: 14,
     borderRadius: 12,
     marginBottom: 16,
-    backgroundColor: Colors.brand.accent,
+    backgroundColor: Colors.brand.onPrimary,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
@@ -122,26 +122,26 @@ const styles = StyleSheet.create({
   usernameText: {
     fontFamily: "RobotoMedium",
     fontSize: 16,
-    color: Colors.brand.base,
+    color: Colors.brand.onBackground,
     marginBottom: 6,
   },
   bioText: {
     fontFamily: "RobotoRegular",
     fontSize: 14,
-    color: Colors.text.gray,
+    color: Colors.text.disabled,
     width: "80%",
   },
   modalAddButton: {
     marginLeft: 8,
     paddingHorizontal: 12,
     paddingVertical: 10,
-    backgroundColor: Colors.ui.buttonFill,
+    backgroundColor: Colors.surface.buttonPrimary,
     borderRadius: 8,
     flex: 1,
     alignItems: "center",
   },
   resultText: {
-    color: Colors.brand.base,
+    color: Colors.brand.onBackground,
     fontSize: 16,
   },
   endText: {
@@ -156,7 +156,7 @@ const styles = StyleSheet.create({
     textAlign: "right",
   },
   toastContainer: {
-    backgroundColor: Colors.ui.inactive,
+    backgroundColor: Colors.surface.disabled,
     padding: 12,
     borderRadius: 8,
     marginHorizontal: 20,
@@ -165,7 +165,7 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   toastText: {
-    color: Colors.brand.accent,
+    color: Colors.brand.onPrimary,
     fontSize: 16,
     fontWeight: "600",
     textAlign: "center",
@@ -173,6 +173,16 @@ const styles = StyleSheet.create({
   toastSubText: {
     color: Colors.text.placeholder,
     fontSize: 14,
+    marginTop: 4,
+  },
+  scoreText: {
+    fontSize: 22,
+    fontWeight: "bold",
+    color: Colors.brand.onBackground,
+  },
+  labelText: {
+    fontSize: 10,
+    color: Colors.text.label,
     marginTop: 4,
   },
 });

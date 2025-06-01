@@ -15,11 +15,11 @@ interface RecipeStepProps {
 export const RecipeStep: React.FC<RecipeStepProps> = ({ index, step }) => {
   const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
 
-  // Capitalize first letter and ensure the instruction ends with punctuation
   const formatInstruction = (text: string) => {
     if (!text) return "";
-    const capitalized = text.charAt(0).toUpperCase() + text.slice(1);
-    return /[.!?]$/.test(text) ? capitalized : capitalized + ".";
+    const cleaned = text.replace(/^step\s*\d+[:.\s-]*/i, "");
+    const capitalized = cleaned.charAt(0).toUpperCase() + cleaned.slice(1);
+    return /[.!?]$/.test(capitalized) ? capitalized : capitalized + ".";
   };
 
   const finalText = formatInstruction(step.text || "");
@@ -43,13 +43,13 @@ export const RecipeStep: React.FC<RecipeStepProps> = ({ index, step }) => {
             />
             <TouchableOpacity
               className="absolute top-3 right-3 p-1 rounded-full"
-              style={{ backgroundColor: Colors.ui.overlayLight }}
+              style={{ backgroundColor: Colors.overlay.light }}
               onPress={() => setFullscreenImage(imageUri)}
             >
               <IconSymbol
                 name="arrow.up.left.and.arrow.down.right"
                 size={25}
-                color={Colors.brand.base}
+                color={Colors.brand.onBackground}
               />
             </TouchableOpacity>
           </View>

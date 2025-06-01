@@ -30,7 +30,7 @@ type InputBoxProps = TextInputProps & {
 
 export default function InputBox({
   icon,
-  iconColor = Colors.brand.main,
+  iconColor = Colors.brand.primary,
   iconSize = 20,
   containerStyle,
   inputStyle,
@@ -78,7 +78,7 @@ export default function InputBox({
           >
             <IconSymbol
               name="multiply.circle"
-              color={clearColor || Colors.ui.overlay}
+              color={clearColor || Colors.overlay.base}
               size={18}
             />
           </TouchableOpacity>

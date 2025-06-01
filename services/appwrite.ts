@@ -68,7 +68,7 @@ export const fetchAllDocuments = async (
   try {
     let documents: any[] = [];
     let lastDoc: any = null;
-    const limit = 100;
+    const limit = 300;
 
     while (true) {
       const queries = [Query.limit(limit), Query.orderAsc("$createdAt")];
