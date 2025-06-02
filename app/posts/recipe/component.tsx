@@ -193,7 +193,17 @@ export default function RecipeComponent({
                   <Text style={styles.recipeTitle}>{recipeData.title}</Text>
                   <Text style={styles.authorText}>
                     by{" "}
-                    <Text style={styles.authorName}>{recipeData.author}</Text>
+                    <Text
+                      style={styles.authorName}
+                      onPress={() =>
+                        router.push({
+                          pathname: Routes.userDetail,
+                          params: { id: recipeData.authorId },
+                        })
+                      }
+                    >
+                      {recipeData.author}
+                    </Text>
                   </Text>
                 </View>
 

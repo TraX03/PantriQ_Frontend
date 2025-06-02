@@ -1,3 +1,4 @@
+import { Routes } from "@/constants/Routes";
 import { RootState } from "@/redux/store";
 import { useRouter } from "expo-router";
 import { useSelector } from "react-redux";
@@ -10,7 +11,7 @@ export function useRequireLogin() {
     if (isLoggedIn) {
       typeof next === "function" ? next() : router.push(next as never);
     } else {
-      const redirectTo = typeof next === "string" ? next : "/";
+      const redirectTo = typeof next === "string" ? next : Routes.Home;
       router.push(
         `/authentication/sign-in?redirect=${encodeURIComponent(redirectTo)}`
       );

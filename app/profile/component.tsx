@@ -1,11 +1,12 @@
 import ErrorScreen from "@/components/ErrorScreen";
 import PostCard from "@/components/PostCard";
-import { IconSymbol, IconSymbolName } from "@/components/ui/IconSymbol";
+import { ScreenWrapper } from "@/components/ScreenWrapper";
+import { IconSymbol } from "@/components/ui/IconSymbol";
 import { Colors } from "@/constants/Colors";
 import { Routes } from "@/constants/Routes";
 import { useFieldState } from "@/hooks/useFieldState";
 import { ProfileData } from "@/redux/slices/profileSlice";
-import { getImageUrl } from "@/utility/imageUtils";
+import { getImageUrl, getOverlayStyle } from "@/utility/imageUtils";
 import { styles } from "@/utility/profile/styles";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
@@ -29,12 +30,17 @@ type Props = {
   isLoggedIn: boolean;
   checkLogin: (intendedPage: string) => void;
   profile: ReturnType<typeof useFieldState<ProfileState>>;
+  isOwnProfile: boolean;
+  isBackgroundDark: boolean;
 };
 
-const tabs: { title: string; icon: IconSymbolName }[] = [
+const tabs = [
   { title: "History", icon: "clock" },
   { title: "Community", icon: "person.2.fill" },
-];
+] as const;
+
+const mainTabs = ["Posts", "Collections", "Likes"] as const;
+const subTabs = ["Recipe", "Tips", "Discussion"] as const;
 
 export default function ProfileComponent({
   profileData,
@@ -42,8 +48,11 @@ export default function ProfileComponent({
   isLoggedIn,
   checkLogin,
   profile,
+  isOwnProfile,
+  isBackgroundDark,
 }: Props) {
-  if (!profileData && isLoading) return null;
+  if (isLoading && !profileData) return null;
+
   if (!profileData)
     return (
       <ErrorScreen message="Something went wrong while loading your profile data. Please refresh or try again later." />
@@ -66,181 +75,222 @@ export default function ProfileComponent({
     bio,
   } = profileData;
 
+  const filteredPosts = posts.filter((p) => {
+    if (postSubTab === "Recipe") return p.type === "recipe";
+    return p.type.toLowerCase() === postSubTab.toLowerCase();
+  });
+
+  const sortedPosts = filteredPosts
+    .slice()
+    .sort(
+      (a, b) =>
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    );
+
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      <ImageBackground
-        source={{ uri: profileBg }}
-        style={[
-          styles.profileSection,
-          { backgroundColor: profileBg ? undefined : Colors.brand.primary },
-        ]}
-      >
-        <LinearGradient
-          colors={["transparent", Colors.overlay.subtleDark]}
-          locations={[0, 0.3]}
-          style={StyleSheet.absoluteFillObject}
-        />
+    <ScreenWrapper>
+      <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+        <ImageBackground
+          source={{ uri: profileBg }}
+          style={[
+            styles.profileSection,
+            { backgroundColor: profileBg ? undefined : Colors.brand.primary },
+          ]}
+        >
+          <LinearGradient
+            colors={["transparent", Colors.overlay.subtleDark]}
+            locations={[0, 0.3]}
+            style={StyleSheet.absoluteFillObject}
+          />
 
-        <View className="flex-row justify-end items-center mb-[10px] gap-[12px]">
-          <TouchableOpacity
-            onPress={() =>
-              checkLogin("/profile/settings/editProfile/container")
-            }
-          >
-            <IconSymbol
-              name="pencil.circle"
-              size={28}
-              color={Colors.brand.onPrimary}
-            />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => router.push(Routes.Settings)}>
-            <IconSymbol
-              name="square.grid.2x2"
-              size={27}
-              color={Colors.brand.onPrimary}
-            />
-          </TouchableOpacity>
-        </View>
+          <View className="flex-row justify-between items-center mb-[16px]">
+            {isOwnProfile ? (
+              <View className="w-[28px]" />
+            ) : (
+              <TouchableOpacity onPress={() => router.back()}>
+                <IconSymbol
+                  name="chevron.left"
+                  size={28}
+                  color={Colors.brand.onPrimary}
+                />
+              </TouchableOpacity>
+            )}
 
-        <View className="flex-row items-center">
-          <View style={styles.avatarContainer}>
-            <Image
-              source={{
-                uri: avatarUrl,
-              }}
-              style={styles.avatar}
-              resizeMode="cover"
-            />
-          </View>
-          <View className="ml-7 flex-1">
-            <View className="flex-row items-center gap-2">
-              <Text style={styles.username}>{username}</Text>
-              {!isLoggedIn && (
+            <View className="flex-row items-center gap-[12px]">
+              {isOwnProfile ? (
+                <>
+                  <TouchableOpacity
+                    onPress={() => checkLogin(Routes.EditProfile)}
+                  >
+                    <IconSymbol
+                      name="pencil.circle"
+                      size={28}
+                      color={Colors.brand.onPrimary}
+                    />
+                  </TouchableOpacity>
+                  <TouchableOpacity onPress={() => checkLogin(Routes.Settings)}>
+                    <IconSymbol
+                      name="square.grid.2x2"
+                      size={27}
+                      color={Colors.brand.onPrimary}
+                    />
+                  </TouchableOpacity>
+                </>
+              ) : (
                 <TouchableOpacity
-                  onPress={() =>
-                    router.push({
-                      pathname: Routes.AuthForm,
-                      params: { mode: "sign-in" },
-                    })
-                  }
-                  style={styles.loginButton}
+                  onPress={() => console.log("Ellipsis options")}
                 >
-                  <Text style={styles.loginText}>Login</Text>
+                  <IconSymbol
+                    name="ellipsis"
+                    size={26}
+                    color={Colors.brand.onPrimary}
+                  />
                 </TouchableOpacity>
               )}
             </View>
-            <Text style={styles.followInfo}>
-              {followersCount} Followers | {followingCount} Following
-            </Text>
           </View>
-        </View>
 
-        {isLoggedIn && <Text style={styles.bioText}>{bio}</Text>}
-
-        <View className="flex-row justify-start mt-5">
-          {tabs.map(({ title, icon }, index) => (
-            <TouchableOpacity
-              key={index}
-              style={styles.profileTab}
-              activeOpacity={0.8}
-              onPress={() => {}}
-            >
-              <IconSymbol
-                name={icon}
-                size={26}
-                color={Colors.brand.onPrimary}
+          <View className="flex-row items-center">
+            <View style={styles.avatarContainer}>
+              <Image
+                source={{ uri: avatarUrl }}
+                style={styles.avatar}
+                resizeMode="cover"
               />
-              <Text style={styles.profileTabText}>{title}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-      </ImageBackground>
-
-      <View style={styles.postListContainer}>
-        <View style={styles.tabHeader}>
-          {["Posts", "Collections", "Likes"].map((tab) => (
-            <Pressable
-              key={tab}
-              onPress={() =>
-                setFieldState("activeTab", tab as ProfileState["activeTab"])
-              }
-            >
-              <Text
-                style={{
-                  fontSize: 17,
-                  color:
-                    activeTab === tab
-                      ? Colors.brand.primary
-                      : Colors.text.disabled,
-                  fontFamily:
-                    activeTab === tab ? "RobotoBold" : "RobotoRegular",
-                }}
-              >
-                {tab}
+            </View>
+            <View className="ml-7 flex-1">
+              <View className="flex-row items-center gap-2">
+                <Text style={styles.username}>{username}</Text>
+                {!isLoggedIn && isOwnProfile && (
+                  <TouchableOpacity
+                    onPress={() =>
+                      router.push({
+                        pathname: Routes.AuthForm,
+                        params: { mode: "sign-in" },
+                      })
+                    }
+                    style={styles.loginButton}
+                  >
+                    <Text style={styles.loginText}>Login</Text>
+                  </TouchableOpacity>
+                )}
+              </View>
+              <Text style={styles.followInfo}>
+                {followersCount} Followers | {followingCount} Following
               </Text>
-            </Pressable>
-          ))}
-        </View>
+            </View>
+          </View>
 
-        <View style={styles.subTabHeader}>
-          {["Recipe", "Tips", "Discussion"].map((sub) => (
-            <Pressable
-              key={sub}
-              onPress={() =>
-                setFieldState("subTab", sub as ProfileState["subTab"])
-              }
-            >
-              <Text
-                style={{
-                  fontSize: 15,
-                  color:
-                    postSubTab === sub
-                      ? Colors.brand.primary
-                      : Colors.text.disabled,
-                  fontFamily:
-                    postSubTab === sub ? "RobotoBold" : "RobotoRegular",
-                }}
+          {isLoggedIn || !isOwnProfile ? (
+            <Text style={styles.bioText}>{bio}</Text>
+          ) : null}
+
+          {isOwnProfile && isLoggedIn ? (
+            <View className="flex-row justify-start mt-5">
+              {tabs.map(({ title, icon }) => (
+                <TouchableOpacity
+                  key={title}
+                  style={styles.profileTab}
+                  activeOpacity={0.8}
+                  onPress={() => {}}
+                >
+                  <IconSymbol
+                    name={icon}
+                    size={26}
+                    color={Colors.brand.onPrimary}
+                  />
+                  <Text style={styles.profileTabText}>{title}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          ) : !isOwnProfile ? (
+            <View className="flex-row justify-end mt-5">
+              <TouchableOpacity
+                style={[getOverlayStyle(isBackgroundDark), styles.followButton]}
+                onPress={() => console.log("Follow pressed")}
               >
-                {sub}
-              </Text>
-            </Pressable>
-          ))}
-        </View>
+                <Text
+                  style={[
+                    getOverlayStyle(isBackgroundDark, true),
+                    { fontFamily: "RobotoRegular" },
+                  ]}
+                >
+                  Follow
+                </Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <View className="h-5" />
+          )}
+        </ImageBackground>
 
-        {activeTab === "Posts" && (
-          <View className="px-[6px]">
-            {(() => {
-              if (postLoading) {
-                return (
-                  <View style={styles.loadingContianer}>
-                    <ActivityIndicator
-                      size="large"
-                      color={Colors.brand.primary}
-                    />
-                  </View>
-                );
-              }
+        <View style={styles.postListContainer}>
+          <View style={styles.tabHeader}>
+            {mainTabs.map((tab) => (
+              <Pressable
+                key={tab}
+                onPress={() =>
+                  setFieldState("activeTab", tab as ProfileState["activeTab"])
+                }
+              >
+                <Text
+                  style={{
+                    fontSize: 17,
+                    color:
+                      activeTab === tab
+                        ? Colors.brand.primary
+                        : Colors.text.disabled,
+                    fontFamily:
+                      activeTab === tab ? "RobotoBold" : "RobotoRegular",
+                  }}
+                >
+                  {tab}
+                </Text>
+              </Pressable>
+            ))}
+          </View>
 
-              const filteredPosts = posts.filter((p) => {
-                if (postSubTab === "Recipe") return p.type === "recipe";
-                return p.type === "tip" || p.type === "discussion"
-                  ? p.type.toLowerCase() === postSubTab.toLowerCase()
-                  : false;
-              });
+          <View style={styles.subTabHeader}>
+            {subTabs.map((sub) => (
+              <Pressable
+                key={sub}
+                onPress={() =>
+                  setFieldState("subTab", sub as ProfileState["subTab"])
+                }
+              >
+                <Text
+                  style={{
+                    fontSize: 15,
+                    color:
+                      postSubTab === sub
+                        ? Colors.brand.primary
+                        : Colors.text.disabled,
+                    fontFamily:
+                      postSubTab === sub ? "RobotoBold" : "RobotoRegular",
+                  }}
+                >
+                  {sub}
+                </Text>
+              </Pressable>
+            ))}
+          </View>
 
-              return filteredPosts.length === 0 ? (
+          {activeTab === "Posts" && (
+            <View className="px-[6px]">
+              {postLoading ? (
+                <View style={styles.loadingContianer}>
+                  <ActivityIndicator
+                    size="large"
+                    color={Colors.brand.primary}
+                  />
+                </View>
+              ) : filteredPosts.length === 0 ? (
                 <Text style={styles.noPostText}>No posts to display.</Text>
               ) : (
                 <View className="flex-row justify-between flex-wrap">
                   {[0, 1].map((colIndex) => (
                     <View key={colIndex} className="w-[48%]">
-                      {filteredPosts
-                        .slice()
-                        .sort(
-                          (a, b) =>
-                            new Date(b.created_at).getTime() -
-                            new Date(a.created_at).getTime()
-                        )
+                      {sortedPosts
                         .filter((_, i) => i % 2 === colIndex)
                         .map((post) => (
                           <PostCard
@@ -258,11 +308,11 @@ export default function ProfileComponent({
                     </View>
                   ))}
                 </View>
-              );
-            })()}
-          </View>
-        )}
-      </View>
-    </ScrollView>
+              )}
+            </View>
+          )}
+        </View>
+      </ScrollView>
+    </ScreenWrapper>
   );
 }

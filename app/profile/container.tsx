@@ -7,35 +7,56 @@ import { useDispatch, useSelector } from "react-redux";
 import ProfileComponent from "./component";
 import { useProfileController } from "./controller";
 
-export default function ProfileContainer() {
-  const { checkLogin } = useRequireLogin();
-  const { fetchProfile } = useProfileData();
-  const dispatch = useDispatch<AppDispatch>();
+type Props = {
+  profileId?: string;
+};
 
-  const { userData: profileData, refreshProfile } = useSelector(
+export default function ProfileContainer({ profileId }: Props) {
+  const dispatch = useDispatch<AppDispatch>();
+  const { checkLogin } = useRequireLogin();
+  const { fetchProfile, getUserProfileData } = useProfileData();
+  const { profile, fetchPostsByUser, isBackgroundDark } =
+    useProfileController();
+
+  const { userData: currentUserProfile, refreshProfile } = useSelector(
     (state: RootState) => state.profile
   );
-  const isLoading = useSelector((state: RootState) => state.loading.loading);
-  const isLoggedIn = useSelector((state: RootState) => !!state.auth.user);
+  const { loading: isLoading } = useSelector(
+    (state: RootState) => state.loading
+  );
+  const { user } = useSelector((state: RootState) => state.auth);
 
-  const { profile, fetchPostsByUser } = useProfileController();
+  const currentUserId = currentUserProfile?.id;
+  const isLoggedIn = Boolean(user);
+  const isOwnProfile = !profileId || profileId === currentUserId;
 
   useEffect(() => {
-    fetchProfile();
-  }, []);
-
-  useEffect(() => {
-    if (profileData && profile.posts.length === 0) {
-      fetchPostsByUser(profileData);
+    if (isOwnProfile) {
+      fetchProfile();
+    } else if (profileId) {
+      getUserProfileData(profileId).then((data) => {
+        profile.setFieldState("viewedProfileData", data);
+        fetchPostsByUser(profileId);
+      });
     }
-  }, [profileData]);
+  }, [profileId, isOwnProfile]);
 
   useEffect(() => {
-    if (refreshProfile && profileData) {
-      fetchPostsByUser(profileData);
+    if (isOwnProfile && currentUserId && profile.posts.length === 0) {
+      fetchPostsByUser(currentUserId);
+    }
+  }, [isOwnProfile, currentUserId, profile.posts.length]);
+
+  useEffect(() => {
+    if (isOwnProfile && refreshProfile && currentUserId) {
+      fetchPostsByUser(currentUserId);
       dispatch(setRefreshProfile(false));
     }
-  }, [refreshProfile]);
+  }, [refreshProfile, isOwnProfile, currentUserId]);
+
+  const profileData = isOwnProfile
+    ? currentUserProfile
+    : profile.viewedProfileData;
 
   return (
     <ProfileComponent
@@ -44,6 +65,8 @@ export default function ProfileContainer() {
       isLoggedIn={isLoggedIn}
       checkLogin={checkLogin}
       profile={profile}
+      isOwnProfile={isOwnProfile}
+      isBackgroundDark={isBackgroundDark}
     />
   );
 }

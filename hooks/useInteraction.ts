@@ -52,7 +52,7 @@ export function useInteraction(
           AppwriteConfig.INTERACTIONS_COLLECTION_ID,
           {
             user_id: currentUser.$id,
-            post_id: postId,
+            item_id: postId,
             type,
             created_at: new Date().toISOString(),
           }

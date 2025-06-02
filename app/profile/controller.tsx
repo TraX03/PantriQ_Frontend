@@ -2,6 +2,8 @@ import { AppwriteConfig } from "@/constants/AppwriteConfig";
 import { useFieldState } from "@/hooks/useFieldState";
 import { ProfileData } from "@/redux/slices/profileSlice";
 import { fetchAllDocuments } from "@/services/appwrite";
+import { parseMetadata } from "@/utility/metadataUtils";
+import { useMemo } from "react";
 import { Models } from "react-native-appwrite";
 
 export interface ProfileState {
@@ -9,6 +11,7 @@ export interface ProfileState {
   posts: Models.Document[];
   subTab: "Recipe" | "Tips" | "Discussion";
   postLoading: boolean;
+  viewedProfileData: ProfileData | null;
 }
 
 export const useProfileController = () => {
@@ -17,10 +20,17 @@ export const useProfileController = () => {
     posts: [],
     subTab: "Recipe",
     postLoading: false,
+    viewedProfileData: null,
   });
 
-  const fetchPostsByUser = async (user: ProfileData) => {
-    if (!user?.id) return;
+  const metadata = useMemo(
+    () => parseMetadata(profile.viewedProfileData?.metadata),
+    [profile.viewedProfileData]
+  );
+  const isBackgroundDark = metadata?.profileBg?.isDark ?? false;
+
+  const fetchPostsByUser = async (userId: string) => {
+    if (!userId) return;
 
     profile.setFieldState("postLoading", true);
 
@@ -31,11 +41,11 @@ export const useProfileController = () => {
       ]);
 
       const recipes = recipesRes
-        .filter((doc) => doc.author_id === user.id)
+        .filter((doc) => doc.author_id === userId)
         .map((doc) => ({ ...doc, type: "recipe" }));
 
       const tipsAndDiscussions = postsRes.filter(
-        (doc) => doc.author_id === user.id
+        (doc) => doc.author_id === userId
       );
 
       profile.setFieldState("posts", [...recipes, ...tipsAndDiscussions]);
@@ -49,6 +59,7 @@ export const useProfileController = () => {
   return {
     profile,
     fetchPostsByUser,
+    isBackgroundDark,
   };
 };
 

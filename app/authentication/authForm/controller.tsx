@@ -104,7 +104,8 @@ export const useAuthController = (mode: AuthMode) => {
         router.replace(Routes.Home);
       } else {
         await login(email, password);
-        const redirectTo = typeof redirect === "string" ? redirect : "/";
+        const redirectTo =
+          typeof redirect === "string" ? redirect : Routes.Home;
         router.replace(redirectTo as never);
       }
     } catch (error: any) {

@@ -165,6 +165,11 @@ export const styles = StyleSheet.create({
     backgroundColor: Colors.overlay.base,
     marginLeft: 4,
   },
+  followButton: {
+    borderRadius: 99,
+    paddingHorizontal: 25,
+    paddingVertical: 5,
+  },
 
   // Input Fields
   inputBox: {
