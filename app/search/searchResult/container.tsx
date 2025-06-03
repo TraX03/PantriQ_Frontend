@@ -1,5 +1,5 @@
 import { Post } from "@/components/PostCard";
-import { User } from "@/utility/fetchPosts";
+import { User } from "@/utility/fetchUtils";
 import SearchResultComponent from "./component";
 import useSearchResultController from "./controller";
 

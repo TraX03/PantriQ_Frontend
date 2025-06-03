@@ -9,5 +9,6 @@ export const Routes = {
   EditProfile: "/profile/settings/editProfile/container",
   Onboarding: "/onboarding/container",
   Nutrition: "/posts/recipe/nutrition/container",
+  ProfileTab: "/(tabs)/profile",
   Home: "/",
 } as const;

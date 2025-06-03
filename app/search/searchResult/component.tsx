@@ -3,7 +3,7 @@ import { IconSymbol } from "@/components/ui/IconSymbol";
 import UserCard from "@/components/UserCard";
 import { Colors } from "@/constants/Colors";
 import { useFieldState } from "@/hooks/useFieldState";
-import { User } from "@/utility/fetchPosts";
+import { User } from "@/utility/fetchUtils";
 import { styles } from "@/utility/search/styles";
 import { Pressable, ScrollView, Text, View } from "react-native";
 import { SearchResultState, tabs } from "./controller";

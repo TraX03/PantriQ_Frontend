@@ -1,11 +1,11 @@
 import { Post } from "@/components/PostCard";
 import { useFieldState } from "@/hooks/useFieldState";
-import { fetchPosts, fetchUserList, User } from "@/utility/fetchPosts";
+import { fetchPosts, fetchUserList, User } from "@/utility/fetchUtils";
 import {
   addRecentSearch,
   clearRecentSearches,
   getRecentSearches,
-} from "@/utility/recentSearches";
+} from "@/utility/searchStorageUtils";
 import Fuse from "fuse.js";
 
 export interface SearchState {
@@ -34,9 +34,11 @@ const useSearchController = () => {
   const { posts, searchText, setFieldState, setFields } = search;
 
   const init = async () => {
-    const [postData, recent, userData] = await Promise.all([
+    const recent = getRecentSearches();
+    setFieldState("recentSearches", recent);
+
+    const [postData, userData] = await Promise.all([
       fetchPosts(),
-      getRecentSearches(),
       fetchUserList(),
     ]);
 
@@ -45,7 +47,6 @@ const useSearchController = () => {
       users: userData,
       filteredPosts: postData,
       filteredUsers: userData,
-      recentSearches: recent,
     });
   };
 

@@ -37,12 +37,14 @@ type Props = {
     amount: number;
     unit: string;
   };
+  currentUserId: string | undefined;
 };
 
 export default function RecipeComponent({
   recipe,
   handleDelete,
   getNutritionEntry,
+  currentUserId,
 }: Props) {
   const {
     recipeData,
@@ -55,6 +57,7 @@ export default function RecipeComponent({
     isInstructionsOverflow,
     nutritionData,
     expanded,
+    interactionState,
   } = recipe;
 
   const { width } = Dimensions.get("window");
@@ -63,8 +66,10 @@ export default function RecipeComponent({
     return <ErrorScreen message="Recipe not found or is invalid." />;
 
   const { isLiked, isBookmarked, toggleLike, toggleBookmark } = useInteraction(
-    recipeData.id
+    recipeData.id,
+    interactionState
   );
+
   const isBackgroundDark = metadata.images?.[imageIndex]?.isDark ?? false;
 
   const nutrients = {
@@ -195,12 +200,16 @@ export default function RecipeComponent({
                     by{" "}
                     <Text
                       style={styles.authorName}
-                      onPress={() =>
-                        router.push({
-                          pathname: Routes.userDetail,
-                          params: { id: recipeData.authorId },
-                        })
-                      }
+                      onPress={() => {
+                        if (recipeData.authorId === currentUserId) {
+                          router.push(Routes.ProfileTab);
+                        } else {
+                          router.push({
+                            pathname: Routes.userDetail,
+                            params: { id: recipeData.authorId },
+                          });
+                        }
+                      }}
                     >
                       {recipeData.author}
                     </Text>

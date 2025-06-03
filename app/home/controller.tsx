@@ -2,7 +2,7 @@ import { Post } from "@/components/PostCard";
 import { AppwriteConfig } from "@/constants/AppwriteConfig";
 import { useFieldState } from "@/hooks/useFieldState";
 import { getCurrentUser, getDocumentById } from "@/services/appwrite";
-import { fetchPosts } from "@/utility/fetchPosts";
+import { fetchPosts } from "@/utility/fetchUtils";
 import { useCallback } from "react";
 
 export interface HomeState {

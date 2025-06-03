@@ -8,15 +8,14 @@ import {
   deleteDocument,
   getCurrentUser,
   getDocumentById,
-  listDocuments,
   storage,
 } from "@/services/appwrite";
 import { getImageUrl, isValidUrl } from "@/utility/imageUtils";
+import { getUserInteractions } from "@/utility/interactionUtils";
 import { parseMetadata } from "@/utility/metadataUtils";
 import { fetchUsers } from "@/utility/userCacheUtils";
 import { router } from "expo-router";
 import { Alert } from "react-native";
-import { Query } from "react-native-appwrite";
 import Toast from "react-native-toast-message";
 import { useDispatch } from "react-redux";
 
@@ -39,14 +38,16 @@ export interface RecipeState {
   showModal: boolean;
   fullscreenImage: string | null;
   metadata: any;
-  isLiked: boolean;
-  isBookmarked: boolean;
-  likeDocId?: string;
-  bookmarkDocId?: string;
   showStepsModal: boolean;
   isInstructionsOverflow: boolean;
   nutritionData: any;
   expanded: boolean;
+  interactionState: {
+    isLiked: boolean;
+    likeDocId?: string;
+    isBookmarked: boolean;
+    bookmarkDocId?: string;
+  };
 }
 
 export const useRecipeController = () => {
@@ -58,17 +59,27 @@ export const useRecipeController = () => {
     showModal: false,
     fullscreenImage: null,
     metadata: null,
-    isLiked: false,
-    isBookmarked: false,
-    likeDocId: undefined,
-    bookmarkDocId: undefined,
     showStepsModal: false,
     isInstructionsOverflow: false,
     nutritionData: null,
     expanded: false,
+    interactionState: {
+      isLiked: false,
+      likeDocId: undefined,
+      isBookmarked: false,
+      bookmarkDocId: undefined,
+    },
   });
 
   const { setFields, setFieldState } = recipe;
+
+  const parseJsonSafe = <T,>(jsonStr: string, fallback: T) => {
+    try {
+      return JSON.parse(jsonStr) as T;
+    } catch {
+      return fallback;
+    }
+  };
 
   const getRecipe = async (recipeId: string) => {
     try {
@@ -82,77 +93,64 @@ export const useRecipeController = () => {
         getCurrentUser().catch(() => null),
       ]);
 
-      const author = usersMap.get(recipeDoc.author_id);
+      const authorName = usersMap.get(recipeDoc.author_id)?.name ?? "Unknown";
       const images = Array.isArray(recipeDoc.image)
         ? recipeDoc.image.map(getImageUrl)
         : [];
-
       const metadata = parseMetadata(recipeDoc.metadata);
 
+      const ingredients = Array.isArray(recipeDoc.ingredients)
+        ? recipeDoc.ingredients.map((item) =>
+            parseJsonSafe<{ name: string; quantity: string }>(item, {
+              name: "",
+              quantity: "",
+            })
+          )
+        : [];
+
+      const instructions = Array.isArray(recipeDoc.instructions)
+        ? recipeDoc.instructions.map((item) => {
+            const parsed = parseJsonSafe<{ text: string; image?: string }>(
+              item,
+              { text: "", image: undefined }
+            );
+            let imageUrl: string | undefined;
+            if (parsed.image) {
+              imageUrl = isValidUrl(parsed.image)
+                ? parsed.image
+                : getImageUrl(parsed.image);
+            }
+            return { text: parsed.text, image: imageUrl };
+          })
+        : [];
+
+      const recipe: Recipe = {
+        id: recipeDoc.$id,
+        title: recipeDoc.title,
+        author: authorName,
+        authorId: recipeDoc.author_id,
+        images,
+        ingredients,
+        instructions,
+        rating: recipeDoc.rating ?? 0,
+        commentCount: recipeDoc.commentCount ?? 0,
+      };
+
       if (currentUser) {
-        const interactions = await listDocuments(
-          AppwriteConfig.INTERACTIONS_COLLECTION_ID,
-          [
-            Query.equal("post_id", recipeDoc.$id),
-            Query.equal("user_id", currentUser.$id),
-          ]
-        );
+        const interactionResult = await getUserInteractions(recipeDoc.$id);
 
-        const like = interactions.find((doc) => doc.type === "like");
-        const bookmark = interactions.find((doc) => doc.type === "bookmark");
-
-        setFields({
-          isLiked: !!like,
-          likeDocId: like?.$id,
-          isBookmarked: !!bookmark,
-          bookmarkDocId: bookmark?.$id,
+        setFieldState("interactionState", {
+          ...interactionResult,
         });
       }
 
-      return {
-        recipe: {
-          id: recipeDoc.$id,
-          title: recipeDoc.title,
-          author: author?.name || "Unknown",
-          authorId: recipeDoc.author_id,
-          images,
-          ingredients: Array.isArray(recipeDoc.ingredients)
-            ? recipeDoc.ingredients.map((item) => {
-                try {
-                  const parsed = JSON.parse(item);
-                  return {
-                    name: parsed.name,
-                    quantity: parsed.quantity,
-                  };
-                } catch {
-                  return { name: "", quantity: "" };
-                }
-              })
-            : [],
-          instructions: Array.isArray(recipeDoc.instructions)
-            ? recipeDoc.instructions.map((item) => {
-                try {
-                  const parsed = JSON.parse(item);
-                  return {
-                    text: parsed.text,
-                    image: parsed.image
-                      ? isValidUrl(parsed.image)
-                        ? parsed.image
-                        : getImageUrl(parsed.image)
-                      : undefined,
-                  };
-                } catch {
-                  return { text: "", image: undefined };
-                }
-              })
-            : [],
-          rating: recipeDoc.rating ?? 0,
-          commentCount: recipeDoc.commentCount ?? 0,
-        },
+      setFields({
+        recipeData: recipe,
         metadata,
-      };
+      });
     } catch (error) {
       console.error("Failed to fetch recipe:", error);
+      return null;
     }
   };
 

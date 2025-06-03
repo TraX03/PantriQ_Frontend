@@ -1,8 +1,8 @@
 import { setLoading } from "@/redux/slices/loadingSlice";
-import { AppDispatch } from "@/redux/store";
+import { AppDispatch, RootState } from "@/redux/store";
 import { getCachedNutrition } from "@/utility/nutritionCacheUtils";
 import { useEffect } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import RecipeComponent from "./component";
 import useRecipeController from "./controller";
 
@@ -15,24 +15,22 @@ export default function RecipeContainer({ recipeId }: Props) {
   const { recipe, getRecipe, confirmDeleteRecipe, getNutritionEntry } =
     useRecipeController();
 
+  const { userData: currentUserProfile } = useSelector(
+    (state: RootState) => state.profile
+  );
+  const currentUserId = currentUserProfile?.id;
+
   useEffect(() => {
     const fetchRecipe = async () => {
       dispatch(setLoading(true));
       try {
-        const data = await getRecipe(recipeId);
-        if (data) {
-          recipe.setFields({
-            recipeData: data.recipe,
-            metadata: data.metadata,
-          });
-        }
+        await getRecipe(recipeId);
       } catch (err) {
         console.error("Failed to load recipe:", err);
       } finally {
         dispatch(setLoading(false));
       }
     };
-
     fetchRecipe();
   }, [recipeId]);
 
@@ -52,6 +50,7 @@ export default function RecipeContainer({ recipeId }: Props) {
       recipe={recipe}
       handleDelete={confirmDeleteRecipe}
       getNutritionEntry={getNutritionEntry}
+      currentUserId={currentUserId}
     />
   );
 }

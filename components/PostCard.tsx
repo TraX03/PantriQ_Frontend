@@ -1,7 +1,9 @@
 import { Colors } from "@/constants/Colors";
 import { Routes } from "@/constants/Routes";
-import { useInteraction } from "@/hooks/useInteraction";
+import { InteractionResult, useInteraction } from "@/hooks/useInteraction";
+import { getUserInteractions } from "@/utility/interactionUtils";
 import { router } from "expo-router";
+import { useEffect, useState } from "react";
 import { Image, Pressable, Text, TouchableOpacity, View } from "react-native";
 import styles from "./styles";
 import { IconSymbol } from "./ui/IconSymbol";
@@ -27,8 +29,18 @@ type PostCardProps = {
 
 export default function PostCard({ post }: PostCardProps) {
   const { type, title, image, id } = post;
+  const [interactionData, setInteractionData] = useState<InteractionResult>();
+
+  useEffect(() => {
+    (async () => {
+      const data = await getUserInteractions(id);
+      setInteractionData(data);
+    })();
+  }, [id]);
+
   const { isLiked, isBookmarked, toggleLike, toggleBookmark } = useInteraction(
-    post.id
+    post.id,
+    interactionData
   );
 
   if (type === "community") {
@@ -113,14 +125,20 @@ export default function PostCard({ post }: PostCardProps) {
               <Pressable onPress={toggleLike}>
                 <IconSymbol
                   name={isLiked ? "heart.fill" : "heart"}
-                  color={isLiked ? Colors.brand.primary : Colors.brand.onBackground}
+                  color={
+                    isLiked ? Colors.brand.primary : Colors.brand.onBackground
+                  }
                   size={21}
                 />
               </Pressable>
               <Pressable onPress={toggleBookmark}>
                 <IconSymbol
                   name={isBookmarked ? "bookmark.fill" : "bookmark"}
-                  color={isBookmarked ? Colors.brand.primary : Colors.brand.onBackground}
+                  color={
+                    isBookmarked
+                      ? Colors.brand.primary
+                      : Colors.brand.onBackground
+                  }
                   size={21}
                 />
               </Pressable>

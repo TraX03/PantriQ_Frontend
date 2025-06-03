@@ -15,8 +15,12 @@ export default function ProfileContainer({ profileId }: Props) {
   const dispatch = useDispatch<AppDispatch>();
   const { checkLogin } = useRequireLogin();
   const { fetchProfile, getUserProfileData } = useProfileData();
-  const { profile, fetchPostsByUser, isBackgroundDark } =
-    useProfileController();
+  const {
+    profile,
+    fetchPostsByUser,
+    fetchFollowInteraction,
+    isBackgroundDark,
+  } = useProfileController();
 
   const { userData: currentUserProfile, refreshProfile } = useSelector(
     (state: RootState) => state.profile
@@ -28,7 +32,7 @@ export default function ProfileContainer({ profileId }: Props) {
 
   const currentUserId = currentUserProfile?.id;
   const isLoggedIn = Boolean(user);
-  const isOwnProfile = !profileId || profileId === currentUserId;
+  const isOwnProfile = profileId === currentUserId || !profileId;
 
   useEffect(() => {
     if (isOwnProfile) {
@@ -37,6 +41,9 @@ export default function ProfileContainer({ profileId }: Props) {
       getUserProfileData(profileId).then((data) => {
         profile.setFieldState("viewedProfileData", data);
         fetchPostsByUser(profileId);
+        if (user?.$id) {
+          fetchFollowInteraction(profileId, user.$id);
+        }
       });
     }
   }, [profileId, isOwnProfile]);

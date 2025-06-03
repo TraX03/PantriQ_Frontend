@@ -1,8 +1,10 @@
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { Colors } from "@/constants/Colors";
-import { User } from "@/utility/fetchPosts";
+import { Routes } from "@/constants/Routes";
+import { User } from "@/utility/fetchUtils";
 import { styles as profileStyles } from "@/utility/profile/styles";
-import { Image, Text, View } from "react-native";
+import { router } from "expo-router";
+import { Image, Text, TouchableOpacity, View } from "react-native";
 import styles from "./styles";
 
 type UserCardProps = {
@@ -11,7 +13,15 @@ type UserCardProps = {
 
 export default function UserCard({ user }: UserCardProps) {
   return (
-    <View style={styles.userCardContainer}>
+    <TouchableOpacity
+      style={styles.userCardContainer}
+      onPress={() =>
+        router.push({
+          pathname: Routes.userDetail,
+          params: { id: user.id },
+        })
+      }
+    >
       <View className="flex-row items-center flex-1">
         <View
           style={[
@@ -34,6 +44,6 @@ export default function UserCard({ user }: UserCardProps) {
       </View>
 
       <IconSymbol name="chevron.right" color={Colors.overlay.base} size={20} />
-    </View>
+    </TouchableOpacity>
   );
 }
