@@ -1,9 +1,9 @@
 import { Colors } from "@/constants/Colors";
 import { Routes } from "@/constants/Routes";
-import { InteractionResult, useInteraction } from "@/hooks/useInteraction";
-import { getUserInteractions } from "@/utility/interactionUtils";
+import { useInteraction } from "@/hooks/useInteraction";
+import { useReduxSelectors } from "@/hooks/useReduxSelectors";
+import { getInteractionStatus } from "@/utility/interactionUtils";
 import { router } from "expo-router";
-import { useEffect, useState } from "react";
 import { Image, Pressable, Text, TouchableOpacity, View } from "react-native";
 import styles from "./styles";
 import { IconSymbol } from "./ui/IconSymbol";
@@ -29,18 +29,11 @@ type PostCardProps = {
 
 export default function PostCard({ post }: PostCardProps) {
   const { type, title, image, id } = post;
-  const [interactionData, setInteractionData] = useState<InteractionResult>();
-
-  useEffect(() => {
-    (async () => {
-      const data = await getUserInteractions(id);
-      setInteractionData(data);
-    })();
-  }, [id]);
-
+  const { interactionMap } = useReduxSelectors();
+  const status = getInteractionStatus(post.id, interactionMap);
   const { isLiked, isBookmarked, toggleLike, toggleBookmark } = useInteraction(
     post.id,
-    interactionData
+    status
   );
 
   if (type === "community") {

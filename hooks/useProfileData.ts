@@ -2,9 +2,8 @@ import { AppwriteConfig } from "@/constants/AppwriteConfig";
 import { setLoading } from "@/redux/slices/loadingSlice";
 import {
   guestProfile,
-  ProfileData,
   resetProfileData,
-  setProfileData,
+  setProfileData
 } from "@/redux/slices/profileSlice";
 import { AppDispatch } from "@/redux/store";
 import { getCurrentUser, getDocumentById } from "@/services/appwrite";
@@ -74,35 +73,5 @@ export function useProfileData() {
     }
   }, []);
 
-  const getUserProfileData = useCallback(
-    async (id: string): Promise<ProfileData | null> => {
-      try {
-        const doc = await getDocumentById(
-          AppwriteConfig.USERS_COLLECTION_ID,
-          id
-        );
-        const avatarUrl = doc.avatar
-          ? getImageUrl(doc.avatar)
-          : guestProfile.avatarUrl;
-        const backgroundUrl = doc.profile_bg ? getImageUrl(doc.profile_bg) : "";
-
-        return {
-          id: doc.$id,
-          username: doc.username,
-          avatarUrl,
-          bio: doc.bio,
-          followersCount: doc.followersCount || 0,
-          followingCount: doc.followingCount || 0,
-          profileBg: backgroundUrl,
-          metadata: doc.metadata,
-        };
-      } catch (error) {
-        console.error("Error fetching viewed profile:", error);
-        return null;
-      }
-    },
-    []
-  );
-
-  return { fetchProfile, getUserProfileData };
+  return { fetchProfile };
 }

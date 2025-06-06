@@ -11,11 +11,13 @@ import { SearchResultState, tabs } from "./controller";
 export type Props = {
   searchResult: ReturnType<typeof useFieldState<SearchResultState>>;
   filteredUsers: User[];
+  interactionVersion: number;
 };
 
 export default function SearchResultComponent({
   searchResult,
   filteredUsers,
+  interactionVersion,
 }: Props) {
   const { filterActive, orderActive, activeTab, filteredPosts, setFieldState } =
     searchResult;
@@ -34,7 +36,9 @@ export default function SearchResultComponent({
                   styles.tabText,
                   {
                     color:
-                      activeTab === tab ? Colors.brand.primaryDark : Colors.text.disabled,
+                      activeTab === tab
+                        ? Colors.brand.primaryDark
+                        : Colors.text.disabled,
                   },
                 ]}
               >
@@ -92,7 +96,10 @@ export default function SearchResultComponent({
                 {filteredPosts
                   .filter((_, i) => i % 2 === colIndex)
                   .map((post) => (
-                    <PostCard key={post.id} post={post} />
+                    <PostCard
+                      key={`${post.id}-${interactionVersion}`}
+                      post={post}
+                    />
                   ))}
               </View>
             ))}

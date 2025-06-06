@@ -1,10 +1,10 @@
 import { AppwriteConfig } from "@/constants/AppwriteConfig";
 import { useFieldState } from "@/hooks/useFieldState";
 import { ProfileData } from "@/redux/slices/profileSlice";
-import { fetchAllDocuments, listDocuments } from "@/services/appwrite";
+import { fetchAllDocuments } from "@/services/appwrite";
 import { parseMetadata } from "@/utility/metadataUtils";
 import { useMemo } from "react";
-import { Models, Query } from "react-native-appwrite";
+import { Models } from "react-native-appwrite";
 
 export interface ProfileState {
   activeTab: "Posts" | "Collections" | "Likes";
@@ -12,8 +12,6 @@ export interface ProfileState {
   subTab: "Recipe" | "Tips" | "Discussion";
   postLoading: boolean;
   viewedProfileData: ProfileData | null;
-  isFollowing: boolean;
-  followDocId?: string;
 }
 
 export const useProfileController = () => {
@@ -23,20 +21,20 @@ export const useProfileController = () => {
     subTab: "Recipe",
     postLoading: false,
     viewedProfileData: null,
-    isFollowing: false,
-    followDocId: undefined,
   });
 
+  const { viewedProfileData, setFieldState } = profile;
+
   const metadata = useMemo(
-    () => parseMetadata(profile.viewedProfileData?.metadata),
-    [profile.viewedProfileData]
+    () => parseMetadata(viewedProfileData?.metadata),
+    [viewedProfileData]
   );
   const isBackgroundDark = metadata?.profileBg?.isDark ?? false;
 
   const fetchPostsByUser = async (userId: string) => {
     if (!userId) return;
 
-    profile.setFieldState("postLoading", true);
+    setFieldState("postLoading", true);
 
     try {
       const [recipesRes, postsRes] = await Promise.all([
@@ -52,45 +50,17 @@ export const useProfileController = () => {
         (doc) => doc.author_id === userId
       );
 
-      profile.setFieldState("posts", [...recipes, ...tipsAndDiscussions]);
+      setFieldState("posts", [...recipes, ...tipsAndDiscussions]);
     } catch (error) {
       console.error("Failed to fetch posts:", error);
     } finally {
-      profile.setFieldState("postLoading", false);
-    }
-  };
-
-  const fetchFollowInteraction = async (
-    targetUserId: string,
-    currentUserId?: string
-  ) => {
-    if (!targetUserId || !currentUserId) return;
-
-    try {
-      const interactions = await listDocuments(
-        AppwriteConfig.INTERACTIONS_COLLECTION_ID,
-        [
-          Query.equal("item_id", targetUserId),
-          Query.equal("user_id", currentUserId),
-          Query.equal("type", "follow"),
-        ]
-      );
-
-      const followDoc = interactions[0];
-
-      profile.setFields({
-        isFollowing: !!followDoc,
-        followDocId: followDoc?.$id,
-      });
-    } catch (err) {
-      console.error("Failed to fetch follow interaction:", err);
+      setFieldState("postLoading", false);
     }
   };
 
   return {
     profile,
     fetchPostsByUser,
-    fetchFollowInteraction,
     isBackgroundDark,
   };
 };

@@ -1,7 +1,7 @@
 import { AppwriteConfig } from "@/constants/AppwriteConfig";
 import { useFieldState } from "@/hooks/useFieldState";
-import { useProfileData } from "@/hooks/useProfileData";
 import { setLoading } from "@/redux/slices/loadingSlice";
+import { ProfileData, updateProfileField } from "@/redux/slices/profileSlice";
 import { AppDispatch } from "@/redux/store";
 import { getCurrentUser, updateDocument } from "@/services/appwrite";
 import { router } from "expo-router";
@@ -29,7 +29,6 @@ export const useEditFieldController = (
   maxLength?: number
 ) => {
   const dispatch = useDispatch<AppDispatch>();
-  const { fetchProfile } = useProfileData();
 
   const parsedValue = (() => {
     try {
@@ -57,7 +56,9 @@ export const useEditFieldController = (
         [key]: edit.value,
       });
 
-      await fetchProfile();
+      dispatch(
+        updateProfileField({ key: key as keyof ProfileData, value: edit.value })
+      );
 
       Toast.show({
         type: "success",

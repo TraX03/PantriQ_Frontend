@@ -33,24 +33,21 @@ type MealTime = {
 
 type Props = {
   planner: ReturnType<typeof useFieldState<PlannerState>>;
-  generateMeals: () => void;
   date: DateInfo;
-  handleChangeWeek: (direction: "prev" | "next") => void;
-  getMealsForDate: (date: Date) => Meal[];
-  addMealtime: (mealtime: string) => void;
+  actions: {
+    generateMeals: () => Promise<void>;
+    handleChangeWeek: (direction: "prev" | "next") => void;
+    getMealsForDate: (date: Date) => Meal[];
+    addMealtime: (mealtime: string) => void;
+  };
 };
 
-export default function PlannerComponent({
-  planner,
-  generateMeals,
-  date,
-  handleChangeWeek,
-  getMealsForDate,
-  addMealtime,
-}: Props) {
+export default function PlannerComponent({ planner, date, actions }: Props) {
   const scrollRef = useRef<ScrollView>(null);
   const { selectedDate, showDatePicker, setFieldState, showMealtimeModal } =
     planner;
+  const { generateMeals, handleChangeWeek, getMealsForDate, addMealtime } =
+    actions;
   const { weekStart, minDate } = date;
 
   const formattedWeek = isThisWeek(selectedDate, { weekStartsOn: 1 })
@@ -151,7 +148,7 @@ export default function PlannerComponent({
                   <TouchableOpacity
                     key={index}
                     onPress={() => {
-                      if (day > minDate) {
+                      if (day < minDate) {
                         Toast.show({
                           type: "error",
                           text1: "Meal plan only retains the previous 30 days.",
@@ -243,7 +240,7 @@ export default function PlannerComponent({
                     ))}
 
                     <TouchableOpacity
-                      onPress={() => {}}
+                      onPress={() => router.push(Routes.Search)}
                       style={styles.addMealButton}
                     >
                       <IconSymbol

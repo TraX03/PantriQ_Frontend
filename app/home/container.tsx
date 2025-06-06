@@ -1,3 +1,4 @@
+import { useReduxSelectors } from "@/hooks/useReduxSelectors";
 import { useEffect } from "react";
 import HomeComponent from "./component";
 import { useHomeController } from "./controller";
@@ -5,6 +6,7 @@ import { useHomeController } from "./controller";
 export default function HomeContainer() {
   const { home, suggestions, filteredPosts, refreshing, onRefresh } =
     useHomeController();
+  const { interactionVersion } = useReduxSelectors();
 
   useEffect(() => {
     onRefresh();
@@ -17,6 +19,7 @@ export default function HomeContainer() {
       home={home}
       onRefresh={onRefresh}
       refreshing={refreshing}
+      interactionVersion={interactionVersion}
     />
   );
 }

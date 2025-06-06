@@ -1,6 +1,6 @@
 import CustomToast from "@/components/CustomToast";
 import LoadingScreen from "@/components/LoadingScreen";
-import { useHydrateUser } from "@/hooks/useHydrateUser";
+import { useHydrateAppState } from "@/hooks/useHydrateAppState";
 import store from "@/redux/store";
 import { subscribeToUserUpdates } from "@/utility/userCacheUtils";
 import { useFonts } from "expo-font";
@@ -16,13 +16,11 @@ import "./global.css";
 SplashScreen.preventAutoHideAsync();
 
 function RootContent() {
-  useHydrateUser();
+  useHydrateAppState();
 
   useEffect(() => {
     const unsubscribe = subscribeToUserUpdates();
-    return () => {
-      unsubscribe();
-    };
+    return () => unsubscribe();
   }, []);
 
   return (

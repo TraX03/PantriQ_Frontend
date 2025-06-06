@@ -1,24 +1,20 @@
-import { RootState } from "@/redux/store";
+import { useReduxSelectors } from "@/hooks/useReduxSelectors";
 import { useIsFocused } from "@react-navigation/native";
 import { addDays, format, startOfDay } from "date-fns";
 import { useEffect } from "react";
-import { useSelector } from "react-redux";
 import PlannerComponent from "./component";
 import usePlannerController from "./controller";
 
 export default function PlannerContainer() {
   const isFocused = useIsFocused();
-  const isLoggedIn = useSelector((state: RootState) => !!state.auth.user);
+  const { isLoggedIn } = useReduxSelectors();
 
   const {
     date: { weekStart, minDate },
     planner: { selectedDate, setFieldState },
     planner,
-    generateMeals,
-    handleChangeWeek,
-    getMealsForDate,
     fetchMealsForDate,
-    addMealtime,
+    actions,
   } = usePlannerController();
 
   useEffect(() => {
@@ -26,16 +22,14 @@ export default function PlannerContainer() {
     const weekDates = Array.from({ length: 7 }, (_, i) =>
       startOfDay(addDays(weekStart, i))
     );
-
-    const validDates = weekDates.filter((date) => date >= minDate);
-    const isCurrentSelectionValid = validDates.some(
-      (date) => formatDate(date) === formatDate(selectedDate)
+    const validDates = weekDates.filter((d) => d >= minDate);
+    const isDateInRange = validDates.some(
+      (d) => formatDate(d) === formatDate(selectedDate)
     );
 
-    if (!isCurrentSelectionValid && validDates.length > 0) {
+    if (!isDateInRange && validDates.length > 0) {
       const fallbackDate =
-        validDates.filter((date) => date <= selectedDate).at(-1) ??
-        validDates[0];
+        validDates.findLast((d) => d <= selectedDate) ?? validDates[0];
 
       if (formatDate(fallbackDate) !== formatDate(selectedDate)) {
         setFieldState("selectedDate", fallbackDate);
@@ -52,11 +46,8 @@ export default function PlannerContainer() {
   return (
     <PlannerComponent
       planner={planner}
-      generateMeals={generateMeals}
       date={{ weekStart, minDate }}
-      handleChangeWeek={handleChangeWeek}
-      getMealsForDate={getMealsForDate}
-      addMealtime={addMealtime}
+      actions={actions}
     />
   );
 }

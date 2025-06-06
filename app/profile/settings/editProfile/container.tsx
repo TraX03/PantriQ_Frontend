@@ -1,18 +1,15 @@
 import { useProfileData } from "@/hooks/useProfileData";
-import { RootState } from "@/redux/store";
+import { useReduxSelectors } from "@/hooks/useReduxSelectors";
 import React, { useEffect } from "react";
-import { useSelector } from "react-redux";
 import EditProfileComponent from "./component";
 import { useEditProfileController } from "./controller";
 
 export default function EditProfileContainer() {
   const { fetchProfile } = useProfileData();
-
-  const profileData = useSelector((state: RootState) => state.profile.userData);
-  const loading = useSelector((state: RootState) => state.loading.loading);
+  const { currentUserProfile, loading } = useReduxSelectors();
 
   const { onChangeImagePress, isBackgroundDark } =
-    useEditProfileController(profileData);
+    useEditProfileController(currentUserProfile);
 
   useEffect(() => {
     fetchProfile();
@@ -21,7 +18,7 @@ export default function EditProfileContainer() {
   return (
     <EditProfileComponent
       isBackgroundDark={isBackgroundDark}
-      profileData={profileData}
+      profileData={currentUserProfile}
       loading={loading}
       onChangeImagePress={onChangeImagePress}
     />

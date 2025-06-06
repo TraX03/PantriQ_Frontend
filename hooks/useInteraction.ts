@@ -1,11 +1,17 @@
 import { AppwriteConfig } from "@/constants/AppwriteConfig";
+import { updateProfileField } from "@/redux/slices/profileSlice";
+import { AppDispatch } from "@/redux/store";
 import {
   createDocument,
   deleteDocument,
   getCurrentUser,
+  getDocumentById,
+  updateDocument,
 } from "@/services/appwrite";
-import { useEffect, useState } from "react";
+import { refreshInteractionMap } from "@/utility/interactionUtils";
+import { useState } from "react";
 import Toast from "react-native-toast-message";
+import { useDispatch } from "react-redux";
 
 type InteractionType = "like" | "bookmark" | "follow";
 
@@ -22,6 +28,7 @@ export function useInteraction(
   targetId: string,
   initial?: Partial<InteractionResult>
 ) {
+  const dispatch = useDispatch<AppDispatch>();
   const [state, setState] = useState<InteractionResult>({
     isLiked: initial?.isLiked ?? false,
     likeDocId: initial?.likeDocId,
@@ -31,59 +38,102 @@ export function useInteraction(
     followDocId: initial?.followDocId,
   });
 
-  useEffect(() => {
-    if (!initial) return;
-    setState((prev) => ({ ...prev, ...initial }));
-  }, [initial]);
+  const updateFollowCounts = async (
+    currentUserId: string,
+    targetUserId: string,
+    delta: 1 | -1
+  ) => {
+    try {
+      const [currentUserDoc, targetUserDoc] = await Promise.all([
+        getDocumentById(AppwriteConfig.USERS_COLLECTION_ID, currentUserId),
+        getDocumentById(AppwriteConfig.USERS_COLLECTION_ID, targetUserId),
+      ]);
 
-  const toggle = async (type: InteractionType) => {
+      const updatedFollowing = Math.max(
+        0,
+        (currentUserDoc.following_count ?? 0) + delta
+      );
+      const updatedFollowers = Math.max(
+        0,
+        (targetUserDoc.followers_count ?? 0) + delta
+      );
+
+      await Promise.all([
+        updateDocument(AppwriteConfig.USERS_COLLECTION_ID, currentUserId, {
+          following_count: updatedFollowing,
+        }),
+        updateDocument(AppwriteConfig.USERS_COLLECTION_ID, targetUserId, {
+          followers_count: updatedFollowers,
+        }),
+      ]);
+
+      dispatch(
+        updateProfileField({ key: "followingCount", value: updatedFollowing })
+      );
+    } catch (err) {
+      console.warn("Failed to update follow counts:", err);
+    }
+  };
+
+  const toggleInteraction = async (type: InteractionType) => {
     try {
       const currentUser = await getCurrentUser();
-      const collectionId = AppwriteConfig.INTERACTIONS_COLLECTION_ID;
+      const collection = AppwriteConfig.INTERACTIONS_COLLECTION_ID;
 
-      const keyMap = {
+      const interactionMap = {
         like: {
-          flag: state.isLiked,
+          active: state.isLiked,
           docId: state.likeDocId,
-          update: (flag: boolean, id?: string) =>
-            setState((prev) => ({ ...prev, isLiked: flag, likeDocId: id })),
+          update: (active: boolean, docId?: string) =>
+            setState((prev) => ({
+              ...prev,
+              isLiked: active,
+              likeDocId: docId,
+            })),
+          toast: { added: "Added to Likes", removed: "Removed from Likes" },
         },
         bookmark: {
-          flag: state.isBookmarked,
+          active: state.isBookmarked,
           docId: state.bookmarkDocId,
-          update: (flag: boolean, id?: string) =>
+          update: (active: boolean, docId?: string) =>
             setState((prev) => ({
               ...prev,
-              isBookmarked: flag,
-              bookmarkDocId: id,
+              isBookmarked: active,
+              bookmarkDocId: docId,
             })),
+          toast: {
+            added: "Added to Bookmarks",
+            removed: "Removed from Bookmarks",
+          },
         },
         follow: {
-          flag: state.isFollowing,
+          active: state.isFollowing,
           docId: state.followDocId,
-          update: (flag: boolean, id?: string) =>
+          update: (active: boolean, docId?: string) =>
             setState((prev) => ({
               ...prev,
-              isFollowing: flag,
-              followDocId: id,
+              isFollowing: active,
+              followDocId: docId,
             })),
         },
       };
 
-      const { flag, docId, update } = keyMap[type];
+      const { active, docId, update } = interactionMap[type];
 
-      if (flag && docId) {
-        await deleteDocument(collectionId, docId);
+      if (active && docId) {
+        await deleteDocument(collection, docId);
         update(false, undefined);
 
-        if (type !== "follow") {
+        if (type === "follow") {
+          await updateFollowCounts(currentUser.$id, targetId, -1);
+        } else if ("toast" in interactionMap[type]) {
           Toast.show({
             type: "success",
-            text1: `Removed from ${type === "like" ? "Likes" : "Bookmarks"}`,
+            text1: (interactionMap[type] as any).toast.removed,
           });
         }
       } else {
-        const newDoc = await createDocument(collectionId, {
+        const newDoc = await createDocument(collection, {
           user_id: currentUser.$id,
           item_id: targetId,
           type,
@@ -92,15 +142,19 @@ export function useInteraction(
 
         update(true, newDoc.$id);
 
-        if (type !== "follow") {
+        if (type === "follow") {
+          await updateFollowCounts(currentUser.$id, targetId, 1);
+        } else if ("toast" in interactionMap[type]) {
           Toast.show({
             type: "success",
-            text1: `Added to ${type === "like" ? "Likes" : "Bookmarks"}`,
+            text1: (interactionMap[type] as any).toast.added,
           });
         }
       }
-    } catch (error) {
-      console.warn("Interaction toggle failed:", error);
+
+      refreshInteractionMap(dispatch);
+    } catch (err) {
+      console.warn(`Failed to toggle ${type}:`, err);
     }
   };
 
@@ -108,8 +162,8 @@ export function useInteraction(
     isLiked: state.isLiked,
     isBookmarked: state.isBookmarked,
     isFollowing: state.isFollowing,
-    toggleLike: () => toggle("like"),
-    toggleBookmark: () => toggle("bookmark"),
-    toggleFollow: () => toggle("follow"),
+    toggleLike: () => toggleInteraction("like"),
+    toggleBookmark: () => toggleInteraction("bookmark"),
+    toggleFollow: () => toggleInteraction("follow"),
   };
 }

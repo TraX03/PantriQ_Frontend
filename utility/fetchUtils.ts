@@ -11,10 +11,10 @@ export interface User {
   bio?: string;
 }
 
-export async function fetchPosts(
+export const fetchPosts = async (
   limit?: number,
   regionPref?: string
-): Promise<Post[]> {
+): Promise<Post[]> => {
   const shuffleArray = <T>(array: T[]): T[] =>
     array
       .map((value) => ({ value, sort: Math.random() }))
@@ -31,8 +31,8 @@ export async function fetchPosts(
       type: doc.type || "recipe",
       title: doc.title,
       image: getImageUrl(doc.image?.[0]),
-      author: author?.name || "Unknown",
-      profilePic: author?.profilePic,
+      author: author?.username || "Unknown",
+      profilePic: author?.avatarUrl,
       area: doc.area,
     };
   };
@@ -45,6 +45,7 @@ export async function fetchPosts(
     membersCount: doc.members_count,
     recipesCount: doc.recipes_count,
   });
+
   try {
     const [postDocs, recipeDocs, communityDocs] = await Promise.all([
       fetchAllDocuments(AppwriteConfig.POSTS_COLLECTION_ID),
@@ -78,10 +79,10 @@ export async function fetchPosts(
     );
 
     const allRecipes = recipeDocs.map((d) => mapPost(d, usersMap));
+
     const regionRecipes = regionPref
       ? allRecipes.filter((r) => regionPref.includes(r.area || ""))
       : [];
-
     const otherRecipes = regionPref
       ? allRecipes.filter((r) => !regionPref.includes(r.area || ""))
       : allRecipes;
@@ -102,9 +103,9 @@ export async function fetchPosts(
     console.error("Failed to fetch posts", error);
     return [];
   }
-}
+};
 
-export async function fetchUserList(): Promise<User[]> {
+export const fetchUserList = async (): Promise<User[]> => {
   try {
     const userDocs = await fetchAllDocuments(
       AppwriteConfig.USERS_COLLECTION_ID
@@ -120,4 +121,4 @@ export async function fetchUserList(): Promise<User[]> {
     console.error("Failed to fetch user list", error);
     return [];
   }
-}
+};

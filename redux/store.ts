@@ -1,5 +1,6 @@
 import { configureStore } from "@reduxjs/toolkit";
 import authReducer from "./slices/authSlice";
+import interactionReducer from "./slices/interactionSlice";
 import loadingReducer from "./slices/loadingSlice";
 import profileReducer from "./slices/profileSlice";
 
@@ -8,6 +9,7 @@ const store = configureStore({
     auth: authReducer,
     loading: loadingReducer,
     profile: profileReducer,
+    interaction: interactionReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

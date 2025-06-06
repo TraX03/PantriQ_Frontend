@@ -3,6 +3,7 @@ import { useFieldState } from "@/hooks/useFieldState";
 import {
   createDocument,
   getCurrentUser,
+  getDocumentById,
   listDocuments,
   updateDocument,
 } from "@/services/appwrite";
@@ -67,7 +68,6 @@ export const availableMealtimes = [
 
 const today = startOfDay(new Date());
 const minDate = addDays(today, -30);
-
 const clampDate = (date: Date) => (date < minDate ? minDate : date);
 const getWeekStart = (date: Date) =>
   startOfDay(addDays(date, -((date.getDay() + 6) % 7)));
@@ -98,7 +98,10 @@ export const usePlannerController = () => {
     return mealsByDate[key] ?? [];
   };
 
-  const fetchRandomRecipes = async (mealtime: string) => {
+  const fetchRandomRecipes = async (
+    mealtime: string,
+    regionPrefs: string[]
+  ) => {
     try {
       const mealtimeConfig = availableMealtimes.find((m) => m.id === mealtime);
       const categories = mealtimeConfig?.categories ?? [];
@@ -110,22 +113,31 @@ export const usePlannerController = () => {
           AppwriteConfig.RECIPES_COLLECTION_ID,
           [Query.equal("category", category)]
         );
-        allRecipes.push(...recipes);
+
+        const regionFiltered = regionPrefs.length
+          ? recipes.filter((r) =>
+              regionPrefs.some(
+                (region) => r.area?.toLowerCase() === region.toLowerCase()
+              )
+            )
+          : recipes;
+
+        allRecipes.push(...regionFiltered);
       }
 
       if (!allRecipes.length) return [];
 
-      const numberToSelect = mealtime === "Breakfast" ? 1 : 2;
+      const count = mealtime === "Breakfast" ? 1 : 2;
 
-      const selected = allRecipes
+      return allRecipes
         .sort(() => Math.random() - 0.5)
-        .slice(0, numberToSelect);
-
-      return selected.map((r) => ({
-        name: r.title,
-        image: getImageUrl(r.image[0]),
-        id: r.$id,
-      }));
+        .slice(0, count)
+        .map((r) => ({
+          name: r.title,
+          image: getImageUrl(r.image[0]),
+          id: r.$id,
+          area: r.area,
+        }));
     } catch (error) {
       console.error(`Error fetching recipes for ${mealtime}:`, error);
       return [];
@@ -133,17 +145,24 @@ export const usePlannerController = () => {
   };
 
   const generateMeals = async () => {
-    const currentMeals = getMealsForDate(selectedDate);
-    const updatedMeals: Meal[] = await Promise.all(
-      currentMeals.map(async (meal) => ({
-        mealtime: meal.mealtime,
-        recipes: await fetchRandomRecipes(meal.mealtime),
-      }))
-    );
-
     try {
       const user = await getCurrentUser();
       const isoDate = selectedDate.toISOString();
+
+      const userDoc = await getDocumentById(
+        AppwriteConfig.USERS_COLLECTION_ID,
+        user.$id
+      );
+      const regionPrefs = (userDoc.region_pref ?? []) as string[];
+
+      const currentMeals = getMealsForDate(selectedDate);
+
+      const updatedMeals: Meal[] = await Promise.all(
+        currentMeals.map(async (meal) => ({
+          mealtime: meal.mealtime,
+          recipes: await fetchRandomRecipes(meal.mealtime, regionPrefs),
+        }))
+      );
 
       const mealsPayload = updatedMeals
         .filter((meal) => meal.recipes.length > 0)
@@ -167,7 +186,9 @@ export const usePlannerController = () => {
         await updateDocument(
           AppwriteConfig.MEAL_PLAN_COLLECTION_ID,
           existing.$id,
-          { meals: mealsPayload }
+          {
+            meals: mealsPayload,
+          }
         );
       } else {
         await createDocument(
@@ -185,10 +206,7 @@ export const usePlannerController = () => {
         );
       }
 
-      setFieldState("mealsByDate", {
-        ...mealsByDate,
-        [dateKey]: updatedMeals,
-      });
+      setFieldState("mealsByDate", { ...mealsByDate, [dateKey]: updatedMeals });
     } catch (error) {
       console.error("Error saving meal plan:", error);
     }
@@ -198,8 +216,9 @@ export const usePlannerController = () => {
     try {
       const user = await getCurrentUser();
       const isoDate = date.toISOString();
+      const key = format(date, "yyyy-MM-dd");
 
-      const [document] = await listDocuments(
+      const [doc] = await listDocuments(
         AppwriteConfig.MEAL_PLAN_COLLECTION_ID,
         [
           Query.equal("user_id", user.$id),
@@ -208,10 +227,10 @@ export const usePlannerController = () => {
         ]
       );
 
-      if (!document) return;
+      if (!doc) return;
 
       const meals: Meal[] = await Promise.all(
-        document.meals.map(async (mealJson: string) => {
+        doc.meals.map(async (mealJson: string) => {
           const parsed = JSON.parse(mealJson);
           const recipes = await Promise.all(
             parsed.recipes.map(async (id: string) => {
@@ -226,17 +245,11 @@ export const usePlannerController = () => {
               };
             })
           );
-          return {
-            mealtime: parsed.mealtime,
-            recipes,
-          };
+          return { mealtime: parsed.mealtime, recipes };
         })
       );
 
-      setFieldState("mealsByDate", {
-        ...mealsByDate,
-        [format(date, "yyyy-MM-dd")]: meals,
-      });
+      setFieldState("mealsByDate", { ...mealsByDate, [key]: meals });
     } catch (error) {
       console.error("Error fetching meal plan for date:", error);
     }
@@ -244,30 +257,26 @@ export const usePlannerController = () => {
 
   const addMealtime = (mealtime: string) => {
     const existingMeals = getMealsForDate(selectedDate);
-    const alreadyExists = existingMeals.some(
-      (meal) => meal.mealtime === mealtime
-    );
-
-    if (alreadyExists) return;
-
-    const newMeals = [...existingMeals, { mealtime, recipes: [] }];
+    if (existingMeals.some((meal) => meal.mealtime === mealtime)) return;
 
     setFieldState("mealsByDate", {
       ...mealsByDate,
-      [dateKey]: newMeals,
+      [dateKey]: [...existingMeals, { mealtime, recipes: [] }],
     });
 
     setFieldState("showMealtimeModal", false);
   };
 
   return {
-    date: { minDate: minDate, weekStart },
+    date: { minDate, weekStart },
     planner,
-    generateMeals,
-    handleChangeWeek,
-    getMealsForDate,
     fetchMealsForDate,
-    addMealtime,
+    actions: {
+      generateMeals,
+      handleChangeWeek,
+      getMealsForDate,
+      addMealtime,
+    },
   };
 };
 

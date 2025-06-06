@@ -1,9 +1,11 @@
+import { useLiveUserProfile } from "@/hooks/useLiveUserProfile";
 import { useProfileData } from "@/hooks/useProfileData";
+import { useReduxSelectors } from "@/hooks/useReduxSelectors";
 import { useRequireLogin } from "@/hooks/useRequireLogin";
 import { setRefreshProfile } from "@/redux/slices/profileSlice";
-import { AppDispatch, RootState } from "@/redux/store";
+import { AppDispatch } from "@/redux/store";
 import { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import ProfileComponent from "./component";
 import { useProfileController } from "./controller";
 
@@ -14,45 +16,44 @@ type Props = {
 export default function ProfileContainer({ profileId }: Props) {
   const dispatch = useDispatch<AppDispatch>();
   const { checkLogin } = useRequireLogin();
-  const { fetchProfile, getUserProfileData } = useProfileData();
+  const { fetchProfile } = useProfileData();
+  const { profile, fetchPostsByUser, isBackgroundDark } =
+    useProfileController();
+
   const {
-    profile,
-    fetchPostsByUser,
-    fetchFollowInteraction,
-    isBackgroundDark,
-  } = useProfileController();
+    user,
+    interactionMap,
+    interactionVersion,
+    currentUserId,
+    currentUserProfile,
+    refreshProfile,
+    loading,
+  } = useReduxSelectors();
 
-  const { userData: currentUserProfile, refreshProfile } = useSelector(
-    (state: RootState) => state.profile
+  const isOwnProfile = !profileId || profileId === currentUserId;
+  const viewedUserLive = useLiveUserProfile(
+    !isOwnProfile ? profileId : undefined
   );
-  const { loading: isLoading } = useSelector(
-    (state: RootState) => state.loading
-  );
-  const { user } = useSelector((state: RootState) => state.auth);
 
-  const currentUserId = currentUserProfile?.id;
-  const isLoggedIn = Boolean(user);
-  const isOwnProfile = profileId === currentUserId || !profileId;
+  useEffect(() => {
+    if (!isOwnProfile && viewedUserLive) {
+      profile.setFieldState("viewedProfileData", {
+        ...viewedUserLive,
+        id: profileId,
+      });
+    }
+  }, [isOwnProfile, viewedUserLive, profileId]);
 
   useEffect(() => {
     if (isOwnProfile) {
       fetchProfile();
+      if (currentUserId && profile.posts.length === 0) {
+        fetchPostsByUser(currentUserId);
+      }
     } else if (profileId) {
-      getUserProfileData(profileId).then((data) => {
-        profile.setFieldState("viewedProfileData", data);
-        fetchPostsByUser(profileId);
-        if (user?.$id) {
-          fetchFollowInteraction(profileId, user.$id);
-        }
-      });
+      fetchPostsByUser(profileId);
     }
-  }, [profileId, isOwnProfile]);
-
-  useEffect(() => {
-    if (isOwnProfile && currentUserId && profile.posts.length === 0) {
-      fetchPostsByUser(currentUserId);
-    }
-  }, [isOwnProfile, currentUserId, profile.posts.length]);
+  }, [profileId, isOwnProfile, currentUserId, user]);
 
   useEffect(() => {
     if (isOwnProfile && refreshProfile && currentUserId) {
@@ -68,12 +69,14 @@ export default function ProfileContainer({ profileId }: Props) {
   return (
     <ProfileComponent
       profileData={profileData}
-      isLoading={isLoading}
-      isLoggedIn={isLoggedIn}
+      isLoading={loading}
+      isLoggedIn={Boolean(user)}
       checkLogin={checkLogin}
       profile={profile}
       isOwnProfile={isOwnProfile}
       isBackgroundDark={isBackgroundDark}
+      interactionMap={interactionMap}
+      interactionVersion={interactionVersion}
     />
   );
 }

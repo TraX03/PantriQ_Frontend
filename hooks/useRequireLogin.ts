@@ -1,10 +1,9 @@
 import { Routes } from "@/constants/Routes";
-import { RootState } from "@/redux/store";
 import { useRouter } from "expo-router";
-import { useSelector } from "react-redux";
+import { useReduxSelectors } from "./useReduxSelectors";
 
 export function useRequireLogin() {
-  const isLoggedIn = useSelector((state: RootState) => !!state.auth.user);
+  const { isLoggedIn } = useReduxSelectors();
   const router = useRouter();
 
   const checkLogin = (next: string | (() => void)) => {

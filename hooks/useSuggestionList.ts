@@ -13,7 +13,7 @@ const fetchMap: Record<SuggestionType, () => Promise<string[]>> = {
   area: fetchArea,
 };
 
-export const useSuggestionList = (type: SuggestionType) => {
+export function useSuggestionList(type: SuggestionType) {
   const [allItems, setAllItems] = useState<string[]>([]);
 
   useEffect(() => {
@@ -34,4 +34,4 @@ export const useSuggestionList = (type: SuggestionType) => {
   };
 
   return { getSuggestions, allItems };
-};
+}

@@ -50,9 +50,21 @@ export const userSlice = createSlice({
     setRefreshProfile: (state, action: PayloadAction<boolean>) => {
       state.refreshProfile = action.payload;
     },
+    updateProfileField: (
+      state,
+      action: PayloadAction<{ key: keyof ProfileData; value: any }>
+    ) => {
+      if (state.userData && action.payload.key in state.userData) {
+        (state.userData as any)[action.payload.key] = action.payload.value;
+      }
+    },
   },
 });
 
-export const { setProfileData, resetProfileData, setRefreshProfile } =
-  userSlice.actions;
+export const {
+  setProfileData,
+  resetProfileData,
+  setRefreshProfile,
+  updateProfileField,
+} = userSlice.actions;
 export default userSlice.reducer;

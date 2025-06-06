@@ -5,7 +5,7 @@ import * as ImagePicker from "expo-image-picker";
 import mime from "mime";
 import { ID, Permission, Role } from "react-native-appwrite";
 
-export const useMediaHandler = () => {
+export function useMediaHandler() {
   const pickImageFile = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: "images",
@@ -50,4 +50,4 @@ export const useMediaHandler = () => {
   };
 
   return { pickImageFile, uploadFile };
-};
+}

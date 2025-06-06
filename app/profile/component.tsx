@@ -33,6 +33,8 @@ type Props = {
   profile: ReturnType<typeof useFieldState<ProfileState>>;
   isOwnProfile: boolean;
   isBackgroundDark: boolean;
+  interactionMap: Record<string, any>;
+  interactionVersion: number;
 };
 
 const tabs = [
@@ -51,6 +53,8 @@ export default function ProfileComponent({
   profile,
   isOwnProfile,
   isBackgroundDark,
+  interactionMap,
+  interactionVersion,
 }: Props) {
   if (isLoading && !profileData) return null;
 
@@ -65,10 +69,10 @@ export default function ProfileComponent({
     subTab: postSubTab,
     setFieldState,
     postLoading,
-    isFollowing,
   } = profile;
 
   const {
+    id,
     username,
     avatarUrl,
     followersCount,
@@ -77,25 +81,31 @@ export default function ProfileComponent({
     bio,
   } = profileData;
 
-  const interaction = profileData.id ? useInteraction(profileData.id) : null;
+  const interaction = id
+    ? useInteraction(id, {
+        isFollowing: interactionMap.get(`follow_${id}`)?.$id != null,
+        followDocId: interactionMap.get(`follow_${id}`)?.$id,
+      })
+    : null;
+
+  const isFollowing = interaction?.isFollowing ?? false;
   const toggleFollow = interaction?.toggleFollow ?? (() => {});
 
-  const filteredPosts = posts.filter((p) => {
-    if (postSubTab === "Recipe") return p.type === "recipe";
-    return p.type.toLowerCase() === postSubTab.toLowerCase();
-  });
+  const filteredPosts = posts.filter((p) =>
+    postSubTab === "Recipe"
+      ? p.type === "recipe"
+      : p.type.toLowerCase() === postSubTab.toLowerCase()
+  );
 
-  const sortedPosts = filteredPosts
-    .slice()
-    .sort(
-      (a, b) =>
-        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-    );
+  const sortedPosts = [...filteredPosts].sort(
+    (a, b) =>
+      new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+  );
 
   const content = (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       <ImageBackground
-        source={{ uri: profileBg }}
+        source={profileBg ? { uri: profileBg } : undefined}
         style={[
           styles.profileSection,
           { backgroundColor: profileBg ? undefined : Colors.brand.primary },
@@ -293,7 +303,7 @@ export default function ProfileComponent({
                       .filter((_, i) => i % 2 === colIndex)
                       .map((post) => (
                         <PostCard
-                          key={post.$id}
+                          key={`${post.$id}-${interactionVersion}`}
                           post={{
                             id: post.$id,
                             type: post.type,

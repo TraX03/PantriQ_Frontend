@@ -1,4 +1,4 @@
-export function maskEmail(email: string): string {
+export const maskEmail = (email: string): string => {
   const [localPart, domain] = email.split("@");
   if (!localPart || !domain) return email;
 
@@ -10,4 +10,4 @@ export function maskEmail(email: string): string {
   const lastChar = localPart[localPart.length - 1];
 
   return `${firstChar}****${lastChar}@${domain}`;
-}
+};

@@ -11,7 +11,7 @@ import {
   storage,
 } from "@/services/appwrite";
 import { getImageUrl, isValidUrl } from "@/utility/imageUtils";
-import { getUserInteractions } from "@/utility/interactionUtils";
+import { getInteractionStatus } from "@/utility/interactionUtils";
 import { parseMetadata } from "@/utility/metadataUtils";
 import { fetchUsers } from "@/utility/userCacheUtils";
 import { router } from "expo-router";
@@ -50,7 +50,7 @@ export interface RecipeState {
   };
 }
 
-export const useRecipeController = () => {
+export const useRecipeController = (interactionMap?: Record<string, any>) => {
   const dispatch = useDispatch<AppDispatch>();
 
   const recipe = useFieldState<RecipeState>({
@@ -93,12 +93,6 @@ export const useRecipeController = () => {
         getCurrentUser().catch(() => null),
       ]);
 
-      const authorName = usersMap.get(recipeDoc.author_id)?.name ?? "Unknown";
-      const images = Array.isArray(recipeDoc.image)
-        ? recipeDoc.image.map(getImageUrl)
-        : [];
-      const metadata = parseMetadata(recipeDoc.metadata);
-
       const ingredients = Array.isArray(recipeDoc.ingredients)
         ? recipeDoc.ingredients.map((item) =>
             parseJsonSafe<{ name: string; quantity: string }>(item, {
@@ -112,7 +106,10 @@ export const useRecipeController = () => {
         ? recipeDoc.instructions.map((item) => {
             const parsed = parseJsonSafe<{ text: string; image?: string }>(
               item,
-              { text: "", image: undefined }
+              {
+                text: "",
+                image: undefined,
+              }
             );
             let imageUrl: string | undefined;
             if (parsed.image) {
@@ -127,26 +124,27 @@ export const useRecipeController = () => {
       const recipe: Recipe = {
         id: recipeDoc.$id,
         title: recipeDoc.title,
-        author: authorName,
+        author: usersMap.get(recipeDoc.author_id)?.username ?? "Unknown",
         authorId: recipeDoc.author_id,
-        images,
+        images: Array.isArray(recipeDoc.image)
+          ? recipeDoc.image.map(getImageUrl)
+          : [],
         ingredients,
         instructions,
         rating: recipeDoc.rating ?? 0,
         commentCount: recipeDoc.commentCount ?? 0,
       };
 
-      if (currentUser) {
-        const interactionResult = await getUserInteractions(recipeDoc.$id);
-
-        setFieldState("interactionState", {
-          ...interactionResult,
-        });
+      if (currentUser && interactionMap) {
+        setFieldState(
+          "interactionState",
+          getInteractionStatus(recipeDoc.$id, interactionMap)
+        );
       }
 
       setFields({
         recipeData: recipe,
-        metadata,
+        metadata: parseMetadata(recipeDoc.metadata),
       });
     } catch (error) {
       console.error("Failed to fetch recipe:", error);
@@ -163,25 +161,19 @@ export const useRecipeController = () => {
         recipeId
       );
 
-      const { image = [], instructions = [] } = recipeDoc;
-
       const extractFileIdsFromStrings = (refs: string[]) =>
         refs
           .map((item) => item.split(" - ")[0].trim())
           .filter((id) => id && !isValidUrl(id));
 
-      const imageFileIds = extractFileIdsFromStrings(image);
+      const imageFileIds = extractFileIdsFromStrings(recipeDoc.image ?? []);
 
-      const instructionFileIds = instructions
+      const instructionFileIds = (recipeDoc.instructions ?? [])
         .map((inst: string) => {
-          try {
-            const parsed = JSON.parse(inst);
-            const imageId = parsed.image;
-            if (imageId && !isValidUrl(imageId)) return imageId.trim();
-            return null;
-          } catch {
-            return null;
-          }
+          const parsed = parseJsonSafe<{ image?: string }>(inst, {});
+          return parsed.image && !isValidUrl(parsed.image)
+            ? parsed.image.trim()
+            : null;
         })
         .filter((id: string | null): id is string => Boolean(id));
 

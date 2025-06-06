@@ -1,21 +1,29 @@
 import { AppwriteConfig } from "@/constants/AppwriteConfig";
-import { InteractionResult } from "@/hooks/useInteraction";
+import { setInteractionMap } from "@/redux/slices/interactionSlice";
+import { AppDispatch } from "@/redux/store";
 import { getCurrentUser, listDocuments } from "@/services/appwrite";
 import { Query } from "react-native-appwrite";
 
-export async function getUserInteractions(
-  itemId: string
-): Promise<InteractionResult> {
+export const fetchInteractions = async (): Promise<Map<string, any>> => {
   const user = await getCurrentUser();
-
   const interactions = await listDocuments(
     AppwriteConfig.INTERACTIONS_COLLECTION_ID,
-    [Query.equal("item_id", itemId), Query.equal("user_id", user.$id)]
+    [Query.equal("user_id", user.$id)]
   );
 
-  const like = interactions.find((doc) => doc.type === "like");
-  const bookmark = interactions.find((doc) => doc.type === "bookmark");
-  const follow = interactions.find((doc) => doc.type === "follow");
+  const map = new Map<string, any>();
+  interactions.forEach((doc) => {
+    const key = `${doc.type}_${doc.item_id}`;
+    map.set(key, doc);
+  });
+
+  return map;
+};
+
+export const getInteractionStatus = (itemId: string, map: Map<string, any>) => {
+  const like = map.get(`like_${itemId}`);
+  const bookmark = map.get(`bookmark_${itemId}`);
+  const follow = map.get(`follow_${itemId}`);
 
   return {
     isLiked: !!like,
@@ -25,4 +33,9 @@ export async function getUserInteractions(
     isFollowing: !!follow,
     followDocId: follow?.$id,
   };
-}
+};
+
+export const refreshInteractionMap = async (dispatch: AppDispatch) => {
+  const updatedMap = await fetchInteractions();
+  dispatch(setInteractionMap(updatedMap));
+};

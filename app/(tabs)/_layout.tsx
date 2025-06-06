@@ -20,7 +20,6 @@ export default function TabLayout() {
     const { name, hidden, icon, iconFocused, title } = tab;
 
     if (hidden) {
-      // For hidden tabs, use them as placeholders for the floating button
       return (
         <Tabs.Screen
           key={index}

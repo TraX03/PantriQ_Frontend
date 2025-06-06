@@ -20,6 +20,7 @@ type Props = {
   home: ReturnType<typeof useFieldState<HomeState>>;
   onRefresh: () => Promise<void>;
   refreshing: boolean;
+  interactionVersion: number;
 };
 
 export default function HomeComponent({
@@ -28,46 +29,9 @@ export default function HomeComponent({
   home,
   onRefresh,
   refreshing,
+  interactionVersion,
 }: Props) {
-  const { activeTab, activeSuggestion } = home;
-  const { setFieldState } = home;
-
-  const renderPosts = () => {
-    if (activeTab !== "Explore") return null;
-
-    if (activeSuggestion === "Communities") {
-      return (
-        <View>
-          {filteredPosts.map((post) => (
-            <PostCard key={post.id} post={post} />
-          ))}
-        </View>
-      );
-    }
-
-    return (
-      <View className="flex-row justify-between flex-wrap">
-        {[0, 1].map((colIndex) => (
-          <View key={colIndex} className="w-[48%]">
-            {filteredPosts
-              .filter((_, i) => i % 2 === colIndex)
-              .map((post) => (
-                <PostCard key={post.id} post={post} />
-              ))}
-          </View>
-        ))}
-        <View className="w-full">
-          <View className="items-center justify-center mb-10">
-            <View className="flex-row items-center justify-center mb-6 mt-6">
-              <View style={styles.divider} />
-              <Text style={styles.endText}>You're at the end</Text>
-              <View style={styles.divider} />
-            </View>
-          </View>
-        </View>
-      </View>
-    );
-  };
+  const { activeTab, activeSuggestion, setFieldState } = home;
 
   return (
     <View style={styles.container}>
@@ -152,7 +116,46 @@ export default function HomeComponent({
           })}
         </ScrollView>
 
-        <View className="p-2">{renderPosts()}</View>
+        <View className="p-2">
+          {activeTab === "Explore" && (
+            <>
+              {activeSuggestion === "Communities" ? (
+                <View>
+                  {filteredPosts.map((post) => (
+                    <PostCard
+                      key={`${post.id}-${interactionVersion}`}
+                      post={post}
+                    />
+                  ))}
+                </View>
+              ) : (
+                <View className="flex-row justify-between flex-wrap">
+                  {[0, 1].map((colIndex) => (
+                    <View key={colIndex} className="w-[48%]">
+                      {filteredPosts
+                        .filter((_, i) => i % 2 === colIndex)
+                        .map((post) => (
+                          <PostCard
+                            key={`${post.id}-${interactionVersion}`}
+                            post={post}
+                          />
+                        ))}
+                    </View>
+                  ))}
+                  <View className="w-full">
+                    <View className="items-center justify-center mb-10">
+                      <View className="flex-row items-center justify-center mb-6 mt-6">
+                        <View style={styles.divider} />
+                        <Text style={styles.endText}>You're at the end</Text>
+                        <View style={styles.divider} />
+                      </View>
+                    </View>
+                  </View>
+                </View>
+              )}
+            </>
+          )}
+        </View>
       </ScrollView>
     </View>
   );

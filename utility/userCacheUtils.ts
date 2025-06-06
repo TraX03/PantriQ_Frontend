@@ -1,17 +1,28 @@
 import { AppwriteConfig } from "@/constants/AppwriteConfig";
+import { ProfileData } from "@/redux/slices/profileSlice";
 import { client, listDocuments } from "@/services/appwrite";
 import { Query, RealtimeResponseEvent } from "react-native-appwrite";
 import { getImageUrl } from "./imageUtils";
 
-type UserInfo = {
-  name: string;
-  profilePic?: string;
-};
+export type UserInfo = Pick<
+  ProfileData,
+  | "username"
+  | "avatarUrl"
+  | "followersCount"
+  | "followingCount"
+  | "profileBg"
+  | "bio"
+  | "metadata"
+>;
 
 const userCache = new Map<string, UserInfo>();
+const listenersMap = new Map<string, Set<() => void>>();
 
 const setUserCache = (userId: string, info: UserInfo) => {
   userCache.set(userId, info);
+  if (listenersMap.has(userId)) {
+    for (const cb of listenersMap.get(userId)!) cb();
+  }
 };
 
 export const fetchUsers = async (
@@ -27,8 +38,13 @@ export const fetchUsers = async (
 
     users.forEach((user) => {
       setUserCache(user.$id, {
-        name: user.username ?? "Unknown",
-        profilePic: user.avatar ? getImageUrl(user.avatar) : undefined,
+        username: user.username,
+        avatarUrl: getImageUrl(user.avatar),
+        followersCount: user.followers_count,
+        followingCount: user.following_count,
+        profileBg: user.profile_bg ? getImageUrl(user.profile_bg) : undefined,
+        bio: user.bio ?? "",
+        metadata: user.metadata ?? {},
       });
     });
   }
@@ -51,14 +67,39 @@ export const subscribeToUserUpdates = () => {
       const user = res.payload;
       const userId = user.$id;
 
-      if (userCache.has(userId)) {
+      if (!userId) return;
+
+      const cached = userCache.get(userId);
+      const updatedInfo: Partial<UserInfo> = {};
+
+      if (user.username && user.username !== cached?.username) {
+        updatedInfo.username = user.username;
+      }
+
+      if (user.avatar && getImageUrl(user.avatar) !== cached?.avatarUrl) {
+        updatedInfo.avatarUrl = getImageUrl(user.avatar);
+      }
+
+      if (Object.keys(updatedInfo).length > 0) {
         setUserCache(userId, {
-          name: user.username ?? "Unknown",
-          profilePic: user.avatar ? getImageUrl(user.avatar) : undefined,
+          ...cached!,
+          ...updatedInfo,
         });
       }
     }
   );
 
   return unsubscribe;
+};
+
+export const listenToUserCache = (userId: string, callback: () => void) => {
+  if (!listenersMap.has(userId)) {
+    listenersMap.set(userId, new Set());
+  }
+
+  listenersMap.get(userId)!.add(callback);
+
+  return () => {
+    listenersMap.get(userId)!.delete(callback);
+  };
 };

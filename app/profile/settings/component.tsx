@@ -7,7 +7,14 @@ import { ProfileData } from "@/redux/slices/profileSlice";
 import { styles } from "@/utility/profile/styles";
 import { router, Stack } from "expo-router";
 import React from "react";
-import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import {
+  Image,
+  Pressable,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 type Props = {
   profileData: ProfileData | null;
@@ -58,6 +65,31 @@ export default function SettingsComponent({ profileData, onLogout }: Props) {
             />
           </View>
         </TouchableOpacity>
+        <Text
+          style={{ fontFamily: "RobotoMedium", fontSize: 18, marginTop: 10 }}
+        >
+          Preferences
+        </Text>
+        <Pressable
+          onPress={() => router.push(Routes.EditPreferences)}
+          className="border-b"
+          style={[
+            styles.fieldTab,
+            {
+              borderTopWidth: 1,
+            },
+          ]}
+        >
+          <View className="flex-row justify-between items-center px-4 py-3">
+            <Text style={styles.tabTitleText}>Cusine</Text>
+            <IconSymbol
+              name="chevron.right"
+              color={Colors.overlay.base}
+              size={20}
+            />
+          </View>
+        </Pressable>
+
         <View className="items-center px-4 py-3 justify-center flex-1">
           <TouchableOpacity onPress={onLogout} style={styles.logoutButton}>
             <Text style={styles.logoutButtonText}>Log Out</Text>

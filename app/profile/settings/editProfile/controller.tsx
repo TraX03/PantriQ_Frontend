@@ -1,8 +1,7 @@
 import { AppwriteConfig } from "@/constants/AppwriteConfig";
 import { useMediaHandler } from "@/hooks/useMediaHandler";
-import { useProfileData } from "@/hooks/useProfileData";
 import { setLoading } from "@/redux/slices/loadingSlice";
-import { guestPicture } from "@/redux/slices/profileSlice";
+import { guestPicture, updateProfileField } from "@/redux/slices/profileSlice";
 import { AppDispatch } from "@/redux/store";
 import {
   getCurrentUser,
@@ -10,14 +9,13 @@ import {
   storage,
   updateDocument,
 } from "@/services/appwrite";
-import { detectBackgroundDarkness } from "@/utility/imageUtils";
+import { detectBackgroundDarkness, getImageUrl } from "@/utility/imageUtils";
 import { parseMetadata, setNestedMetadata } from "@/utility/metadataUtils";
 import { useMemo } from "react";
 import { useDispatch } from "react-redux";
 
 export const useEditProfileController = (profileData: any) => {
   const dispatch = useDispatch<AppDispatch>();
-  const { fetchProfile } = useProfileData();
   const { pickImageFile, uploadFile } = useMediaHandler();
 
   const metadata = useMemo(
@@ -36,12 +34,12 @@ export const useEditProfileController = (profileData: any) => {
       userId
     );
     const oldFileId = userDoc[fieldKey];
-    const shouldDeleteOldFile = oldFileId && oldFileId !== guestPicture;
+    const isGuestImage = oldFileId === guestPicture;
 
-    if (shouldDeleteOldFile) {
-      storage
-        .deleteFile(AppwriteConfig.BUCKET_ID, oldFileId)
-        .catch((err) => console.warn("Failed to delete old file:", err));
+    if (oldFileId && !isGuestImage) {
+      storage.deleteFile(AppwriteConfig.BUCKET_ID, oldFileId).catch((err) => {
+        console.warn("Failed to delete old file:", err);
+      });
     }
 
     const uploadedId = await uploadFile(file, userId);
@@ -51,10 +49,12 @@ export const useEditProfileController = (profileData: any) => {
       [fieldKey]: uploadedId,
     };
 
+    let updatedMetadata: any;
     if (fieldKey === "profile_bg") {
       const existingMetadata = parseMetadata(userDoc.metadata);
       const isDark = await detectBackgroundDarkness(file.uri);
-      const updatedMetadata = setNestedMetadata(
+
+      updatedMetadata = setNestedMetadata(
         existingMetadata,
         ["profileBg", "isDark"],
         isDark
@@ -68,7 +68,21 @@ export const useEditProfileController = (profileData: any) => {
       updatePayload
     );
 
-    await fetchProfile();
+    dispatch(
+      updateProfileField({
+        key: fieldKey === "avatar" ? "avatarUrl" : "profileBg",
+        value: getImageUrl(uploadedId),
+      })
+    );
+
+    if (fieldKey === "profile_bg" && updatedMetadata) {
+      dispatch(
+        updateProfileField({
+          key: "metadata",
+          value: JSON.stringify(updatedMetadata),
+        })
+      );
+    }
   };
 
   const onChangeImagePress = async (fieldKey: "profile_bg" | "avatar") => {

@@ -1,19 +1,22 @@
 import { useProfileData } from "@/hooks/useProfileData";
-import { RootState } from "@/redux/store";
+import { useReduxSelectors } from "@/hooks/useReduxSelectors";
 import { useEffect } from "react";
-import { useSelector } from "react-redux";
 import ProfileComponent from "./component";
 import SettingsController from "./controller";
 
 export default function SettingsContainer() {
   const { fetchProfile } = useProfileData();
   const { handleLogout } = SettingsController();
-
-  const profileData = useSelector((state: RootState) => state.profile.userData);
+  const { currentUserProfile } = useReduxSelectors();
 
   useEffect(() => {
     fetchProfile();
   }, []);
 
-  return <ProfileComponent profileData={profileData} onLogout={handleLogout} />;
+  return (
+    <ProfileComponent
+      profileData={currentUserProfile}
+      onLogout={handleLogout}
+    />
+  );
 }
