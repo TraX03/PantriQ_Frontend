@@ -3,7 +3,7 @@ import { AppwriteConfig } from "@/constants/AppwriteConfig";
 import { useFieldState } from "@/hooks/useFieldState";
 import { getCurrentUser, getDocumentById } from "@/services/appwrite";
 import { fetchPosts } from "@/utility/fetchUtils";
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 
 export interface HomeState {
   activeTab: "Follow" | "Explore";
@@ -48,28 +48,31 @@ export const useHomeController = () => {
       regionPref = undefined;
     }
 
-    const posts = await fetchPosts(100, regionPref);
+    const fetchedPosts = await fetchPosts(100, regionPref);
 
     setFields({
-      posts,
+      posts: fetchedPosts,
       refreshing: false,
     });
-  }, [fetchPosts]);
+  }, []);
 
   const filterPosts = useCallback(
-    (posts: Post[], suggestion: string): Post[] => {
+    (allPosts: Post[], suggestion: string): Post[] => {
       const typeMap: Record<string, Post["type"]> = {
         Recipe: "recipe",
         "Tips & Advice": "tips",
         Communities: "community",
         Discussions: "discussion",
       };
-      return posts.filter((post) => post.type === typeMap[suggestion]);
+      return allPosts.filter((post) => post.type === typeMap[suggestion]);
     },
     []
   );
 
-  const filteredPosts = filterPosts(posts, activeSuggestion);
+  const filteredPosts = useMemo(
+    () => filterPosts(posts, activeSuggestion),
+    [posts, activeSuggestion, filterPosts]
+  );
 
   return {
     home,

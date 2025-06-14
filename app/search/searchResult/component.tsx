@@ -1,4 +1,4 @@
-import PostCard from "@/components/PostCard";
+import MasonryList from "@/components/MasonryList";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import UserCard from "@/components/UserCard";
 import { Colors } from "@/constants/Colors";
@@ -81,7 +81,11 @@ export default function SearchResultComponent({
               <Text style={styles.noUserText}>No users found</Text>
             </View>
           ) : (
-            filteredUsers.map((user) => <UserCard key={user.id} user={user} />)
+            <View className="mt-1">
+              {filteredUsers.map((user) => (
+                <UserCard key={user.id} user={user} />
+              ))}
+            </View>
           )
         ) : filteredPosts.length === 0 ? (
           <View className="items-center justify-center mt-10">
@@ -90,20 +94,10 @@ export default function SearchResultComponent({
             </Text>
           </View>
         ) : (
-          <View className="flex-row justify-between flex-wrap">
-            {[0, 1].map((colIndex) => (
-              <View key={colIndex} className="w-[48%]">
-                {filteredPosts
-                  .filter((_, i) => i % 2 === colIndex)
-                  .map((post) => (
-                    <PostCard
-                      key={`${post.id}-${interactionVersion}`}
-                      post={post}
-                    />
-                  ))}
-              </View>
-            ))}
-          </View>
+          <MasonryList
+            posts={filteredPosts}
+            interactionVersion={interactionVersion}
+          />
         )}
       </ScrollView>
     </>

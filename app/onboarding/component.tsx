@@ -109,7 +109,6 @@ export default function OnboardingComponent({
   return (
     <>
       <Stack.Screen options={{ headerShown: false }} />
-
       <View style={styles.container}>
         <View className="flex-row justify-between items-center mb-6 mt-4">
           <View className="flex-row gap-2">

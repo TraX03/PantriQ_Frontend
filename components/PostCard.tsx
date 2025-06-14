@@ -21,13 +21,14 @@ export type Post = {
   membersCount?: number;
   recipesCount?: number;
   description?: string;
+  created_at: string;
 };
 
 type PostCardProps = {
   post: Post;
 };
 
-export default function PostCard({ post }: PostCardProps) {
+const PostCard = ({ post }: PostCardProps) => {
   const { type, title, image, id } = post;
   const { interactionMap } = useReduxSelectors();
   const status = getInteractionStatus(post.id, interactionMap);
@@ -141,4 +142,6 @@ export default function PostCard({ post }: PostCardProps) {
       </View>
     </TouchableOpacity>
   );
-}
+};
+
+export default PostCard;

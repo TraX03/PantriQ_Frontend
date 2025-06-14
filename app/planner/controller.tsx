@@ -35,34 +35,34 @@ export interface PlannerState {
 
 export const availableMealtimes = [
   {
-    id: "Breakfast",
+    id: "breakfast",
     label: "Breakfast",
-    categories: ["Breakfast"],
+    categories: ["breakfast"],
   },
   {
-    id: "Lunch",
+    id: "lunch",
     label: "Lunch",
-    categories: ["Chicken", "Beef", "Vegetarian", "Pasta"],
+    categories: ["chicken", "beef", "vegetarian", "pasta"],
   },
   {
-    id: "AfternoonTea",
+    id: "afternoonTea",
     label: "Afternoon Tea",
-    categories: ["Dessert", "Miscellaneous", "Side"],
+    categories: ["dessert", "miscellaneous", "side"],
   },
   {
-    id: "Dinner",
+    id: "dinner",
     label: "Dinner",
-    categories: ["Beef", "Lamb", "Pork", "Seafood", "Vegetarian"],
+    categories: ["beef", "lamb", "pork", "seafood", "vegetarian"],
   },
   {
-    id: "Supper",
+    id: "supper",
     label: "Supper",
-    categories: ["Pasta", "Seafood", "Pork", "Lamb"],
+    categories: ["pasta", "seafood", "pork", "lamb"],
   },
   {
-    id: "Snacks",
+    id: "snacks",
     label: "Snacks",
-    categories: ["Side", "Dessert", "Miscellaneous"],
+    categories: ["side", "dessert", "miscellaneous"],
   },
 ];
 

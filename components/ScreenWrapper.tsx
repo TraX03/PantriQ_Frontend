@@ -6,11 +6,7 @@ interface ScreenWrapperProps extends ViewProps {
   children: React.ReactNode;
 }
 
-export const ScreenWrapper = ({
-  children,
-  style,
-  ...rest
-}: ScreenWrapperProps) => {
+const ScreenWrapper = ({ children, style, ...rest }: ScreenWrapperProps) => {
   const insets = useSafeAreaInsets();
 
   return (
@@ -19,3 +15,5 @@ export const ScreenWrapper = ({
     </View>
   );
 };
+
+export default ScreenWrapper;

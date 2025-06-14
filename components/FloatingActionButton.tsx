@@ -3,7 +3,7 @@ import {
   Image,
   TouchableOpacity,
   TouchableOpacityProps,
-  View
+  View,
 } from "react-native";
 
 const imageSource = require("@/assets/images/add-button.png");
@@ -12,10 +12,10 @@ interface FloatingButtonProps extends TouchableOpacityProps {
   bottomOffset?: number;
 }
 
-const FloatingActionButton: React.FC<FloatingButtonProps> = ({
+const FloatingActionButton = ({
   bottomOffset = 22,
   ...props
-}) => {
+}: FloatingButtonProps) => {
   const { width, height } = Image.resolveAssetSource(imageSource);
   const aspectRatio = useMemo(() => width / height, [width, height]);
 

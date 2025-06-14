@@ -75,8 +75,10 @@ export default function ProfileContainer({ profileId }: Props) {
       profile={profile}
       isOwnProfile={isOwnProfile}
       isBackgroundDark={isBackgroundDark}
-      interactionMap={interactionMap}
-      interactionVersion={interactionVersion}
+      interactionData={{
+        interactionMap,
+        interactionVersion,
+      }}
     />
   );
 }

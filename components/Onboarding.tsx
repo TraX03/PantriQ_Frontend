@@ -22,7 +22,7 @@ type OnboardingProps = {
   onAddCustomSuggestion: (item: string) => void;
 };
 
-export default function OnboardingPage({
+const OnboardingPage = ({
   title,
   description,
   suggestions,
@@ -33,7 +33,7 @@ export default function OnboardingPage({
   suggestionType,
   customSuggestions,
   onAddCustomSuggestion,
-}: OnboardingProps) {
+}: OnboardingProps) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
 
   const normalized = (text: string) => text.toLowerCase();
@@ -139,4 +139,6 @@ export default function OnboardingPage({
       </View>
     </>
   );
-}
+};
+
+export default OnboardingPage;

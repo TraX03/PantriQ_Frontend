@@ -63,7 +63,8 @@ export const getPostTypeById = async (id: string): Promise<PostType | null> => {
 };
 
 export const fetchAllDocuments = async (
-  collectionId: string
+  collectionId: string,
+  customQueries: string[] = []
 ): Promise<any[]> => {
   try {
     let documents: any[] = [];
@@ -71,8 +72,15 @@ export const fetchAllDocuments = async (
     const limit = 300;
 
     while (true) {
-      const queries = [Query.limit(limit), Query.orderAsc("$createdAt")];
-      if (lastDoc) queries.push(Query.cursorAfter(lastDoc.$id));
+      const queries = [
+        ...customQueries,
+        Query.limit(limit),
+        Query.orderAsc("$createdAt"),
+      ];
+
+      if (lastDoc) {
+        queries.push(Query.cursorAfter(lastDoc.$id));
+      }
 
       const { documents: newDocs } = await databases.listDocuments(
         AppwriteConfig.DATABASE_ID,
@@ -81,8 +89,8 @@ export const fetchAllDocuments = async (
       );
 
       documents = [...documents, ...newDocs];
-      if (newDocs.length < limit) break;
 
+      if (newDocs.length < limit) break;
       lastDoc = newDocs[newDocs.length - 1];
     }
 

@@ -28,7 +28,7 @@ type InputBoxProps = TextInputProps & {
   clearColor?: string;
 };
 
-export default function InputBox({
+const InputBox = ({
   icon,
   iconColor = Colors.brand.primary,
   iconSize = 20,
@@ -42,54 +42,54 @@ export default function InputBox({
   onChangeText,
   clearColor,
   ...props
-}: InputBoxProps) {
-  return (
-    <>
-      <View style={containerStyle} className="relative">
-        {!!icon && (
-          <IconSymbol
-            name={icon}
-            size={iconSize}
-            color={iconColor}
-            style={{ marginRight: 8 }}
-          />
-        )}
-
-        <TextInput
-          {...props}
-          value={value}
-          onChangeText={onChangeText}
-          className={containerStyle ? "flex-1 pr-8" : undefined}
-          secureTextEntry={isPassword || props.secureTextEntry}
-          multiline={isMultiline}
-          numberOfLines={lines}
-          maxLength={limit}
-          style={inputStyle}
+}: InputBoxProps) => (
+  <>
+    <View style={containerStyle} className="relative">
+      {!!icon && (
+        <IconSymbol
+          name={icon}
+          size={iconSize}
+          color={iconColor}
+          style={{ marginRight: 8 }}
         />
-
-        {value.length > 0 && (
-          <TouchableOpacity
-            onPress={() => onChangeText("")}
-            className={
-              containerStyle
-                ? "absolute right-5 top-3"
-                : "absolute right-5 top-1/2 transform -translate-y-1/2 self-center"
-            }
-          >
-            <IconSymbol
-              name="multiply.circle"
-              color={clearColor || Colors.overlay.base}
-              size={18}
-            />
-          </TouchableOpacity>
-        )}
-      </View>
-
-      {limit && (
-        <Text style={profileStyles.indicatorText}>
-          {value.length}/{limit} characters
-        </Text>
       )}
-    </>
-  );
-}
+
+      <TextInput
+        {...props}
+        value={value}
+        onChangeText={onChangeText}
+        className={containerStyle ? "flex-1 pr-8" : undefined}
+        secureTextEntry={isPassword || props.secureTextEntry}
+        multiline={isMultiline}
+        numberOfLines={lines}
+        maxLength={limit}
+        style={inputStyle}
+      />
+
+      {value.length > 0 && (
+        <TouchableOpacity
+          onPress={() => onChangeText("")}
+          className={
+            containerStyle
+              ? "absolute right-5 top-3"
+              : "absolute right-5 top-1/2 transform -translate-y-1/2 self-center"
+          }
+        >
+          <IconSymbol
+            name="multiply.circle"
+            color={clearColor || Colors.overlay.base}
+            size={18}
+          />
+        </TouchableOpacity>
+      )}
+    </View>
+
+    {limit && (
+      <Text style={profileStyles.indicatorText}>
+        {value.length}/{limit} characters
+      </Text>
+    )}
+  </>
+);
+
+export default InputBox;

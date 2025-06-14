@@ -9,7 +9,9 @@ import {
   storage,
   updateDocument,
 } from "@/services/appwrite";
+import { capitalize } from "@/utility/capitalize";
 import { detectBackgroundDarkness, getImageUrl } from "@/utility/imageUtils";
+import { maskEmail } from "@/utility/maskUtils";
 import { parseMetadata, setNestedMetadata } from "@/utility/metadataUtils";
 import { useMemo } from "react";
 import { useDispatch } from "react-redux";
@@ -23,6 +25,15 @@ export const useEditProfileController = (profileData: any) => {
     [profileData]
   );
   const isBackgroundDark = metadata?.profileBg?.isDark ?? false;
+
+  const getDisplayValue = (title: string, value: any, alwaysShow?: boolean) => {
+    if (alwaysShow || value) {
+      if (title === "Email") return maskEmail(String(value));
+      if (title === "Gender") return capitalize(String(value));
+      return String(value);
+    }
+    return title === "Phone Number" ? "Link Now" : "Set Now";
+  };
 
   const uploadFileAndUpdateProfile = async (
     file: { name: string; type: string; size: number; uri: string },
@@ -103,6 +114,7 @@ export const useEditProfileController = (profileData: any) => {
   return {
     isBackgroundDark,
     onChangeImagePress,
+    getDisplayValue,
   };
 };
 

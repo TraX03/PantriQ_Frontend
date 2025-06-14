@@ -10,10 +10,7 @@ type PostTypeSelectorProps = {
   setPostType: (type: Post["type"]) => void;
 };
 
-export default function PostTypeSelector({
-  postType,
-  setPostType,
-}: PostTypeSelectorProps) {
+const PostTypeSelector = ({ postType, setPostType }: PostTypeSelectorProps) => {
   const options: Post["type"][] = ["tips", "discussion"];
 
   return (
@@ -27,7 +24,9 @@ export default function PostTypeSelector({
             className="flex-row items-center px-4 py-2 rounded-full border"
             style={{
               borderColor:
-                postType === type ? Colors.brand.primary : Colors.text.placeholder,
+                postType === type
+                  ? Colors.brand.primary
+                  : Colors.text.placeholder,
             }}
           >
             <View
@@ -49,4 +48,6 @@ export default function PostTypeSelector({
       </View>
     </>
   );
-}
+};
+
+export default PostTypeSelector;

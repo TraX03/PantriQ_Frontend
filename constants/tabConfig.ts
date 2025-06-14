@@ -2,7 +2,7 @@
 
 import { IconSymbolName } from "@/components/ui/IconSymbol";
 
-type TabConfig = {
+export interface TabItem {
   name: string;
   title?: string;
   icon?: IconSymbolName;
@@ -10,7 +10,7 @@ type TabConfig = {
   hidden?: boolean;
 };
 
-export const TabConfig: TabConfig[] = [
+export const TabConfig: TabItem[] = [
   {
     name: "index",
     title: "Home",

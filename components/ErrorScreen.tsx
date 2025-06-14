@@ -3,21 +3,25 @@ import { styles } from "@/utility/profile/styles";
 import { router, Stack } from "expo-router";
 import LottieView from "lottie-react-native";
 import React from "react";
-import { Text, TouchableOpacity, View } from "react-native";
+import { Pressable, Text, View } from "react-native";
 import { IconSymbol } from "./ui/IconSymbol";
 
 type ErrorScreenProps = {
   message: string;
 };
 
-const ErrorScreen: React.FC<ErrorScreenProps> = ({ message }) => (
+const ErrorScreen = ({ message }: ErrorScreenProps) => (
   <>
     <Stack.Screen options={{ headerShown: false }} />
     <View style={styles.centeredContainer}>
       <View className="absolute top-20 left-3 self-start">
-        <TouchableOpacity onPress={() => router.back()}>
-          <IconSymbol name="chevron.left" color={Colors.brand.primary} size={30} />
-        </TouchableOpacity>
+        <Pressable onPress={() => router.back()}>
+          <IconSymbol
+            name="chevron.left"
+            color={Colors.brand.primary}
+            size={30}
+          />
+        </Pressable>
       </View>
       <LottieView
         source={require("@/assets/animations/404-error.json")}

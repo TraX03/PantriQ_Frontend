@@ -40,7 +40,6 @@ export const styles = StyleSheet.create({
   contentContainer: {
     backgroundColor: Colors.surface.background,
     flexGrow: 1,
-    padding: 12,
   },
   titleText: {
     fontFamily: "RobotoRegular",

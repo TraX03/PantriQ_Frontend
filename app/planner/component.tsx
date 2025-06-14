@@ -207,6 +207,7 @@ export default function PlannerComponent({ planner, date, actions }: Props) {
                     name="ellipsis"
                     color={Colors.brand.primary}
                     size={22}
+                    selectedIcon={1}
                   />
                 </View>
 
@@ -264,12 +265,10 @@ export default function PlannerComponent({ planner, date, actions }: Props) {
           </View>
         </ScrollView>
 
-        <TouchableOpacity onPress={generateMeals}>
-          <View style={styles.generateButton}>
-            <IconSymbol name="plus" color={Colors.brand.onPrimary} size={22} />
-            <Text style={styles.generateText}>Generate</Text>
-          </View>
-        </TouchableOpacity>
+        <Pressable onPress={generateMeals} style={styles.generateButton}>
+          <IconSymbol name="plus" color={Colors.brand.onPrimary} size={22} />
+          <Text style={styles.generateText}>Generate</Text>
+        </Pressable>
       </View>
     </>
   );

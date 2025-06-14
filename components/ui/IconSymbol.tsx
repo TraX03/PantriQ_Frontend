@@ -39,7 +39,10 @@ const MAPPING = {
     type: "MaterialCommunityIcons",
   },
   trash: { name: "trash-can-outline", type: "MaterialCommunityIcons" },
-  ellipsis: { name: "ellipsis-horizontal", type: "Ionicons" },
+  ellipsis: {
+    name: ["ellipsis-vertical", "ellipsis-horizontal"],
+    type: "Ionicons",
+  },
   "ellipsis.circle": {
     name: "dots-horizontal-circle-outline",
     type: "MaterialCommunityIcons",
@@ -60,6 +63,18 @@ const MAPPING = {
   "list.bullet.indent": {
     name: "sort",
     type: "MaterialCommunityIcons",
+  },
+  "chevron.down": {
+    name: "chevron-down",
+    type: "Ionicons",
+  },
+  "checkmark.square": {
+    name: "check-box-outline-blank",
+    type: "MaterialIcons",
+  },
+  "checkmark.square.fill": {
+    name: "check-box",
+    type: "MaterialIcons",
   },
 } as const;
 

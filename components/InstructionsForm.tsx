@@ -14,12 +14,12 @@ type InstructionsFormProps = {
   updateInstructionImage: (index: number, shouldRemove?: boolean) => void;
 };
 
-export default function InstructionsForm({
+const InstructionsForm = ({
   instructions,
   modifyInstruction,
   updateInstruction,
   updateInstructionImage,
-}: InstructionsFormProps) {
+}: InstructionsFormProps) => {
   const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
 
   return (
@@ -109,4 +109,6 @@ export default function InstructionsForm({
       </View>
     </>
   );
-}
+};
+
+export default InstructionsForm;

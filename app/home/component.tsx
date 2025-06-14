@@ -1,3 +1,4 @@
+import MasonryList from "@/components/MasonryList";
 import PostCard, { Post } from "@/components/PostCard";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { Colors } from "@/constants/Colors";
@@ -5,13 +6,7 @@ import { Routes } from "@/constants/Routes";
 import { useFieldState } from "@/hooks/useFieldState";
 import { styles } from "@/utility/home/styles";
 import { router } from "expo-router";
-import {
-  Pressable,
-  RefreshControl,
-  ScrollView,
-  Text,
-  View,
-} from "react-native";
+import { FlatList, Pressable, ScrollView, Text, View } from "react-native";
 import { HomeState } from "./controller";
 
 type Props = {
@@ -32,6 +27,43 @@ export default function HomeComponent({
   interactionVersion,
 }: Props) {
   const { activeTab, activeSuggestion, setFieldState } = home;
+
+  const renderSuggestionBar = () => (
+    <ScrollView
+      horizontal
+      showsHorizontalScrollIndicator={false}
+      style={styles.suggestContainer}
+    >
+      {suggestions.map((item) => {
+        const isActive = activeSuggestion === item;
+        return (
+          <Pressable
+            key={item}
+            onPress={() => setFieldState("activeSuggestion", item)}
+            className="px-5 py-1.5 mr-2.5 rounded-full"
+            style={{
+              backgroundColor: isActive
+                ? Colors.brand.primary
+                : Colors.surface.backgroundSoft,
+            }}
+          >
+            <Text
+              style={[
+                styles.suggestText,
+                {
+                  color: isActive
+                    ? Colors.brand.onPrimary
+                    : Colors.text.primary,
+                },
+              ]}
+            >
+              {item}
+            </Text>
+          </Pressable>
+        );
+      })}
+    </ScrollView>
+  );
 
   return (
     <View style={styles.container}>
@@ -71,92 +103,33 @@ export default function HomeComponent({
         </View>
       </View>
 
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        refreshControl={
-          <RefreshControl
+      {activeTab === "Explore" &&
+        (activeSuggestion === "Communities" ? (
+          <FlatList
+            data={filteredPosts}
+            keyExtractor={(item) => `${item.id}-${interactionVersion}`}
+            renderItem={({ item }) => <PostCard post={item} />}
+            showsVerticalScrollIndicator={false}
             refreshing={refreshing}
             onRefresh={onRefresh}
-            colors={[Colors.brand.primary]}
+            ListHeaderComponent={renderSuggestionBar()}
+            ListEmptyComponent={
+              <View className="flex-row items-center justify-center mb-6 mt-6">
+                <View style={styles.divider} />
+                <Text style={styles.endText}>Nothing to show here</Text>
+                <View style={styles.divider} />
+              </View>
+            }
           />
-        }
-      >
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={styles.suggestContainer}
-        >
-          {suggestions.map((item) => {
-            const isActive = activeSuggestion === item;
-            return (
-              <Pressable
-                key={item}
-                onPress={() => setFieldState("activeSuggestion", item)}
-                className="px-5 py-1.5 mr-2.5 rounded-full"
-                style={{
-                  backgroundColor: isActive
-                    ? Colors.brand.primary
-                    : Colors.surface.backgroundSoft,
-                }}
-              >
-                <Text
-                  style={[
-                    styles.suggestText,
-                    {
-                      color: isActive
-                        ? Colors.brand.onPrimary
-                        : Colors.text.primary,
-                    },
-                  ]}
-                >
-                  {item}
-                </Text>
-              </Pressable>
-            );
-          })}
-        </ScrollView>
-
-        <View className="p-2">
-          {activeTab === "Explore" && (
-            <>
-              {activeSuggestion === "Communities" ? (
-                <View>
-                  {filteredPosts.map((post) => (
-                    <PostCard
-                      key={`${post.id}-${interactionVersion}`}
-                      post={post}
-                    />
-                  ))}
-                </View>
-              ) : (
-                <View className="flex-row justify-between flex-wrap">
-                  {[0, 1].map((colIndex) => (
-                    <View key={colIndex} className="w-[48%]">
-                      {filteredPosts
-                        .filter((_, i) => i % 2 === colIndex)
-                        .map((post) => (
-                          <PostCard
-                            key={`${post.id}-${interactionVersion}`}
-                            post={post}
-                          />
-                        ))}
-                    </View>
-                  ))}
-                  <View className="w-full">
-                    <View className="items-center justify-center mb-10">
-                      <View className="flex-row items-center justify-center mb-6 mt-6">
-                        <View style={styles.divider} />
-                        <Text style={styles.endText}>You're at the end</Text>
-                        <View style={styles.divider} />
-                      </View>
-                    </View>
-                  </View>
-                </View>
-              )}
-            </>
-          )}
-        </View>
-      </ScrollView>
+        ) : (
+          <MasonryList
+            posts={filteredPosts}
+            interactionVersion={interactionVersion}
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            header={renderSuggestionBar()}
+          />
+        ))}
     </View>
   );
 }

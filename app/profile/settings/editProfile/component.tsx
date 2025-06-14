@@ -6,7 +6,6 @@ import { Colors } from "@/constants/Colors";
 import { Routes } from "@/constants/Routes";
 import { ProfileData } from "@/redux/slices/profileSlice";
 import { getOverlayStyle } from "@/utility/imageUtils";
-import { maskEmail } from "@/utility/maskUtils";
 import { styles } from "@/utility/profile/styles";
 import { router, Stack } from "expo-router";
 import React, { useMemo } from "react";
@@ -24,6 +23,7 @@ type Props = {
   profileData: ProfileData | null;
   loading: boolean;
   onChangeImagePress: (fieldKey: "profile_bg" | "avatar") => Promise<void>;
+  getDisplayValue: (title: string, value: any, alwaysShow?: boolean) => string;
 };
 
 export default function EditProfileComponent({
@@ -31,6 +31,7 @@ export default function EditProfileComponent({
   profileData,
   loading,
   onChangeImagePress,
+  getDisplayValue,
 }: Props) {
   if (!profileData && loading) return null;
   if (!profileData) {
@@ -83,13 +84,6 @@ export default function EditProfileComponent({
     ],
     [username, bio, gender, birthday, phone, email]
   );
-
-  const getDisplayValue = (title: string, value: any, alwaysShow?: boolean) => {
-    if (alwaysShow || value) {
-      return title === "Email" ? maskEmail(String(value)) : String(value);
-    }
-    return title === "Phone Number" ? "Link Now" : "Set Now";
-  };
 
   return (
     <>

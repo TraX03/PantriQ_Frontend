@@ -41,6 +41,7 @@ export const Colors = {
     muted: "#e1e8f2",
     label: "#6b7280",
     light: "#4B5563",
+    dim: "#7B7B7B",
   },
 
   feedback: {

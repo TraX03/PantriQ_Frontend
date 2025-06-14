@@ -2,9 +2,9 @@ import BottomSheetModal from "@/components/BottomSheetModal";
 import ErrorScreen from "@/components/ErrorScreen";
 import FullscreenImageViewer from "@/components/FullscreenImageViewer";
 import IconButton from "@/components/IconButton";
-import { RecipeStep } from "@/components/RecipeStep";
+import RecipeStep from "@/components/RecipeStep";
 import ScoreCircle from "@/components/ScoreCircle";
-import { ScreenWrapper } from "@/components/ScreenWrapper";
+import ScreenWrapper from "@/components/ScreenWrapper";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { Colors } from "@/constants/Colors";
 import { Routes } from "@/constants/Routes";
@@ -187,6 +187,7 @@ export default function RecipeComponent({
                     name="ellipsis"
                     onPress={() => setFieldState("showModal", !showModal)}
                     isBackgroundDark={isBackgroundDark}
+                    index={1}
                   />
                 </View>
               </View>

@@ -237,7 +237,6 @@ export const styles = StyleSheet.create({
   },
   subTabHeader: {
     flexDirection: "row",
-    marginBottom: 16,
     paddingHorizontal: 10,
     backgroundColor: Colors.brand.onPrimary,
     height: 40,

@@ -1,13 +1,13 @@
 import ErrorScreen from "@/components/ErrorScreen";
-import PostCard from "@/components/PostCard";
-import { ScreenWrapper } from "@/components/ScreenWrapper";
+import MasonryList from "@/components/MasonryList";
+import ScreenWrapper from "@/components/ScreenWrapper";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { Colors } from "@/constants/Colors";
 import { Routes } from "@/constants/Routes";
 import { useFieldState } from "@/hooks/useFieldState";
 import { useInteraction } from "@/hooks/useInteraction";
 import { ProfileData } from "@/redux/slices/profileSlice";
-import { getImageUrl, getOverlayStyle } from "@/utility/imageUtils";
+import { getOverlayStyle } from "@/utility/imageUtils";
 import { styles } from "@/utility/profile/styles";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
@@ -33,8 +33,10 @@ type Props = {
   profile: ReturnType<typeof useFieldState<ProfileState>>;
   isOwnProfile: boolean;
   isBackgroundDark: boolean;
-  interactionMap: Record<string, any>;
-  interactionVersion: number;
+  interactionData: {
+    interactionMap: Record<string, any>;
+    interactionVersion: number;
+  };
 };
 
 const tabs = [
@@ -42,8 +44,8 @@ const tabs = [
   { title: "Community", icon: "person.2.fill" },
 ] as const;
 
-const mainTabs = ["Posts", "Collections", "Likes"] as const;
-const subTabs = ["Recipe", "Tips", "Discussion"] as const;
+export const mainTabs = ["Posts", "Collections", "Likes"] as const;
+export const subTabs = ["Recipe", "Tips", "Discussion"] as const;
 
 export default function ProfileComponent({
   profileData,
@@ -53,8 +55,7 @@ export default function ProfileComponent({
   profile,
   isOwnProfile,
   isBackgroundDark,
-  interactionMap,
-  interactionVersion,
+  interactionData,
 }: Props) {
   if (isLoading && !profileData) return null;
 
@@ -62,6 +63,8 @@ export default function ProfileComponent({
     return (
       <ErrorScreen message="Something went wrong while loading your profile data. Please refresh or try again later." />
     );
+
+  const { interactionMap, interactionVersion } = interactionData;
 
   const {
     activeTab,
@@ -81,12 +84,10 @@ export default function ProfileComponent({
     bio,
   } = profileData;
 
-  const interaction = id
-    ? useInteraction(id, {
-        isFollowing: interactionMap.get(`follow_${id}`)?.$id != null,
-        followDocId: interactionMap.get(`follow_${id}`)?.$id,
-      })
-    : null;
+  const interaction = useInteraction(id ?? "", {
+    isFollowing: interactionMap.get(`follow_${id}`)?.$id != null,
+    followDocId: interactionMap.get(`follow_${id}`)?.$id,
+  });
 
   const isFollowing = interaction?.isFollowing ?? false;
   const toggleFollow = interaction?.toggleFollow ?? (() => {});
@@ -121,13 +122,13 @@ export default function ProfileComponent({
           {isOwnProfile ? (
             <View className="w-[28px]" />
           ) : (
-            <TouchableOpacity onPress={() => router.back()}>
+            <Pressable onPress={() => router.back()}>
               <IconSymbol
                 name="chevron.left"
                 size={28}
                 color={Colors.brand.onPrimary}
               />
-            </TouchableOpacity>
+            </Pressable>
           )}
 
           <View className="flex-row items-center gap-[12px]">
@@ -288,7 +289,7 @@ export default function ProfileComponent({
         </View>
 
         {activeTab === "Posts" && (
-          <View className="px-[6px]">
+          <View>
             {postLoading ? (
               <View style={styles.loadingContianer}>
                 <ActivityIndicator size="large" color={Colors.brand.primary} />
@@ -296,27 +297,14 @@ export default function ProfileComponent({
             ) : filteredPosts.length === 0 ? (
               <Text style={styles.noPostText}>No posts to display.</Text>
             ) : (
-              <View className="flex-row justify-between flex-wrap">
-                {[0, 1].map((colIndex) => (
-                  <View key={colIndex} className="w-[48%]">
-                    {sortedPosts
-                      .filter((_, i) => i % 2 === colIndex)
-                      .map((post) => (
-                        <PostCard
-                          key={`${post.$id}-${interactionVersion}`}
-                          post={{
-                            id: post.$id,
-                            type: post.type,
-                            title: post.title,
-                            image: getImageUrl(post.image?.[0]),
-                            author: username,
-                            profilePic: avatarUrl,
-                          }}
-                        />
-                      ))}
-                  </View>
-                ))}
-              </View>
+              <MasonryList
+                posts={sortedPosts.map((post) => ({
+                  ...post,
+                  author: username,
+                  profilePic: avatarUrl,
+                }))}
+                interactionVersion={interactionVersion}
+              />
             )}
           </View>
         )}

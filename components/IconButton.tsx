@@ -8,6 +8,7 @@ type IconButtonProps = {
   onPress: () => void;
   isBackgroundDark: boolean;
   iconSize?: number;
+  index?: number;
   containerClassName?: string;
   containerStyle?: ViewStyle | ViewStyle[];
 };
@@ -17,28 +18,30 @@ const IconButton = ({
   onPress,
   isBackgroundDark,
   iconSize = 24,
+  index,
   containerClassName = "rounded-full p-1.5 justify-center items-center",
   containerStyle = {},
-}: IconButtonProps) => {
-  return (
-    <TouchableOpacity
-      onPress={onPress}
-      className={containerClassName}
-      style={[
-        getOverlayStyle(isBackgroundDark),
-        { borderWidth: 1.5 },
-        containerStyle,
-      ]}
-    >
-      <IconSymbol
-        name={name}
-        size={iconSize}
-        color={
-          isBackgroundDark ? Colors.surface.buttonPrimary : Colors.surface.backgroundSoft
-        }
-      />
-    </TouchableOpacity>
-  );
-};
+}: IconButtonProps) => (
+  <TouchableOpacity
+    onPress={onPress}
+    className={containerClassName}
+    style={[
+      getOverlayStyle(isBackgroundDark),
+      { borderWidth: 1.5 },
+      containerStyle,
+    ]}
+  >
+    <IconSymbol
+      name={name}
+      size={iconSize}
+      color={
+        isBackgroundDark
+          ? Colors.surface.buttonPrimary
+          : Colors.surface.backgroundSoft
+      }
+      selectedIcon={index}
+    />
+  </TouchableOpacity>
+);
 
 export default IconButton;

@@ -20,13 +20,13 @@ type EntryListProps = {
 
 type EntryItem = { name: string; quantity?: string };
 
-export default function EntryListForm({
+const EntryListForm = ({
   type,
   create,
   controller,
   placeholder,
   label,
-}: EntryListProps) {
+}: EntryListProps) => {
   const { focusedIndex, setFieldState, area } = create;
   const { getSuggestions } = useSuggestionList(type);
 
@@ -131,4 +131,6 @@ export default function EntryListForm({
       )}
     </>
   );
-}
+};
+
+export default EntryListForm;

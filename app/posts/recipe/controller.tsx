@@ -50,7 +50,7 @@ export interface RecipeState {
   };
 }
 
-export const useRecipeController = (interactionMap?: Record<string, any>) => {
+export const useRecipeController = (interactionMap?: Map<string, any>) => {
   const dispatch = useDispatch<AppDispatch>();
 
   const recipe = useFieldState<RecipeState>({

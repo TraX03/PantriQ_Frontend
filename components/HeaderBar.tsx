@@ -1,6 +1,6 @@
 import { Colors } from "@/constants/Colors";
 import { useRouter } from "expo-router";
-import { Text, TouchableOpacity, View } from "react-native";
+import { Pressable, Text, View } from "react-native";
 import { IconSymbol } from "./ui/IconSymbol";
 
 type HeaderBarProps = {
@@ -13,9 +13,13 @@ const HeaderBar = ({ title, titleComponent }: HeaderBarProps) => {
 
   return (
     <View className="flex-row items-center px-4 py-3">
-      <TouchableOpacity onPress={() => router.back()}>
-        <IconSymbol name="chevron.left" color={Colors.brand.primaryDark} size={30} />
-      </TouchableOpacity>
+      <Pressable onPress={() => router.back()}>
+        <IconSymbol
+          name="chevron.left"
+          color={Colors.brand.primaryDark}
+          size={30}
+        />
+      </Pressable>
       <View className="flex-1 ml-4">
         {titleComponent ? (
           titleComponent

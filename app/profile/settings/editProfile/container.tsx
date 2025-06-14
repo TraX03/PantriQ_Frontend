@@ -8,7 +8,7 @@ export default function EditProfileContainer() {
   const { fetchProfile } = useProfileData();
   const { currentUserProfile, loading } = useReduxSelectors();
 
-  const { onChangeImagePress, isBackgroundDark } =
+  const { onChangeImagePress, getDisplayValue, isBackgroundDark } =
     useEditProfileController(currentUserProfile);
 
   useEffect(() => {
@@ -21,6 +21,7 @@ export default function EditProfileContainer() {
       profileData={currentUserProfile}
       loading={loading}
       onChangeImagePress={onChangeImagePress}
+      getDisplayValue={getDisplayValue}
     />
   );
 }

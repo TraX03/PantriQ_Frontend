@@ -26,14 +26,14 @@ type BottomSheetModalProps = {
   children?: React.ReactNode;
 };
 
-export default function BottomSheetModal({
+const BottomSheetModal = ({
   isVisible,
   onClose,
   options,
   zIndex = 0,
   modalStyle,
   children,
-}: BottomSheetModalProps) {
+}: BottomSheetModalProps) => {
   const [internalVisible, setInternalVisible] = useState(isVisible);
   const [overlayColor, setOverlayColor] = useState(Colors.overlay.base);
 
@@ -100,4 +100,6 @@ export default function BottomSheetModal({
       </Animated.View>
     </View>
   );
-}
+};
+
+export default BottomSheetModal;

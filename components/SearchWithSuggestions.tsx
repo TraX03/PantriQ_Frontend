@@ -16,12 +16,12 @@ type SearchSuggestionProps = {
   suggestionType?: SuggestionType;
 };
 
-export default function SearchWithSuggestion({
+const SearchWithSuggestion = ({
   onSelectItem,
   mode,
   placeholder,
   suggestionType,
-}: SearchSuggestionProps) {
+}: SearchSuggestionProps) => {
   const [searchText, setSearchText] = useState("");
   const [isCustomFlow, setIsCustomFlow] = useState(mode === "datamuse-only");
   const [datamuseSuggestions, setDatamuseSuggestions] = useState<string[]>([]);
@@ -119,4 +119,6 @@ export default function SearchWithSuggestion({
       </ScrollView>
     </>
   );
-}
+};
+
+export default SearchWithSuggestion;

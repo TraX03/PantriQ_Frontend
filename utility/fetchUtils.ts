@@ -34,6 +34,7 @@ export const fetchPosts = async (
       author: author?.username || "Unknown",
       profilePic: author?.avatarUrl,
       area: doc.area,
+      created_at: doc.$createdAt,
     };
   };
 
@@ -44,6 +45,7 @@ export const fetchPosts = async (
     image: getImageUrl(doc.image),
     membersCount: doc.members_count,
     recipesCount: doc.recipes_count,
+    created_at: doc.$createdAt,
   });
 
   try {

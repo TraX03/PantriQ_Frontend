@@ -2,6 +2,7 @@ import HeaderBar from "@/components/HeaderBar";
 import InputBox from "@/components/InputBox";
 import { Colors } from "@/constants/Colors";
 import { useFieldState } from "@/hooks/useFieldState";
+import { capitalize } from "@/utility/capitalize";
 import { styles } from "@/utility/profile/styles";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import React from "react";
@@ -21,7 +22,7 @@ type Props = {
   maxLength?: number;
 };
 
-const genderOptions = ["Female", "Male", "Prefer not to say", "Other"];
+const genderOptions = ["female", "male", "prefer_not_to_say", "other"];
 
 export default function EditFieldComponent({
   edit,
@@ -46,7 +47,9 @@ export default function EditFieldComponent({
                   className="flex-row justify-between items-center px-2 py-2 rounded-lg"
                   onPress={() => setFieldState("value", option)}
                 >
-                  <Text style={styles.genderOptionText}>{option}</Text>
+                  <Text style={styles.genderOptionText}>
+                    {capitalize(option)}
+                  </Text>
                   <View
                     className="w-5 h-5 rounded-full border items-center justify-center"
                     style={{

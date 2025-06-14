@@ -4,7 +4,7 @@ import { AuthMode } from "./authForm/controller";
 
 export default function AuthRouter() {
   const { mode } = useLocalSearchParams();
-  const formMode: AuthMode = mode === "sign-up" ? "signUp" : "signIn";
+  const formMode: AuthMode = mode === "signUp" ? "signUp" : "signIn";
 
   return (
     <>

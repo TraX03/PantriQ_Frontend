@@ -4,7 +4,7 @@ import { Image } from "expo-image";
 import React from "react";
 import { Modal, View } from "react-native";
 
-export default function LoadingScreen() {
+const LoadingScreen = () => {
   const { loading } = useReduxSelectors();
 
   return (
@@ -22,4 +22,6 @@ export default function LoadingScreen() {
       </View>
     </Modal>
   );
-}
+};
+
+export default LoadingScreen;

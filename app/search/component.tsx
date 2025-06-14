@@ -1,6 +1,6 @@
 import HeaderBar from "@/components/HeaderBar";
 import InputBox from "@/components/InputBox";
-import { ScreenWrapper } from "@/components/ScreenWrapper";
+import ScreenWrapper from "@/components/ScreenWrapper";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { Colors } from "@/constants/Colors";
 import { useFieldState } from "@/hooks/useFieldState";

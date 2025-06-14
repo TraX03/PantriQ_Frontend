@@ -7,10 +7,10 @@ type FullscreenImageViewerProps = {
   onClose: () => void;
 };
 
-export default function FullscreenImageViewer({
+const FullscreenImageViewer = ({
   imageUri,
   onClose,
-}: FullscreenImageViewerProps) {
+}: FullscreenImageViewerProps) => {
   if (!imageUri) return null;
 
   return (
@@ -24,4 +24,6 @@ export default function FullscreenImageViewer({
       </TouchableOpacity>
     </Modal>
   );
-}
+};
+
+export default FullscreenImageViewer;

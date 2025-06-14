@@ -142,8 +142,8 @@ export const useCreateFormController = () => {
               });
             })
           ),
-          category: create.category.map((c) => c.name),
-          area: create.area,
+          category: create.category.map((c) => c.name.toLowerCase()),
+          area: create.area.toLowerCase(),
         },
       };
       const collectionMap: Record<PostType, string> = {

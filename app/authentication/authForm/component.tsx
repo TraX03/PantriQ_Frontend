@@ -7,14 +7,15 @@ import { useFieldState } from "@/hooks/useFieldState";
 import { router } from "expo-router";
 import React from "react";
 import {
-    Dimensions,
-    Image,
-    ImageBackground,
-    ScrollView,
-    StatusBar,
-    Text,
-    TouchableOpacity,
-    View,
+  Dimensions,
+  Image,
+  ImageBackground,
+  Pressable,
+  ScrollView,
+  StatusBar,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { styles } from "../../../utility/authentication/styles";
 import { AuthFormState, AuthMode } from "./controller";
@@ -71,13 +72,13 @@ export default function AuthFormComponent({
         keyboardShouldPersistTaps="handled"
       >
         <View className="px-6 pt-16">
-          <TouchableOpacity onPress={() => router.back()}>
+          <Pressable onPress={() => router.back()}>
             <IconSymbol
               name="chevron.left"
               color={Colors.brand.primaryDark}
               size={30}
             />
-          </TouchableOpacity>
+          </Pressable>
 
           <Image
             source={require("@/assets/images/pantriQ.png")}
@@ -146,7 +147,7 @@ export default function AuthFormComponent({
               onPress={() =>
                 router.push({
                   pathname: Routes.AuthForm,
-                  params: { mode: isSignIn ? "sign-up" : "sign-in" },
+                  params: { mode: isSignIn ? "signUp" : "signIn" },
                 })
               }
             >

@@ -1,10 +1,6 @@
 import React from "react";
-import { Text, View } from "react-native";
+import ListsContainer from "../lists/container";
 
 export default function ListsScreenRoute() {
-  return (
-    <View>
-      <Text>Lists</Text>
-    </View>
-  );
+  return <ListsContainer />;
 }

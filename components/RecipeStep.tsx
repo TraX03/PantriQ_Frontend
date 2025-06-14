@@ -12,7 +12,7 @@ interface RecipeStepProps {
   step: Instruction;
 }
 
-export const RecipeStep: React.FC<RecipeStepProps> = ({ index, step }) => {
+const RecipeStep = ({ index, step }: RecipeStepProps) => {
   const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
 
   const formatInstruction = (text: string) => {
@@ -60,3 +60,5 @@ export const RecipeStep: React.FC<RecipeStepProps> = ({ index, step }) => {
     </>
   );
 };
+
+export default RecipeStep;

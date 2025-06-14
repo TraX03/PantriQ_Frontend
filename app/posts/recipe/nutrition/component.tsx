@@ -1,7 +1,7 @@
 import HeaderBar from "@/components/HeaderBar";
 import LegendItem from "@/components/LegendItem";
 import ScoreCircle from "@/components/ScoreCircle";
-import { ScreenWrapper } from "@/components/ScreenWrapper";
+import ScreenWrapper from "@/components/ScreenWrapper";
 import { Colors } from "@/constants/Colors";
 import { styles } from "@/utility/posts/styles";
 import { styles as profileStyles } from "@/utility/profile/styles";

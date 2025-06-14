@@ -1,15 +1,17 @@
+import { Post } from "@/components/PostCard";
 import { AppwriteConfig } from "@/constants/AppwriteConfig";
 import { useFieldState } from "@/hooks/useFieldState";
 import { ProfileData } from "@/redux/slices/profileSlice";
 import { fetchAllDocuments } from "@/services/appwrite";
+import { getImageUrl } from "@/utility/imageUtils";
 import { parseMetadata } from "@/utility/metadataUtils";
 import { useMemo } from "react";
-import { Models } from "react-native-appwrite";
+import { mainTabs, subTabs } from "./component";
 
 export interface ProfileState {
-  activeTab: "Posts" | "Collections" | "Likes";
-  posts: Models.Document[];
-  subTab: "Recipe" | "Tips" | "Discussion";
+  activeTab: (typeof mainTabs)[number];
+  posts: Post[];
+  subTab: (typeof subTabs)[number];
   postLoading: boolean;
   viewedProfileData: ProfileData | null;
 }
@@ -42,13 +44,20 @@ export const useProfileController = () => {
         fetchAllDocuments(AppwriteConfig.POSTS_COLLECTION_ID),
       ]);
 
+      const formatPost = (doc: any, type?: string) => ({
+        ...doc,
+        id: doc.$id,
+        image: getImageUrl(doc.image?.[0]),
+        ...(type && { type }),
+      });
+
       const recipes = recipesRes
         .filter((doc) => doc.author_id === userId)
-        .map((doc) => ({ ...doc, type: "recipe" }));
+        .map((doc) => formatPost(doc, "recipe"));
 
-      const tipsAndDiscussions = postsRes.filter(
-        (doc) => doc.author_id === userId
-      );
+      const tipsAndDiscussions = postsRes
+        .filter((doc) => doc.author_id === userId)
+        .map((doc) => formatPost(doc));
 
       setFieldState("posts", [...recipes, ...tipsAndDiscussions]);
     } catch (error) {

@@ -3,7 +3,7 @@ import FloatingActionButton from "@/components/FloatingActionButton";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { Colors } from "@/constants/Colors";
 import { Routes } from "@/constants/Routes";
-import { TabConfig } from "@/constants/TabConfig";
+import { TabConfig, TabItem } from "@/constants/TabConfig";
 import { useRequireLogin } from "@/hooks/useRequireLogin";
 import { router, Tabs } from "expo-router";
 import React, { useState } from "react";
@@ -16,7 +16,7 @@ export default function TabLayout() {
 
   const [showModal, setShowModal] = useState(false);
 
-  const renderTabScreen = (tab: any, index: number) => {
+  const renderTabScreen = (tab: TabItem, index: number) => {
     const { name, hidden, icon, iconFocused, title } = tab;
 
     if (hidden) {
