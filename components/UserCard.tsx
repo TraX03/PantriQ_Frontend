@@ -17,7 +17,7 @@ export default function UserCard({ user }: UserCardProps) {
       style={styles.userCardContainer}
       onPress={() =>
         router.push({
-          pathname: Routes.userDetail,
+          pathname: Routes.UserDetail,
           params: { id: user.id },
         })
       }

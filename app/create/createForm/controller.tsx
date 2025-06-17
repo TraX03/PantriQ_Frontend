@@ -166,7 +166,7 @@ export const useCreateFormController = () => {
         } created successfully!`,
       });
       router.back();
-    } catch {
+    } catch (err) {
       Alert.alert(
         "Error",
         `Failed to create ${create.postType}. Please try again.`

@@ -1,5 +1,4 @@
 import { useLiveUserProfile } from "@/hooks/useLiveUserProfile";
-import { useProfileData } from "@/hooks/useProfileData";
 import { useReduxSelectors } from "@/hooks/useReduxSelectors";
 import { useRequireLogin } from "@/hooks/useRequireLogin";
 import { setRefreshProfile } from "@/redux/slices/profileSlice";
@@ -16,7 +15,6 @@ type Props = {
 export default function ProfileContainer({ profileId }: Props) {
   const dispatch = useDispatch<AppDispatch>();
   const { checkLogin } = useRequireLogin();
-  const { fetchProfile } = useProfileData();
   const { profile, fetchPostsByUser, isBackgroundDark } =
     useProfileController();
 
@@ -46,7 +44,6 @@ export default function ProfileContainer({ profileId }: Props) {
 
   useEffect(() => {
     if (isOwnProfile) {
-      fetchProfile();
       if (currentUserId && profile.posts.length === 0) {
         fetchPostsByUser(currentUserId);
       }

@@ -76,6 +76,10 @@ const MAPPING = {
     name: "check-box",
     type: "MaterialIcons",
   },
+  "paperplane.fill": {
+    name: "send",
+    type: "Ionicons",
+  },
 } as const;
 
 export type IconSymbolName = keyof typeof MAPPING;

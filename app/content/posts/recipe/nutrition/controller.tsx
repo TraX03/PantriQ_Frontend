@@ -2,7 +2,7 @@ import { useFieldState } from "@/hooks/useFieldState";
 import { MMKV } from "react-native-mmkv";
 
 interface NutritionState {
-  nutritionData: any;
+  nutritionData?: any;
 }
 
 export const useNutritionController = () => {

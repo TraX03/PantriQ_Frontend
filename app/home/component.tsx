@@ -6,7 +6,14 @@ import { Routes } from "@/constants/Routes";
 import { useFieldState } from "@/hooks/useFieldState";
 import { styles } from "@/utility/home/styles";
 import { router } from "expo-router";
-import { FlatList, Pressable, ScrollView, Text, View } from "react-native";
+import {
+  FlatList,
+  Pressable,
+  RefreshControl,
+  ScrollView,
+  Text,
+  View,
+} from "react-native";
 import { HomeState } from "./controller";
 
 type Props = {
@@ -108,10 +115,20 @@ export default function HomeComponent({
           <FlatList
             data={filteredPosts}
             keyExtractor={(item) => `${item.id}-${interactionVersion}`}
-            renderItem={({ item }) => <PostCard post={item} />}
+            renderItem={({ item }) => (
+              <View className="p-2">
+                <PostCard post={item} />
+              </View>
+            )}
             showsVerticalScrollIndicator={false}
-            refreshing={refreshing}
-            onRefresh={onRefresh}
+            refreshControl={
+              <RefreshControl
+                refreshing={!!refreshing}
+                onRefresh={onRefresh}
+                colors={[Colors.brand.primary]}
+                progressViewOffset={90}
+              />
+            }
             ListHeaderComponent={renderSuggestionBar()}
             ListEmptyComponent={
               <View className="flex-row items-center justify-center mb-6 mt-6">

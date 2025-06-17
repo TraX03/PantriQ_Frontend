@@ -10,7 +10,7 @@ export const styles = StyleSheet.create({
   contentContainer: {
     backgroundColor: Colors.brand.onPrimary,
     paddingHorizontal: 16,
-    paddingTop: 25,
+    paddingTop: 20,
   },
   overlayContainer: {
     position: "absolute",
@@ -30,6 +30,28 @@ export const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
     gap: 8,
+  },
+  commentBar: {
+    flex: 1,
+    marginRight: 10,
+    backgroundColor: Colors.surface.backgroundSoft,
+    borderRadius: 50,
+  },
+  timeAgoText: {
+    fontSize: 10,
+    color: Colors.text.disabled,
+  },
+  commentText: {
+    marginTop: 5,
+    fontSize: 13,
+    color: Colors.text.primary,
+  },
+  divider: {
+    width: 200,
+    height: 0.5,
+    backgroundColor: Colors.surface.border,
+    alignSelf: "center",
+    marginVertical: 25,
   },
 
   // Modals & Panels
@@ -67,7 +89,6 @@ export const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontFamily: "RobotoMedium",
-    marginBottom: 12,
   },
   authorText: {
     color: Colors.text.disabled,
@@ -142,5 +163,20 @@ export const styles = StyleSheet.create({
     fontSize: 14,
     color: Colors.brand.onBackground,
     fontFamily: "RobotoMedium",
+  },
+  content: {
+    fontFamily: "RobotoRegular",
+    fontSize: 14,
+    lineHeight: 20,
+  },
+  dateText: {
+    alignSelf: "flex-end",
+    color: Colors.text.disabled,
+    fontSize: 12,
+    paddingTop: 10,
+  },
+  countLabel: {
+    fontSize: 10,
+    color: Colors.text.disabled,
   },
 });

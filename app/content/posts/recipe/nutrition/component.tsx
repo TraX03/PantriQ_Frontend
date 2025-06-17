@@ -3,7 +3,7 @@ import LegendItem from "@/components/LegendItem";
 import ScoreCircle from "@/components/ScoreCircle";
 import ScreenWrapper from "@/components/ScreenWrapper";
 import { Colors } from "@/constants/Colors";
-import { styles } from "@/utility/posts/styles";
+import { styles } from "@/utility/content/posts/styles";
 import { styles as profileStyles } from "@/utility/profile/styles";
 import { Stack } from "expo-router";
 import { ScrollView, Text, View } from "react-native";

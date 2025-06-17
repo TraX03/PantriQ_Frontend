@@ -1,11 +1,11 @@
-import { Recipe } from "@/app/posts/recipe/controller";
+import { RecipePost } from "@/app/content/posts/controller";
 import { analyzeRecipe } from "@/services/SpoonacularApi";
 import { MMKV } from "react-native-mmkv";
 
 const nutritionStorage = new MMKV({ id: "nutrition" });
 const CACHE_DURATION = 30 * 24 * 60 * 60 * 1000; // 30 days in ms
 
-export const getCachedNutrition = async (recipe: Recipe) => {
+export const getCachedNutrition = async (recipe: RecipePost) => {
   const cacheKey = `nutrition_${recipe.id}`;
   const cachedString = nutritionStorage.getString(cacheKey);
 

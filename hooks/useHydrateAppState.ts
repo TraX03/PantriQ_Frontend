@@ -5,15 +5,18 @@ import { getCurrentUser } from "@/services/appwrite";
 import { fetchInteractions } from "@/utility/interactionUtils";
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
+import { useProfileData } from "./useProfileData";
 
 export function useHydrateAppState() {
   const dispatch = useDispatch<AppDispatch>();
+  const { fetchProfile } = useProfileData();
 
   useEffect(() => {
     const hydrate = async () => {
       try {
         const user = await getCurrentUser();
         dispatch(setUser(user));
+        fetchProfile();
 
         const map = await fetchInteractions();
         dispatch(setInteractionMap(map));

@@ -1,4 +1,4 @@
-import { Recipe } from "@/app/posts/recipe/controller";
+import { RecipePost } from "@/app/content/posts/controller";
 import { AppwriteConfig } from "@/constants/AppwriteConfig";
 import { getDocumentById, updateDocument } from "./appwrite";
 
@@ -20,7 +20,7 @@ const SpoonacularConfig = {
   TAG_SET: new Set(Object.values(spoonacularFields)),
 };
 
-export const analyzeRecipe = async (recipe: Recipe) => {
+export const analyzeRecipe = async (recipe: RecipePost) => {
   const ingredientsList = recipe.ingredients.map(
     (ing) => `${ing.quantity} ${ing.name}`
   );

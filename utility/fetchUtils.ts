@@ -65,7 +65,7 @@ export const fetchPosts = async (
     const tips = applyLimit(
       shuffleArray(
         postDocs
-          .filter((d) => d.type === "tip")
+          .filter((d) => d.type === "tips")
           .map((d) => mapPost(d, usersMap))
       )
     );
