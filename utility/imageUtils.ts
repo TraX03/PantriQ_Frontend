@@ -1,6 +1,5 @@
 import { AppwriteConfig } from "@/constants/AppwriteConfig";
 import { Colors } from "@/constants/Colors";
-import { storage } from "@/services/appwrite";
 import ImageColors from "react-native-image-colors";
 
 export const isValidUrl = (url?: string): boolean => {
@@ -17,7 +16,7 @@ export const getImageUrl = (image?: string): string =>
   isValidUrl(image)
     ? image!
     : image
-    ? storage.getFileView(AppwriteConfig.BUCKET_ID, image).href
+    ? `${AppwriteConfig.ENDPOINT}/storage/buckets/${AppwriteConfig.BUCKET_ID}/files/${image}/view?project=${AppwriteConfig.PROJECT_ID}`
     : "";
 
 const isColorDark = (hex: string) => {

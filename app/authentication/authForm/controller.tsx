@@ -2,6 +2,7 @@ import { AuthErrors, ValidationErrors } from "@/constants/Errors";
 import { Routes } from "@/constants/Routes";
 import { useAuthentication } from "@/hooks/useAuthentication";
 import { useFieldState } from "@/hooks/useFieldState";
+import { useProfileData } from "@/hooks/useProfileData";
 import { useLocalSearchParams, useRouter } from "expo-router";
 
 export interface AuthFormState {
@@ -16,6 +17,7 @@ export type AuthMode = "signUp" | "signIn";
 
 export const useAuthController = (mode: AuthMode) => {
   const { login, signUp } = useAuthentication();
+  const { fetchProfile } = useProfileData();
   const router = useRouter();
   const { redirect } = useLocalSearchParams();
 
@@ -101,13 +103,18 @@ export const useAuthController = (mode: AuthMode) => {
     try {
       if (mode === "signUp") {
         await signUp(email, password, extractUsername(email));
-        router.replace(Routes.Home);
       } else {
         await login(email, password);
-        const redirectTo =
-          typeof redirect === "string" ? redirect : Routes.Home;
-        router.replace(redirectTo as never);
       }
+
+      await fetchProfile();
+
+      const destination =
+        mode === "signUp" || typeof redirect !== "string"
+          ? Routes.Home
+          : redirect;
+
+      router.replace(destination as never);
     } catch (error: any) {
       await handleAuthError(error);
     }
