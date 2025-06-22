@@ -11,7 +11,7 @@ import {
   getCurrentUser,
   getDocumentById,
   storage,
-} from "@/services/appwrite";
+} from "@/services/Appwrite";
 import { getImageUrl, isValidUrl } from "@/utility/imageUtils";
 import { getInteractionStatus } from "@/utility/interactionUtils";
 import { parseMetadata } from "@/utility/metadataUtils";

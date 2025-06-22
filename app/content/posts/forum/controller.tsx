@@ -5,7 +5,7 @@ import {
   fetchAllDocuments,
   getDocumentById,
   updateDocument,
-} from "@/services/appwrite";
+} from "@/services/Appwrite";
 import { getImageUrl } from "@/utility/imageUtils";
 import { format, formatDistanceToNow, isToday, isYesterday } from "date-fns";
 import { Query } from "react-native-appwrite";

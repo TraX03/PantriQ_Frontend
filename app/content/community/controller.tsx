@@ -1,7 +1,7 @@
 import { subTabs } from "@/app/profile/component";
 import { AppwriteConfig } from "@/constants/AppwriteConfig";
 import { useFieldState } from "@/hooks/useFieldState";
-import { getDocumentById } from "@/services/appwrite";
+import { getDocumentById } from "@/services/Appwrite";
 import { getImageUrl } from "@/utility/imageUtils";
 import { parseMetadata } from "@/utility/metadataUtils";
 

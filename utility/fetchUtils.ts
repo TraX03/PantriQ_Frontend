@@ -1,6 +1,6 @@
 import { Post } from "@/components/PostCard";
 import { AppwriteConfig } from "@/constants/AppwriteConfig";
-import { fetchAllDocuments } from "@/services/appwrite";
+import { fetchAllDocuments } from "@/services/Appwrite";
 import { getImageUrl } from "./imageUtils";
 import { fetchUsers } from "./userCacheUtils";
 

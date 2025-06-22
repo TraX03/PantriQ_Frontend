@@ -2,7 +2,7 @@ import ErrorScreen from "@/components/ErrorScreen";
 import { PostType } from "@/components/PostCard";
 import { setLoading } from "@/redux/slices/loadingSlice";
 import { AppDispatch } from "@/redux/store";
-import { getPostTypeById } from "@/services/appwrite";
+import { getPostTypeById } from "@/services/Appwrite";
 import { Stack, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";

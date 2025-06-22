@@ -185,6 +185,38 @@ const styles = StyleSheet.create({
     color: Colors.text.label,
     marginTop: 4,
   },
+  pickerContainer: {
+    height: 30,
+    borderWidth: 1,
+    borderColor: Colors.text.placeholder,
+    borderRadius: 4,
+    paddingHorizontal: 12,
+    backgroundColor: "white",
+  },
+  pickerText: {
+    fontSize: 14,
+    color: Colors.text.primary,
+  },
+  placeholder: {
+    fontSize: 14,
+    color: Colors.text.disabled,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: Colors.overlay.base,
+    justifyContent: "center",
+    paddingHorizontal: 20,
+  },
+  modalContent: {
+    backgroundColor: Colors.brand.onPrimary,
+    borderRadius: 8,
+    paddingVertical: 10,
+    maxHeight: "60%",
+  },
+  option: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+  },
 });
 
 export default styles;

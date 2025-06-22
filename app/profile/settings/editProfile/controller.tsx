@@ -8,7 +8,7 @@ import {
   getDocumentById,
   storage,
   updateDocument,
-} from "@/services/appwrite";
+} from "@/services/Appwrite";
 import { capitalize } from "@/utility/capitalize";
 import { detectBackgroundDarkness, getImageUrl } from "@/utility/imageUtils";
 import { maskEmail } from "@/utility/maskUtils";

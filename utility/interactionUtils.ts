@@ -1,7 +1,7 @@
 import { AppwriteConfig } from "@/constants/AppwriteConfig";
 import { setInteractionMap } from "@/redux/slices/interactionSlice";
 import { AppDispatch } from "@/redux/store";
-import { getCurrentUser, listDocuments } from "@/services/appwrite";
+import { getCurrentUser, listDocuments } from "@/services/Appwrite";
 import { Query } from "react-native-appwrite";
 
 export const fetchInteractions = async (): Promise<Map<string, any>> => {

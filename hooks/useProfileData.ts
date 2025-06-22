@@ -6,7 +6,7 @@ import {
   setProfileData
 } from "@/redux/slices/profileSlice";
 import { AppDispatch } from "@/redux/store";
-import { getCurrentUser, getDocumentById } from "@/services/appwrite";
+import { getCurrentUser, getDocumentById } from "@/services/Appwrite";
 import { getImageUrl } from "@/utility/imageUtils";
 import { useCallback } from "react";
 import { useDispatch } from "react-redux";

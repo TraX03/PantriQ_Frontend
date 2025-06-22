@@ -1,6 +1,6 @@
 import { RecipePost } from "@/app/content/posts/controller";
 import { AppwriteConfig } from "@/constants/AppwriteConfig";
-import { getDocumentById, updateDocument } from "./appwrite";
+import { getDocumentById, updateDocument } from "./Appwrite";
 
 const spoonacularFields = [
   "vegetarian",

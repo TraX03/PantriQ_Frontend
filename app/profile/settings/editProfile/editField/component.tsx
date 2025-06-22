@@ -88,7 +88,7 @@ export default function EditFieldComponent({
                 maximumDate={new Date()}
                 onChange={(event, selectedDate) => {
                   setFieldState("showDatePicker", false);
-                  if (selectedDate) {
+                  if (event.type === "set" && selectedDate) {
                     setFieldState("value", selectedDate.toISOString());
                   }
                 }}

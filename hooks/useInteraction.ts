@@ -7,7 +7,7 @@ import {
   getCurrentUser,
   getDocumentById,
   updateDocument,
-} from "@/services/appwrite";
+} from "@/services/Appwrite";
 import { refreshInteractionMap } from "@/utility/interactionUtils";
 import { useState } from "react";
 import Toast from "react-native-toast-message";

@@ -3,7 +3,7 @@ import { useFieldState } from "@/hooks/useFieldState";
 import { setLoading } from "@/redux/slices/loadingSlice";
 import { ProfileData, updateProfileField } from "@/redux/slices/profileSlice";
 import { AppDispatch } from "@/redux/store";
-import { getCurrentUser, updateDocument } from "@/services/appwrite";
+import { getCurrentUser, updateDocument } from "@/services/Appwrite";
 import { router } from "expo-router";
 import { Alert } from "react-native";
 import Toast from "react-native-toast-message";

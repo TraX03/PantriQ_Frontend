@@ -6,7 +6,7 @@ import {
   getDocumentById,
   listDocuments,
   updateDocument,
-} from "@/services/appwrite";
+} from "@/services/Appwrite";
 import { getImageUrl } from "@/utility/imageUtils";
 import {
   addDays,

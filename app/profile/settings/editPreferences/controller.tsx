@@ -3,7 +3,7 @@ import {
   getCurrentUser,
   getDocumentById,
   updateDocument,
-} from "@/services/appwrite";
+} from "@/services/Appwrite";
 import { useState } from "react";
 
 export const useEditPreferencesController = () => {

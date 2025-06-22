@@ -6,7 +6,7 @@ import { useMediaHandler } from "@/hooks/useMediaHandler";
 import { setLoading } from "@/redux/slices/loadingSlice";
 import { setRefreshProfile } from "@/redux/slices/profileSlice";
 import { AppDispatch } from "@/redux/store";
-import { createDocument, getCurrentUser } from "@/services/appwrite";
+import { createDocument, getCurrentUser } from "@/services/Appwrite";
 import { detectBackgroundDarkness, isValidUrl } from "@/utility/imageUtils";
 import * as FileSystem from "expo-file-system";
 import * as ImagePicker from "expo-image-picker";

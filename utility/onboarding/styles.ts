@@ -35,7 +35,7 @@ export const styles = StyleSheet.create({
     fontFamily: "RobotoSemiBold",
   },
   button: {
-    paddingVertical: 12,
+    paddingVertical: 8,
     borderRadius: 10,
     marginTop: 32,
     width: "30%",

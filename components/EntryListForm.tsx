@@ -79,6 +79,7 @@ const EntryListForm = ({
           onBlur={() => handleFocus(null)}
           onChangeText={(text) => handleChange(index, "name", text)}
           style={styles.inputValue}
+          placeholderTextColor={Colors.text.disabled}
         />
         {type === "ingredient" && (
           <TextInput
@@ -86,6 +87,7 @@ const EntryListForm = ({
             placeholder="Qty"
             onChangeText={(text) => handleChange(index, "quantity", text)}
             style={styles.inputQuantity}
+            placeholderTextColor={Colors.text.disabled}
           />
         )}
         {!isSingleEntry && (

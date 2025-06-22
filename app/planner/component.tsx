@@ -115,8 +115,10 @@ export default function PlannerComponent({ planner, date, actions }: Props) {
               display="default"
               minimumDate={minDate}
               onChange={(event, date) => {
-                setFieldState("showDatePicker", false);
-                if (date) setFieldState("selectedDate", startOfDay(date));
+                if (event.type === "set") {
+                  setFieldState("showDatePicker", false);
+                  if (date) setFieldState("selectedDate", startOfDay(date));
+                }
               }}
             />
           )}

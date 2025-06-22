@@ -1,7 +1,7 @@
 import { setUser } from "@/redux/slices/authSlice";
 import { setInteractionMap } from "@/redux/slices/interactionSlice";
 import { AppDispatch } from "@/redux/store";
-import { getCurrentUser } from "@/services/appwrite";
+import { getCurrentUser } from "@/services/Appwrite";
 import { fetchInteractions } from "@/utility/interactionUtils";
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";

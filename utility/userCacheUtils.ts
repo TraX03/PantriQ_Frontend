@@ -1,6 +1,6 @@
 import { AppwriteConfig } from "@/constants/AppwriteConfig";
 import { ProfileData } from "@/redux/slices/profileSlice";
-import { client, listDocuments } from "@/services/appwrite";
+import { client, listDocuments } from "@/services/Appwrite";
 import { Query, RealtimeResponseEvent } from "react-native-appwrite";
 import { getImageUrl } from "./imageUtils";
 

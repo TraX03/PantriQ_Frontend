@@ -26,6 +26,7 @@ type InputBoxProps = TextInputProps & {
   value: string;
   onChangeText: (text: string) => void;
   clearColor?: string;
+  keyboardType?: string;
 };
 
 const InputBox = ({
@@ -41,6 +42,7 @@ const InputBox = ({
   value,
   onChangeText,
   clearColor,
+  keyboardType,
   ...props
 }: InputBoxProps) => (
   <>
@@ -64,6 +66,8 @@ const InputBox = ({
         numberOfLines={lines}
         maxLength={limit}
         style={inputStyle}
+        keyboardType={keyboardType}
+        placeholderTextColor={Colors.text.disabled}
       />
 
       {value.length > 0 && (

@@ -2,7 +2,7 @@ import { Post } from "@/components/PostCard";
 import { AppwriteConfig } from "@/constants/AppwriteConfig";
 import { useFieldState } from "@/hooks/useFieldState";
 import { ProfileData } from "@/redux/slices/profileSlice";
-import { fetchAllDocuments } from "@/services/appwrite";
+import { fetchAllDocuments } from "@/services/Appwrite";
 import { getImageUrl } from "@/utility/imageUtils";
 import { parseMetadata } from "@/utility/metadataUtils";
 import { useMemo } from "react";

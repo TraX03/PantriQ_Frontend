@@ -1,4 +1,5 @@
 import {
+  AntDesign,
   Feather,
   Ionicons,
   MaterialCommunityIcons,
@@ -80,6 +81,14 @@ const MAPPING = {
     name: "send",
     type: "Ionicons",
   },
+  "arrowtriangle.down.fill": {
+    name: "caretdown",
+    type: "AntDesign",
+  },
+  "plus.rectangle.on.rectangle": {
+    name: "duplicate-outline",
+    type: "Ionicons",
+  },
 } as const;
 
 export type IconSymbolName = keyof typeof MAPPING;
@@ -113,6 +122,7 @@ export function IconSymbol({
     Feather: Feather,
     Octicons: Octicons,
     MaterialCommunityIcons: MaterialCommunityIcons,
+    AntDesign: AntDesign,
   };
 
   const IconComponent = iconComponentMap[type];

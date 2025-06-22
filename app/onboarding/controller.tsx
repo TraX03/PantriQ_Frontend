@@ -1,7 +1,7 @@
 import { AppwriteConfig } from "@/constants/AppwriteConfig";
 import { Routes } from "@/constants/Routes";
 import { useFieldState } from "@/hooks/useFieldState";
-import { getCurrentUser, updateDocument } from "@/services/appwrite";
+import { getCurrentUser, updateDocument } from "@/services/Appwrite";
 import { router } from "expo-router";
 import { pages } from "./component";
 

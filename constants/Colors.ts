@@ -41,12 +41,13 @@ export const Colors = {
     muted: "#e1e8f2",
     label: "#6b7280",
     light: "#4B5563",
-    dim: "#7B7B7B",
   },
 
   feedback: {
     success: "#10b981",
     warning: "#facc15",
+    notice: "#F97316",
     error: "#ef4444",
+    unknown: "#9CA3AF",
   },
 };

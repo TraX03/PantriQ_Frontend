@@ -3,7 +3,7 @@ import { Routes } from "@/constants/Routes";
 import { setUser } from "@/redux/slices/authSlice";
 import { setLoading } from "@/redux/slices/loadingSlice";
 import { AppDispatch } from "@/redux/store";
-import { account, createDocument, getCurrentUser } from "@/services/appwrite";
+import { account, createDocument, getCurrentUser } from "@/services/Appwrite";
 import { router } from "expo-router";
 import { useCallback, useEffect } from "react";
 import { useDispatch } from "react-redux";
