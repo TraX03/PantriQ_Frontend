@@ -1,6 +1,6 @@
 import React from "react";
 import { Image, Modal, TouchableOpacity } from "react-native";
-import styles from "./styles";
+import { styles } from "./styles";
 
 type FullscreenImageViewerProps = {
   imageUri: string | null;

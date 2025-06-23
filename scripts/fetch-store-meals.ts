@@ -1,5 +1,5 @@
 import { AppwriteConfig } from "@/constants/AppwriteConfig";
-import { createDocument } from "@/services/appwrite";
+import { createDocument } from "@/services/Appwrite";
 import { TheMealDB_Config } from "@/services/MealDbApi";
 import { detectBackgroundDarkness } from "@/utility/imageUtils";
 

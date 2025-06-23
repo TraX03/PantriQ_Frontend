@@ -7,7 +7,7 @@ const baseTextStyle = {
   fontSize: 12,
 };
 
-const styles = StyleSheet.create({
+export const styles = StyleSheet.create({
   container: {
     borderRadius: 12,
     paddingBottom: 14,
@@ -218,5 +218,3 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
 });
-
-export default styles;

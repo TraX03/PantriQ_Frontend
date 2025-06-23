@@ -8,7 +8,7 @@ import {
   View,
   ViewStyle,
 } from "react-native";
-import styles from "./styles";
+import { styles } from "./styles";
 import { IconSymbol } from "./ui/IconSymbol";
 
 type CustomPickerProps = {

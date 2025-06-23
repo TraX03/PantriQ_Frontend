@@ -5,7 +5,7 @@ import { User } from "@/utility/fetchUtils";
 import { styles as profileStyles } from "@/utility/profile/styles";
 import { router } from "expo-router";
 import { Image, Text, TouchableOpacity, View } from "react-native";
-import styles from "./styles";
+import { styles } from "./styles";
 
 type UserCardProps = {
   user: User;

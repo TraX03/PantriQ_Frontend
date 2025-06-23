@@ -122,12 +122,6 @@ export const styles = StyleSheet.create({
     fontSize: 13,
     fontFamily: "RobotoRegular",
   },
-  noPostText: {
-    color: Colors.text.disabled,
-    fontFamily: "RobotoRegular",
-    alignSelf: "center",
-    marginTop: 10,
-  },
 
   // Buttons
   logoutButton: {

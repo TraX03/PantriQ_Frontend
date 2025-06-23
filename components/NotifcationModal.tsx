@@ -1,7 +1,7 @@
 import { Colors } from "@/constants/Colors";
 import React from "react";
 import { Image, Modal, Pressable, Text } from "react-native";
-import styles from "./styles";
+import { styles } from "./styles";
 
 interface NotificationModalProps {
   visible: boolean;

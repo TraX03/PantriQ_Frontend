@@ -1,12 +1,13 @@
-import OnboardingPage from "@/components/Onboarding";
-import { Mode } from "@/components/SearchWithSuggestions";
+import BottomSheetModal from "@/components/BottomSheetModal";
+import SearchWithSuggestion, { Mode } from "@/components/SearchWithSuggestions";
+import SelectionList from "@/components/SelectionList";
 import { Colors } from "@/constants/Colors";
 import { useFieldState } from "@/hooks/useFieldState";
 import { SuggestionType } from "@/hooks/useSuggestionList";
 import { styles } from "@/utility/onboarding/styles";
 import { Stack } from "expo-router";
 import React from "react";
-import { Pressable, Text, View } from "react-native";
+import { Pressable, ScrollView, Text, View } from "react-native";
 import { OnboardingState } from "./controller";
 
 export const pages: {
@@ -74,41 +75,58 @@ export const pages: {
 
 type Props = {
   onboarding: ReturnType<typeof useFieldState<OnboardingState>>;
-  handleNext: () => void;
-  handlePrevious: () => void;
-  addCustomSuggestion: (pageIndex: number, suggestion: string) => void;
   isNextEnabled: boolean;
+  actions: {
+    handleSelectItem: (item: string) => void;
+    toggleItemSelection: (item: string) => void;
+    getPageSuggestions: () => string[];
+    handleNext: () => void;
+    handlePrevious: () => void;
+  };
 };
 
 export default function OnboardingComponent({
   onboarding,
-  handleNext,
-  handlePrevious,
-  addCustomSuggestion,
   isNextEnabled,
+  actions,
 }: Props) {
+  const {
+    handleSelectItem,
+    toggleItemSelection,
+    getPageSuggestions,
+    handleNext,
+    handlePrevious,
+  } = actions;
   const {
     currentPage,
     ingredientAvoid,
     diet,
     region,
-    customSuggestions,
+    showSearchModal,
     setFieldState,
   } = onboarding;
-
   const pageIndex = currentPage - 1;
   const selectedStates = [ingredientAvoid, diet, region];
-  const setters = [
-    (value: typeof ingredientAvoid) => setFieldState("ingredientAvoid", value),
-    (value: typeof diet) => setFieldState("diet", value),
-    (value: typeof region) => setFieldState("region", value),
-  ];
-
   const currentPageData = pages[pageIndex];
 
   return (
     <>
       <Stack.Screen options={{ headerShown: false }} />
+
+      <BottomSheetModal
+        isVisible={showSearchModal}
+        onClose={() => setFieldState("showSearchModal", false)}
+        modalStyle={styles.optionModal}
+        zIndex={10}
+      >
+        <SearchWithSuggestion
+          onSelectItem={handleSelectItem}
+          mode={currentPageData.mode}
+          placeholder={currentPageData.placeholder}
+          suggestionType={currentPageData.suggestionType}
+        />
+      </BottomSheetModal>
+
       <View style={styles.container}>
         <View className="flex-row justify-between items-center mb-6 mt-4">
           <View className="flex-row gap-2">
@@ -156,15 +174,28 @@ export default function OnboardingComponent({
         </View>
 
         {currentPageData && (
-          <OnboardingPage
-            {...currentPageData}
-            selectedItems={selectedStates[pageIndex]}
-            onChange={setters[pageIndex]}
-            customSuggestions={customSuggestions[pageIndex]}
-            onAddCustomSuggestion={(item) =>
-              addCustomSuggestion(pageIndex, item)
-            }
-          />
+          <>
+            <View>
+              <Text style={styles.title}>{currentPageData.title}</Text>
+              <Text style={styles.description}>
+                {currentPageData.description}
+              </Text>
+            </View>
+
+            <View className="mt-7 flex-1">
+              <ScrollView
+                showsVerticalScrollIndicator={false}
+                contentContainerClassName="flex-row flex-wrap gap-2.5"
+              >
+                <SelectionList
+                  getPageSuggestions={getPageSuggestions}
+                  toggleItemSelection={toggleItemSelection}
+                  selectedItems={selectedStates[currentPage - 1]}
+                  onOpenModal={() => setFieldState("showSearchModal", true)}
+                />
+              </ScrollView>
+            </View>
+          </>
         )}
 
         <View className="flex-row justify-between mt-6">
@@ -176,7 +207,12 @@ export default function OnboardingComponent({
               ]}
               onPress={handlePrevious}
             >
-              <Text style={[styles.buttonText, { color: Colors.brand.onBackground }]}>
+              <Text
+                style={[
+                  styles.buttonText,
+                  { color: Colors.brand.onBackground },
+                ]}
+              >
                 Previous
               </Text>
             </Pressable>

@@ -4,7 +4,7 @@ import { getImageUrl } from "@/utility/imageUtils";
 import React, { useState } from "react";
 import { Image, Text, TouchableOpacity, View } from "react-native";
 import FullscreenImageViewer from "./FullscreenImageViewer";
-import styles from "./styles";
+import { styles } from "./styles";
 import { IconSymbol } from "./ui/IconSymbol";
 
 interface RecipeStepProps {

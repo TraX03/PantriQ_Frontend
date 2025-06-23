@@ -294,8 +294,6 @@ export default function ProfileComponent({
               <View style={styles.loadingContianer}>
                 <ActivityIndicator size="large" color={Colors.brand.primary} />
               </View>
-            ) : filteredPosts.length === 0 ? (
-              <Text style={styles.noPostText}>No posts to display.</Text>
             ) : (
               <MasonryList
                 posts={sortedPosts.map((post) => ({

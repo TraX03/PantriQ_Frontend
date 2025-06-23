@@ -6,7 +6,7 @@ import { fetchSuggestions } from "@/services/DatamuseApi";
 import { styles as searchStyles } from "@/utility/search/styles";
 import { useEffect, useState } from "react";
 import { Pressable, ScrollView, Text, View } from "react-native";
-import styles from "./styles";
+import { styles } from "./styles";
 export type Mode = "datamuse-only" | "suggestion-then-custom";
 
 type SearchSuggestionProps = {

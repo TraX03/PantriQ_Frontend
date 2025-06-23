@@ -2,7 +2,7 @@ import { Colors } from "@/constants/Colors";
 import React, { useEffect, useRef, useState } from "react";
 import { Animated, Text, View } from "react-native";
 import Svg, { Circle } from "react-native-svg";
-import styles from "./styles";
+import { styles } from "./styles";
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 

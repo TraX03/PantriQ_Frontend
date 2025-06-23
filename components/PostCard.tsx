@@ -5,7 +5,7 @@ import { useReduxSelectors } from "@/hooks/useReduxSelectors";
 import { getInteractionStatus } from "@/utility/interactionUtils";
 import { router } from "expo-router";
 import { Image, Pressable, Text, TouchableOpacity, View } from "react-native";
-import styles from "./styles";
+import { styles } from "./styles";
 import { IconSymbol } from "./ui/IconSymbol";
 
 export type PostType = "recipe" | "tips" | "discussion" | "community";

@@ -1,23 +1,8 @@
 import { RecipePost } from "@/app/content/posts/controller";
-import { AppwriteConfig } from "@/constants/AppwriteConfig";
-import { getDocumentById, updateDocument } from "./Appwrite";
-
-const spoonacularFields = [
-  "vegetarian",
-  "vegan",
-  "glutenFree",
-  "dairyFree",
-  "veryHealthy",
-  "cheap",
-  "veryPopular",
-  "sustainable",
-  "lowFodmap",
-];
 
 const SpoonacularConfig = {
   BASE_URL: "https://api.spoonacular.com/recipes/",
   API_KEY: "563397ab406d4ea1b7ebefe5e892fc1c",
-  TAG_SET: new Set(Object.values(spoonacularFields)),
 };
 
 export const analyzeRecipe = async (recipe: RecipePost) => {
@@ -49,47 +34,9 @@ export const analyzeRecipe = async (recipe: RecipePost) => {
       return null;
     }
 
-    const data = await res.json();
-    void updateRecipeTags(recipe.id, data);
-    return data;
+    return void (await res.json());
   } catch (err) {
     console.error("Failed to analyze recipe:", err);
-    return null;
-  }
-};
-
-const updateRecipeTags = async (recipeId: string, spoonacularData: any) => {
-  try {
-    const recipe = await getDocumentById(
-      AppwriteConfig.RECIPES_COLLECTION_ID,
-      recipeId
-    );
-
-    const existingTags: string[] = recipe.tags ?? [];
-
-    if (existingTags.some((tag) => SpoonacularConfig.TAG_SET.has(tag))) {
-      console.log("Spoonacular tags already present. Skipping update.");
-      return recipe;
-    }
-
-    const newTags = spoonacularFields.filter((field) => spoonacularData[field]);
-    if (newTags.length === 0) {
-      console.log("No new Spoonacular tags to add.");
-      return recipe;
-    }
-
-    const updatedTags = [...new Set([...existingTags, ...newTags])];
-
-    const updatedRecipe = await updateDocument(
-      AppwriteConfig.RECIPES_COLLECTION_ID,
-      recipeId,
-      { tags: updatedTags }
-    );
-
-    console.log("Recipe tags updated:", updatedTags);
-    return updatedRecipe;
-  } catch (err) {
-    console.error("Failed to update tags:", err);
     return null;
   }
 };

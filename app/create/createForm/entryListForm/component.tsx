@@ -1,50 +1,32 @@
-import { EntryController } from "@/app/create/createForm/component";
-import { CreateFormState } from "@/app/create/createForm/controller";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { Colors } from "@/constants/Colors";
-import { useFieldState } from "@/hooks/useFieldState";
-import { useSuggestionList } from "@/hooks/useSuggestionList";
 import { styles } from "@/utility/create/styles";
-import React from "react";
 import { Text, TextInput, TouchableOpacity, View } from "react-native";
+import { ContainerProps } from "./container";
+import { EntryItem } from "./controller";
 
-export type EntryType = "ingredient" | "category" | "area";
-
-type EntryListProps = {
-  type: EntryType;
-  create: ReturnType<typeof useFieldState<CreateFormState>>;
-  controller: EntryController;
-  placeholder: string;
-  label?: string;
+type Props = ContainerProps & {
+  getSuggestions: (query: string) => string[];
+  handleFocus: (index: number | null) => void;
+  handleChange: (index: number, field: keyof EntryItem, value: string) => void;
 };
 
-type EntryItem = { name: string; quantity?: string };
-
-const EntryListForm = ({
+export default function EntryListFormComponent({
   type,
   create,
   controller,
   placeholder,
   label,
-}: EntryListProps) => {
+  getSuggestions,
+  handleFocus,
+  handleChange,
+}: Props) {
   const { focusedIndex, setFieldState, area } = create;
-  const { getSuggestions } = useSuggestionList(type);
-
   const isSingleEntry = type === "area";
   const entries: EntryItem[] = isSingleEntry
     ? [{ name: area || "" }]
     : (create[type] as EntryItem[]);
-
-  const handleFocus = (index: number | null) =>
-    setFieldState("focusedIndex", { [type]: index });
-
-  const handleChange = (index: number, field: keyof EntryItem, value: string) =>
-    controller.updateEntry(type, index, field, value);
-
-  const handleSelect = (index: number, suggestion: string) =>
-    controller.selectSuggestion(type, index, suggestion);
-
-  const handleClear = () => setFieldState(type, isSingleEntry ? "" : []);
+  const hasItems = isSingleEntry ? !!area : entries.length > 0;
 
   const showSuggestions = (index: number, value: string) => {
     const suggestions = getSuggestions(value);
@@ -59,7 +41,7 @@ const EntryListForm = ({
         {suggestions.map((suggestion) => (
           <TouchableOpacity
             key={suggestion}
-            onPress={() => handleSelect(index, suggestion)}
+            onPress={() => controller.selectSuggestion(type, index, suggestion)}
             className="px-3 py-2"
           >
             <Text>{suggestion}</Text>
@@ -106,8 +88,6 @@ const EntryListForm = ({
     </View>
   );
 
-  const hasItems = isSingleEntry ? !!area : entries.length > 0;
-
   return (
     <>
       <View className="flex-row justify-between items-center">
@@ -115,7 +95,9 @@ const EntryListForm = ({
           {label ?? type.charAt(0).toUpperCase() + type.slice(1)}
         </Text>
         {hasItems && (
-          <TouchableOpacity onPress={handleClear}>
+          <TouchableOpacity
+            onPress={() => setFieldState(type, isSingleEntry ? "" : [])}
+          >
             <Text style={styles.linkText}>Clear All</Text>
           </TouchableOpacity>
         )}
@@ -133,6 +115,4 @@ const EntryListForm = ({
       )}
     </>
   );
-};
-
-export default EntryListForm;
+}

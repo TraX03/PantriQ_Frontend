@@ -1,8 +1,6 @@
-import EntryListForm from "@/components/EntryListForm";
 import HeaderBar from "@/components/HeaderBar";
 import InputBox from "@/components/InputBox";
-import InstructionsForm from "@/components/InstructionsForm";
-import PostTypeSelector from "@/components/PostTypeSelector";
+import { PostType } from "@/components/PostCard";
 import ScreenWrapper from "@/components/ScreenWrapper";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { Colors } from "@/constants/Colors";
@@ -21,6 +19,8 @@ import {
   View,
 } from "react-native";
 import { CreateFormState } from "./controller";
+import EntryListFormContainer from "./entryListForm/container";
+import InstructionsFormContainer from "./instructionForm/container";
 
 export type EntryController = {
   updateEntry: (
@@ -137,20 +137,20 @@ export default function CreateFormComponent({ create, controller }: Props) {
 
               {isRecipe && (
                 <View className="mb-4">
-                  <EntryListForm
+                  <EntryListFormContainer
                     type="ingredient"
                     create={create}
                     controller={controller}
                     placeholder="Ingredient"
                     label="Ingredients"
                   />
-                  <EntryListForm
+                  <EntryListFormContainer
                     type="category"
                     create={create}
                     controller={controller}
                     placeholder="Category"
                   />
-                  <EntryListForm
+                  <EntryListFormContainer
                     type="area"
                     create={create}
                     controller={controller}
@@ -160,10 +160,41 @@ export default function CreateFormComponent({ create, controller }: Props) {
               )}
 
               {isTipsOrDiscussion && (
-                <PostTypeSelector
-                  postType={postType}
-                  setPostType={(type) => setFieldState("postType", type)}
-                />
+                <>
+                  <Text style={styles.inputTitle}>Post Type</Text>
+                  <View className="flex-row mb-6 gap-3">
+                    {(["tips", "discussion"] as PostType[]).map((type) => (
+                      <TouchableOpacity
+                        key={type}
+                        onPress={() => setFieldState("postType", type)}
+                        className="flex-row items-center px-4 py-2 rounded-full border"
+                        style={{
+                          borderColor:
+                            postType === type
+                              ? Colors.brand.primary
+                              : Colors.text.placeholder,
+                        }}
+                      >
+                        <View
+                          className="w-5 h-5 rounded-full border items-center justify-center mr-2"
+                          style={{
+                            borderColor:
+                              postType === type
+                                ? Colors.brand.primary
+                                : Colors.text.placeholder,
+                          }}
+                        >
+                          {postType === type && (
+                            <View style={profileStyles.radioButtom} />
+                          )}
+                        </View>
+                        <Text className="capitalize">
+                          {type === "tips" ? "Tips & Advice" : type}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                </>
               )}
 
               <Text style={styles.inputTitle}>
@@ -199,7 +230,7 @@ export default function CreateFormComponent({ create, controller }: Props) {
               />
 
               {isRecipe && (
-                <InstructionsForm
+                <InstructionsFormContainer
                   instructions={create.instructions}
                   modifyInstruction={controller.modifyInstruction}
                   updateInstruction={controller.updateInstruction}

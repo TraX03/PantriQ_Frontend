@@ -62,7 +62,9 @@ const MasonryList = ({
 
       <View className="flex-row items-center justify-center mb-12 mt-3">
         <View style={homeStyles.divider} />
-        <Text style={homeStyles.endText}>You're at the end</Text>
+        <Text style={homeStyles.endText}>
+          {posts.length === 0 ? "Nothing to show here" : "You're at the end"}
+        </Text>
         <View style={homeStyles.divider} />
       </View>
     </ScrollView>

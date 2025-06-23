@@ -1,27 +1,25 @@
+import FullscreenImageViewer from "@/components/FullscreenImageViewer";
+import InputBox from "@/components/InputBox";
+import { IconSymbol } from "@/components/ui/IconSymbol";
 import { Colors } from "@/constants/Colors";
-import { styles as createStyles } from "@/utility/create/styles";
+import { styles } from "@/utility/create/styles";
 import { styles as profileStyles } from "@/utility/profile/styles";
-import React, { useState } from "react";
 import { Image, Text, TouchableOpacity, View } from "react-native";
-import FullscreenImageViewer from "./FullscreenImageViewer";
-import InputBox from "./InputBox";
-import { IconSymbol } from "./ui/IconSymbol";
+import { ContainerProps } from "./container";
 
-type InstructionsFormProps = {
-  instructions: { image?: string; text: string }[];
-  modifyInstruction: (action: "add" | "remove", index?: number) => void;
-  updateInstruction: (index: number, text: string) => void;
-  updateInstructionImage: (index: number, shouldRemove?: boolean) => void;
+type Props = ContainerProps & {
+  fullscreenImage: string | null;
+  setFullscreenImage: (uri: string | null) => void;
 };
 
-const InstructionsForm = ({
+export default function InstructionsFormComponent({
   instructions,
   modifyInstruction,
   updateInstruction,
   updateInstructionImage,
-}: InstructionsFormProps) => {
-  const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
-
+  fullscreenImage,
+  setFullscreenImage,
+}: Props) {
   return (
     <>
       <FullscreenImageViewer
@@ -29,11 +27,11 @@ const InstructionsForm = ({
         onClose={() => setFullscreenImage(null)}
       />
       <View className="mt-4 space-y-4">
-        <Text style={createStyles.inputTitle}>Instructions</Text>
+        <Text style={styles.inputTitle}>Instructions</Text>
         {instructions.map((step, index) => (
           <View key={index} className="mb-4">
             <View className="flex-row justify-between items-center">
-              <Text style={createStyles.stepText}>Step {index + 1}</Text>
+              <Text style={styles.stepText}>Step {index + 1}</Text>
               {index != 0 && (
                 <TouchableOpacity
                   onPress={() => {
@@ -41,7 +39,7 @@ const InstructionsForm = ({
                   }}
                   className="items-end"
                 >
-                  <Text style={createStyles.linkText}>Remove</Text>
+                  <Text style={styles.linkText}>Remove</Text>
                 </TouchableOpacity>
               )}
             </View>
@@ -102,13 +100,11 @@ const InstructionsForm = ({
 
         <TouchableOpacity
           onPress={() => modifyInstruction("add")}
-          style={createStyles.addStepButton}
+          style={styles.addStepButton}
         >
-          <Text style={createStyles.stepButtonText}>Add Step</Text>
+          <Text style={styles.stepButtonText}>Add Step</Text>
         </TouchableOpacity>
       </View>
     </>
   );
-};
-
-export default InstructionsForm;
+}
