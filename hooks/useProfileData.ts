@@ -3,7 +3,7 @@ import { setLoading } from "@/redux/slices/loadingSlice";
 import {
   guestProfile,
   resetProfileData,
-  setProfileData
+  setProfileData,
 } from "@/redux/slices/profileSlice";
 import { AppDispatch } from "@/redux/store";
 import { getCurrentUser, getDocumentById } from "@/services/Appwrite";

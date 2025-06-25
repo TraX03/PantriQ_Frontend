@@ -1,10 +1,21 @@
 import { AppwriteConfig } from "@/constants/AppwriteConfig";
 import { Routes } from "@/constants/Routes";
 import { useFieldState } from "@/hooks/useFieldState";
-import { getCurrentUser, updateDocument } from "@/services/Appwrite";
+import {
+  createDocument,
+  getCurrentUser,
+  updateDocument,
+} from "@/services/Appwrite";
+import { fetchColdStartRecommendations } from "@/services/FastApi";
 import { router } from "expo-router";
 import Toast from "react-native-toast-message";
-import { pages } from "./component";
+import { InteractionType, pages } from "./component";
+
+type Recommendation = {
+  recipeIds: string[];
+  titles: string[];
+  images: string[];
+};
 
 export interface OnboardingState {
   currentPage: number;
@@ -13,6 +24,8 @@ export interface OnboardingState {
   region: string[];
   customSuggestions: string[][];
   showSearchModal: boolean;
+  recommendations: Recommendation | null;
+  currentRatingIndex: number;
 }
 
 const fieldKeys: (keyof OnboardingState)[] = [
@@ -29,6 +42,8 @@ export const useOnboardingController = () => {
     region: [],
     customSuggestions: Array(pages.length).fill([]),
     showSearchModal: false,
+    recommendations: null,
+    currentRatingIndex: 0,
   });
 
   const {
@@ -38,6 +53,9 @@ export const useOnboardingController = () => {
     region,
     customSuggestions,
     setFieldState,
+    setFields,
+    recommendations,
+    currentRatingIndex,
   } = onboarding;
 
   const selectedStates = [ingredientAvoid, diet, region];
@@ -47,7 +65,7 @@ export const useOnboardingController = () => {
 
   const normalize = (text: string) => text.toLowerCase();
   const allSuggestions = [
-    ...pages[pageIndex].suggestions,
+    ...(pages[pageIndex].suggestions ?? []),
     ...customSuggestions[pageIndex],
   ].map(normalize);
 
@@ -77,7 +95,7 @@ export const useOnboardingController = () => {
 
   const getPageSuggestions = () => [
     ...new Set([
-      ...pages[pageIndex].suggestions,
+      ...(pages[pageIndex].suggestions ?? []),
       ...customSuggestions[pageIndex],
     ]),
   ];
@@ -101,20 +119,50 @@ export const useOnboardingController = () => {
     }
   };
 
-  const handleNext = async () => {
-    if (currentPage === pages.length) {
-      await saveOnboardingData();
-      router.replace(Routes.Home);
+  const handleRating = async (value: InteractionType) => {
+    const recipeId = recommendations?.recipeIds[onboarding.currentRatingIndex];
+    const user = await getCurrentUser();
+
+    await createDocument(AppwriteConfig.INTERACTIONS_COLLECTION_ID, {
+      user_id: user.$id,
+      item_id: recipeId,
+      type: "coldStart",
+      value,
+      created_at: new Date().toISOString(),
+    });
+
+    if (currentRatingIndex + 1 < recommendations!.titles.length) {
+      setFieldState("currentRatingIndex", currentRatingIndex + 1);
     } else {
-      setFieldState("currentPage", currentPage + 1);
+      router.replace(Routes.Home);
     }
+  };
+
+  const handleNext = async () => {
+    if (currentPage === pages.length - 1) {
+      await saveOnboardingData();
+      const user = await getCurrentUser();
+      const data = await fetchColdStartRecommendations(user.$id);
+
+      setFields({
+        recommendations: {
+          recipeIds: data.recipe_ids,
+          titles: data.titles,
+          images: data.images,
+        },
+        currentRatingIndex: 0,
+      });
+    }
+    setFieldState("currentPage", currentPage + 1);
   };
 
   const handlePrevious = () => {
     if (currentPage > 1) setFieldState("currentPage", currentPage - 1);
   };
 
-  const isNextEnabled = selectedItems.length > 0;
+  const isNextEnabled = Array.isArray(selectedItems)
+    ? selectedItems.length > 0
+    : false;
 
   return {
     onboarding,
@@ -125,6 +173,7 @@ export const useOnboardingController = () => {
       handleSelectItem,
       toggleItemSelection,
       getPageSuggestions,
+      handleRating,
     },
   };
 };

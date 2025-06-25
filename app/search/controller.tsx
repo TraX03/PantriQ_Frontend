@@ -38,7 +38,7 @@ const useSearchController = () => {
     setFieldState("recentSearches", recent);
 
     const [postData, userData] = await Promise.all([
-      fetchPosts(),
+      fetchPosts(undefined, undefined, true),
       fetchUserList(),
     ]);
 

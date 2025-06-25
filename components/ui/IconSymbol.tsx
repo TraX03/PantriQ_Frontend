@@ -89,6 +89,11 @@ const MAPPING = {
     name: "duplicate-outline",
     type: "Ionicons",
   },
+  "minus.circle.fill": {
+    name: "heart-minus",
+    type: "MaterialCommunityIcons",
+  },
+  "heart.slash.fill": { name: "heart-broken", type: "MaterialCommunityIcons" },
 } as const;
 
 export type IconSymbolName = keyof typeof MAPPING;

@@ -11,8 +11,8 @@ export type Mode = "datamuse-only" | "suggestion-then-custom";
 
 type SearchSuggestionProps = {
   onSelectItem: (item: string) => void;
-  mode: Mode;
-  placeholder: string;
+  mode?: Mode;
+  placeholder?: string;
   suggestionType?: SuggestionType;
 };
 
@@ -74,9 +74,9 @@ const SearchWithSuggestion = ({
           <InputBox
             value={searchText}
             onChangeText={setSearchText}
-            placeholder={`${
-              isCustomFlow ? "Enter" : "Search"
-            } ${placeholder.toLowerCase()}...`}
+            placeholder={`${isCustomFlow ? "Enter" : "Search"} ${(
+              placeholder ?? "Enter text"
+            ).toLowerCase()}...`}
             icon={isCustomFlow ? undefined : "magnifyingglass"}
             containerStyle={searchStyles.searchBar}
             clearColor={Colors.brand.primary}

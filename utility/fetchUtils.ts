@@ -1,6 +1,7 @@
 import { Post } from "@/components/PostCard";
 import { AppwriteConfig } from "@/constants/AppwriteConfig";
 import { fetchAllDocuments } from "@/services/Appwrite";
+import { fetchHomeFeedRecommendations } from "@/services/FastApi";
 import { getImageUrl } from "./imageUtils";
 import { fetchUsers } from "./userCacheUtils";
 
@@ -13,7 +14,8 @@ export interface User {
 
 export const fetchPosts = async (
   limit?: number,
-  regionPref?: string
+  regionPref?: string,
+  includeRecipes: boolean = false
 ): Promise<Post[]> => {
   const shuffleArray = <T>(array: T[]): T[] =>
     array
@@ -49,17 +51,23 @@ export const fetchPosts = async (
   });
 
   try {
-    const [postDocs, recipeDocs, communityDocs] = await Promise.all([
+    const [postDocs, communityDocs] = await Promise.all([
       fetchAllDocuments(AppwriteConfig.POSTS_COLLECTION_ID),
-      fetchAllDocuments(AppwriteConfig.RECIPES_COLLECTION_ID),
       fetchAllDocuments(AppwriteConfig.COMMUNITIES_COLLECTION_ID),
     ]);
 
+    const recipeDocs = includeRecipes
+      ? await fetchAllDocuments(AppwriteConfig.RECIPES_COLLECTION_ID)
+      : [];
+
     const authorIds = Array.from(
       new Set(
-        [...postDocs, ...recipeDocs].map((doc) => doc.author_id).filter(Boolean)
+        [...postDocs, ...(includeRecipes ? recipeDocs : [])]
+          .map((doc) => doc.author_id)
+          .filter(Boolean)
       )
     );
+
     const usersMap = await fetchUsers(authorIds);
 
     const tips = applyLimit(
@@ -69,6 +77,7 @@ export const fetchPosts = async (
           .map((d) => mapPost(d, usersMap))
       )
     );
+
     const discussions = applyLimit(
       shuffleArray(
         postDocs
@@ -76,33 +85,64 @@ export const fetchPosts = async (
           .map((d) => mapPost(d, usersMap))
       )
     );
+
     const communities = applyLimit(
       shuffleArray(communityDocs.map(mapCommunity))
     );
 
-    const allRecipes = recipeDocs.map((d) => mapPost(d, usersMap));
+    let finalRecipes: Post[] = [];
+    if (includeRecipes) {
+      const allRecipes = recipeDocs.map((d) => mapPost(d, usersMap));
 
-    const regionRecipes = regionPref
-      ? allRecipes.filter((r) => regionPref.includes(r.area || ""))
-      : [];
-    const otherRecipes = regionPref
-      ? allRecipes.filter((r) => !regionPref.includes(r.area || ""))
-      : allRecipes;
+      const regionRecipes = regionPref
+        ? allRecipes.filter((r) => regionPref.includes(r.area || ""))
+        : [];
+      const otherRecipes = regionPref
+        ? allRecipes.filter((r) => !regionPref.includes(r.area || ""))
+        : allRecipes;
 
-    const halfLimit = limit
-      ? Math.floor(limit / 2)
-      : Math.floor(allRecipes.length / 2);
-    const regionHalf = applyLimit(shuffleArray(regionRecipes), halfLimit);
-    const otherHalf = applyLimit(
-      shuffleArray(otherRecipes),
-      limit ? limit - regionHalf.length : undefined
-    );
+      const halfLimit = limit
+        ? Math.floor(limit / 2)
+        : Math.floor(allRecipes.length / 2);
+      const regionHalf = applyLimit(shuffleArray(regionRecipes), halfLimit);
+      const otherHalf = applyLimit(
+        shuffleArray(otherRecipes),
+        limit ? limit - regionHalf.length : undefined
+      );
 
-    const finalRecipes = [...regionHalf, ...otherHalf];
+      finalRecipes = [...regionHalf, ...otherHalf];
+    }
 
     return [...finalRecipes, ...tips, ...discussions, ...communities];
   } catch (error) {
     console.error("Failed to fetch posts", error);
+    return [];
+  }
+};
+
+export const fetchHomeFeedPosts = async (userId: string): Promise<Post[]> => {
+  try {
+    const recs = await fetchHomeFeedRecommendations(userId);
+
+    const authorIds = Array.from(
+      new Set((recs.author_ids as string[]).filter(Boolean))
+    );
+    const usersMap = await fetchUsers(authorIds);
+
+    return recs.recipe_ids.map((id: string, index: number) => {
+      const authorId = recs.author_ids[index];
+      const authorInfo = usersMap.get(authorId);
+      return {
+        id,
+        type: "recipe",
+        title: recs.titles[index],
+        image: getImageUrl(recs.images[index]),
+        author: authorInfo?.username || "Unknown",
+        profilePic: getImageUrl(authorInfo?.avatarUrl),
+      };
+    });
+  } catch (err) {
+    console.error("Failed to fetch home feed", err);
     return [];
   }
 };

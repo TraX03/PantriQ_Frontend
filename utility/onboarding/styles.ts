@@ -35,7 +35,7 @@ export const styles = StyleSheet.create({
     fontFamily: "RobotoSemiBold",
   },
   button: {
-    paddingVertical: 8,
+    paddingVertical: 11,
     borderRadius: 10,
     marginTop: 32,
     width: "30%",
@@ -55,5 +55,13 @@ export const styles = StyleSheet.create({
     paddingTop: 20,
     paddingBottom: 90,
     marginBottom: -25,
+  },
+  nameOverlay: {
+    backgroundColor: Colors.overlay.dark,
+    padding: 12,
+  },
+  name: {
+    color: Colors.brand.onPrimary,
+    fontSize: 16,
   },
 });

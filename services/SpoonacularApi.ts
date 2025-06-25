@@ -34,7 +34,7 @@ export const analyzeRecipe = async (recipe: RecipePost) => {
       return null;
     }
 
-    return void (await res.json());
+    return await res.json();
   } catch (err) {
     console.error("Failed to analyze recipe:", err);
     return null;

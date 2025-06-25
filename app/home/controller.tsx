@@ -1,8 +1,7 @@
 import { Post } from "@/components/PostCard";
-import { AppwriteConfig } from "@/constants/AppwriteConfig";
 import { useFieldState } from "@/hooks/useFieldState";
-import { getCurrentUser, getDocumentById } from "@/services/Appwrite";
-import { fetchPosts } from "@/utility/fetchUtils";
+import { getCurrentUser } from "@/services/Appwrite";
+import { fetchHomeFeedPosts, fetchPosts } from "@/utility/fetchUtils";
 import { useCallback, useMemo } from "react";
 
 export interface HomeState {
@@ -32,28 +31,25 @@ export const useHomeController = () => {
 
   const refreshPosts = useCallback(async () => {
     setFieldState("refreshing", true);
-    let regionPref: string | undefined;
-
     try {
       const user = await getCurrentUser();
+      let recipePosts: Post[] = [];
 
       if (user) {
-        const userDoc = await getDocumentById(
-          AppwriteConfig.USERS_COLLECTION_ID,
-          user.$id
-        );
-        regionPref = userDoc?.region_pref;
+        recipePosts = await fetchHomeFeedPosts(user.$id);
       }
+
+      const otherPosts = await fetchPosts();
+      const combined = [...recipePosts, ...otherPosts];
+
+      setFields({
+        posts: combined,
+        refreshing: false,
+      });
     } catch (error) {
-      regionPref = undefined;
+      console.error("Failed to refresh posts:", error);
+      setFieldState("refreshing", false);
     }
-
-    const fetchedPosts = await fetchPosts(100, regionPref);
-
-    setFields({
-      posts: fetchedPosts,
-      refreshing: false,
-    });
   }, []);
 
   const filterPosts = useCallback(
