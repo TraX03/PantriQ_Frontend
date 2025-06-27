@@ -68,44 +68,12 @@ export const styles = StyleSheet.create({
     fontFamily: "RobotoRegular",
     color: Colors.text.muted,
   },
-  changeBgText: {
-    fontSize: 13,
-    fontFamily: "RobotoRegular",
-  },
-  tabTitleText: {
-    color: Colors.text.primary,
-    fontFamily: "RobotoMedium",
-  },
-  tabText: {
-    marginRight: 10,
-    fontFamily: "RobotoRegular",
-  },
-  genderOptionText: {
-    fontSize: 14,
-    fontFamily: "RobotoRegular",
-    color: Colors.text.primary,
-  },
   indicatorText: {
     marginTop: 8,
     fontSize: 12,
     textAlign: "right",
     fontFamily: "RobotoRegular",
     color: Colors.text.disabled,
-  },
-  inputPlaceholder: {
-    fontFamily: "RobotoRegular",
-    color: Colors.text.primary,
-  },
-  logoutButtonText: {
-    fontSize: 16,
-    fontFamily: "RobotoMedium",
-    color: Colors.brand.onPrimary,
-  },
-  saveButtonText: {
-    textAlign: "center",
-    fontSize: 14,
-    fontFamily: "RobotoMedium",
-    color: Colors.brand.onPrimary,
   },
   bioText: {
     color: Colors.brand.onPrimary,
@@ -124,34 +92,6 @@ export const styles = StyleSheet.create({
   },
 
   // Buttons
-  logoutButton: {
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 10,
-    backgroundColor: Colors.surface.buttonPrimary,
-    marginTop: 30,
-    alignSelf: "center",
-  },
-  saveButton: {
-    marginTop: 25,
-    paddingVertical: 10,
-    borderRadius: 12,
-    width: 100,
-    alignSelf: "flex-end",
-    backgroundColor: Colors.surface.buttonPrimary,
-  },
-  changeBgButton: {
-    position: "absolute",
-    top: 15,
-    right: 15,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 50,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-    borderWidth: 1,
-  },
   loginButton: {
     borderRadius: 9999,
     paddingHorizontal: 24,
@@ -165,41 +105,11 @@ export const styles = StyleSheet.create({
     paddingVertical: 5,
   },
 
-  // Input Fields
-  inputBox: {
-    marginTop: 12,
-    paddingHorizontal: 15,
-    paddingVertical: 8,
-    borderRadius: 8,
-    borderWidth: 0.5,
-    borderColor: Colors.surface.border,
-  },
-  input: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    paddingRight: 45,
-    fontSize: 14,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: Colors.surface.border,
-  },
-
   // Misc Components
   avatar: {
     width: "100%",
     height: "100%",
     backgroundColor: Colors.text.placeholder,
-  },
-  radioButtom: {
-    width: 8,
-    height: 8,
-    borderRadius: 5,
-    backgroundColor: Colors.brand.primary,
-  },
-  fieldTab: {
-    paddingVertical: 3,
-    backgroundColor: Colors.brand.onPrimary,
-    borderColor: Colors.text.placeholder,
   },
   profileTab: {
     alignItems: "center",
@@ -220,14 +130,6 @@ export const styles = StyleSheet.create({
     backgroundColor: Colors.brand.onPrimary,
     borderTopLeftRadius: 10,
     borderTopRightRadius: 10,
-  },
-  settingsTab: {
-    borderColor: Colors.surface.border,
-    borderTopWidth: 1.2,
-    borderBottomWidth: 1.2,
-    padding: 25,
-    alignItems: "center",
-    flexDirection: "row",
   },
   subTabHeader: {
     flexDirection: "row",

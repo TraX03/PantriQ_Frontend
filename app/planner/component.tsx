@@ -62,11 +62,13 @@ export default function PlannerComponent({ planner, date, actions }: Props) {
       <BottomSheetModal
         isVisible={showMealtimeModal}
         onClose={() => setFieldState("showMealtimeModal", false)}
-        options={availableMealtimes.map((meal: MealTime) => ({
-          key: meal.id,
-          label: meal.label,
-          onPress: () => addMealtime(meal.id),
-        }))}
+        options={availableMealtimes
+          .filter((meal) => meal.id !== "all")
+          .map((meal) => ({
+            key: meal.id,
+            label: meal.label,
+            onPress: () => addMealtime(meal.id),
+          }))}
         zIndex={20}
         modalStyle={styles.mealTimeModal}
       />

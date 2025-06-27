@@ -302,6 +302,7 @@ export default function ProfileComponent({
                   profilePic: avatarUrl,
                 }))}
                 interactionVersion={interactionVersion}
+                source={"profilePage"}
               />
             )}
           </View>

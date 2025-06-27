@@ -23,6 +23,7 @@ export const INTERACTION_TYPES = ["like", "neutral", "dislike"] as const;
 export type InteractionType = (typeof INTERACTION_TYPES)[number];
 
 export const pages: {
+  keyName?: string;
   title: string;
   description?: string;
   suggestions?: string[];
@@ -31,6 +32,7 @@ export const pages: {
   suggestionType?: SuggestionType;
 }[] = [
   {
+    keyName: "avoidIngredients",
     title: "Any ingredient to avoid?",
     description:
       "Tell us if there are any ingredients you'd like to avoid, and we'll tailor your meal plan accordingly.",
@@ -49,6 +51,7 @@ export const pages: {
     suggestionType: "ingredient",
   },
   {
+    keyName: "diet",
     title: "Do you follow any of these diets?",
     description:
       "Share your diet preferences so we can personalize your meal plan to match your needs.",
@@ -66,6 +69,7 @@ export const pages: {
     mode: "datamuse-only",
   },
   {
+    keyName: "cuisine",
     title: "Which cuisine best matches your daily meals?",
     description:
       "Tell us which cuisine you eat most often so we can personalize your meal plan.",

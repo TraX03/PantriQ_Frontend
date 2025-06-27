@@ -16,6 +16,10 @@ export interface ProfileData {
   profileBg?: string;
   id?: string;
   metadata?: string;
+  mealRegion?: string[];
+  avoidIngredients?: string[];
+  diet?: string[];
+  isOnboarded?: boolean;
 }
 
 export const guestPicture: string = "6820391600141fa25422";

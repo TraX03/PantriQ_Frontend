@@ -10,6 +10,7 @@ interface MasonryListProps {
   onRefresh?: () => void;
   refreshing?: boolean;
   header?: React.ReactNode;
+  source?: string;
 }
 
 const MasonryList = ({
@@ -18,11 +19,16 @@ const MasonryList = ({
   onRefresh,
   refreshing,
   header,
+  source,
 }: MasonryListProps) => {
   const leftColumn = posts.filter((_, index) => index % 2 === 0);
   const rightColumn = posts.filter((_, index) => index % 2 === 1);
   const renderItem = ({ item }: { item: Post }) => (
-    <PostCard key={`${item.id}-${interactionVersion}`} post={item} />
+    <PostCard
+      key={`${item.id}-${interactionVersion}`}
+      post={item}
+      source={source}
+    />
   );
 
   return (

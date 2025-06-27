@@ -3,7 +3,7 @@ import InputBox from "@/components/InputBox";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { Colors } from "@/constants/Colors";
 import { styles } from "@/utility/create/styles";
-import { styles as profileStyles } from "@/utility/profile/styles";
+import { styles as settingStyles } from "@/utility/profile/settings/styles";
 import { Image, Text, TouchableOpacity, View } from "react-native";
 import { ContainerProps } from "./container";
 
@@ -92,7 +92,7 @@ export default function InstructionsFormComponent({
               placeholder={"Describe this step"}
               value={step.text}
               onChangeText={(text) => updateInstruction(index, text)}
-              inputStyle={profileStyles.input}
+              inputStyle={settingStyles.input}
               isMultiline
             />
           </View>

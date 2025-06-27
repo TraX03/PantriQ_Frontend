@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import SearchComponent from "./component";
 import useSearchController from "./controller";
 
-export default function HomeContainer() {
+export default function SearchContainer() {
   const { search, handleSearch, handleClear, init } = useSearchController();
 
   useEffect(() => {

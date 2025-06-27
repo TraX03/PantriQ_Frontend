@@ -217,4 +217,19 @@ export const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 20,
   },
+  indicatorContainer: {
+    marginBottom: 13,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+  },
+  modeIndicator: {
+    fontSize: 14,
+    color: Colors.text.label,
+  },
+  modeChange: {
+    color: Colors.text.label,
+    textDecorationLine: "underline",
+    fontFamily: "RobotoMedium",
+  },
 });

@@ -1,7 +1,11 @@
-const fetchFromApi = async (endpoint: string): Promise<any> => {
+const fetchFromApi = async (endpoint: string, data?: any): Promise<any> => {
   try {
     const res = await fetch(`${FastApi_Config.BASE_URL}${endpoint}`, {
       method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: data ? JSON.stringify(data) : undefined,
     });
 
     if (!res.ok) {
@@ -17,7 +21,18 @@ const fetchFromApi = async (endpoint: string): Promise<any> => {
 };
 
 export const fetchColdStartRecommendations = (userId: string) =>
-  fetchFromApi(`/coldstart/${userId}`);
+  fetchFromApi(`/onboarding/coldstart/${userId}`);
 
 export const fetchHomeFeedRecommendations = (userId: string) =>
-  fetchFromApi(`/homeFeed/${userId}`);
+  fetchFromApi(`/recommendation/homeFeed/${userId}`);
+
+export const logUserView = (
+  userId: string,
+  itemId: string,
+  source = "homeFeed"
+) =>
+  fetchFromApi("/interactions/logView", {
+    user_id: userId,
+    item_id: itemId,
+    source,
+  });

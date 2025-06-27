@@ -7,6 +7,7 @@ import { styles as searchStyles } from "@/utility/search/styles";
 import { useEffect, useState } from "react";
 import { Pressable, ScrollView, Text, View } from "react-native";
 import { styles } from "./styles";
+
 export type Mode = "datamuse-only" | "suggestion-then-custom";
 
 type SearchSuggestionProps = {
@@ -18,33 +19,34 @@ type SearchSuggestionProps = {
 
 const SearchWithSuggestion = ({
   onSelectItem,
-  mode,
-  placeholder,
+  mode = "suggestion-then-custom",
+  placeholder = "Item",
   suggestionType,
 }: SearchSuggestionProps) => {
   const [searchText, setSearchText] = useState("");
-  const [isCustomFlow, setIsCustomFlow] = useState(mode === "datamuse-only");
   const [datamuseSuggestions, setDatamuseSuggestions] = useState<string[]>([]);
+  const [isUsingDatamuse, setIsUsingDatamuse] = useState(
+    mode === "datamuse-only"
+  );
+
+  const trimmedText = searchText.trim();
+  const shouldShowAddButton = isUsingDatamuse && trimmedText !== "";
 
   const getSuggestions = suggestionType
     ? useSuggestionList(suggestionType).getSuggestions
     : () => [];
 
-  const trimmedText = searchText.trim();
-  const shouldShowAddButton = isCustomFlow && trimmedText !== "";
-
-  const displayedSuggestions =
-    isCustomFlow || mode === "datamuse-only"
-      ? datamuseSuggestions
-      : getSuggestions(trimmedText);
+  const displayedSuggestions = isUsingDatamuse
+    ? datamuseSuggestions
+    : getSuggestions(trimmedText);
 
   useEffect(() => {
-    if (!trimmedText || !isCustomFlow) {
+    if (!isUsingDatamuse || !trimmedText) {
       setDatamuseSuggestions([]);
       return;
     }
 
-    const debounceFetch = setTimeout(async () => {
+    const timeoutId = setTimeout(async () => {
       const results = await fetchSuggestions(trimmedText);
       const capitalized = results.map(
         (item) => item.charAt(0).toUpperCase() + item.slice(1)
@@ -52,8 +54,8 @@ const SearchWithSuggestion = ({
       setDatamuseSuggestions(capitalized);
     }, 300);
 
-    return () => clearTimeout(debounceFetch);
-  }, [trimmedText, isCustomFlow]);
+    return () => clearTimeout(timeoutId);
+  }, [trimmedText, isUsingDatamuse]);
 
   const handleSelect = (item: string) => {
     onSelectItem(item);
@@ -61,8 +63,8 @@ const SearchWithSuggestion = ({
     setDatamuseSuggestions([]);
   };
 
-  const handleSwitchToCustom = () => {
-    setIsCustomFlow(true);
+  const toggleSuggestionMode = () => {
+    setIsUsingDatamuse((prev) => !prev);
     setSearchText("");
     setDatamuseSuggestions([]);
   };
@@ -74,10 +76,10 @@ const SearchWithSuggestion = ({
           <InputBox
             value={searchText}
             onChangeText={setSearchText}
-            placeholder={`${isCustomFlow ? "Enter" : "Search"} ${(
-              placeholder ?? "Enter text"
-            ).toLowerCase()}...`}
-            icon={isCustomFlow ? undefined : "magnifyingglass"}
+            placeholder={`${
+              isUsingDatamuse ? "Enter" : "Search"
+            } ${placeholder.toLowerCase()}...`}
+            icon="magnifyingglass"
             containerStyle={searchStyles.searchBar}
             clearColor={Colors.brand.primary}
           />
@@ -93,25 +95,38 @@ const SearchWithSuggestion = ({
         )}
       </View>
 
-      <ScrollView className="mt-3" showsVerticalScrollIndicator={false}>
+      <ScrollView className="mt-3 mx-3" showsVerticalScrollIndicator={false}>
+        <View style={styles.indicatorContainer}>
+          <Text style={styles.modeIndicator}>
+            Showing{" "}
+            {isUsingDatamuse ? "dictionary" : suggestionType ?? "custom"}{" "}
+            suggestions.
+          </Text>
+          {mode === "suggestion-then-custom" && (
+            <Pressable onPress={toggleSuggestionMode}>
+              <Text style={styles.modeChange}>Change</Text>
+            </Pressable>
+          )}
+        </View>
+
         {displayedSuggestions.map((item, idx) => (
           <Pressable
             key={idx}
             onPress={() => handleSelect(item)}
-            className="my-1 mx-2.5"
+            className="my-1"
           >
             <Text style={styles.resultText}>{item}</Text>
           </Pressable>
         ))}
 
         {mode === "suggestion-then-custom" &&
-          !isCustomFlow &&
+          !isUsingDatamuse &&
           trimmedText !== "" && (
             <View className="py-5 self-end px-2.5">
               <Text style={styles.endText}>
                 Didn't find what you're looking for?
               </Text>
-              <Pressable onPress={handleSwitchToCustom}>
+              <Pressable onPress={toggleSuggestionMode}>
                 <Text style={styles.addText}>Add it yourself!</Text>
               </Pressable>
             </View>

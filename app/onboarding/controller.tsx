@@ -7,6 +7,7 @@ import {
   updateDocument,
 } from "@/services/Appwrite";
 import { fetchColdStartRecommendations } from "@/services/FastApi";
+import { cleanPreferencesByType } from "@/services/GeminiApi";
 import { router } from "expo-router";
 import Toast from "react-native-toast-message";
 import { InteractionType, pages } from "./component";
@@ -109,10 +110,21 @@ export const useOnboardingController = () => {
   const saveOnboardingData = async () => {
     try {
       const user = await getCurrentUser();
+
+      const cleanedIngredients = await cleanPreferencesByType(
+        ingredientAvoid,
+        "ingredient"
+      );
+      const cleanedDiet = await cleanPreferencesByType(diet, "diet");
+      const cleanedRegion = await cleanPreferencesByType(region, "region");
+
       await updateDocument(AppwriteConfig.USERS_COLLECTION_ID, user.$id, {
-        avoid_ingredients: ingredientAvoid,
-        diet,
-        region_pref: region,
+        avoid_ingredients: cleanedIngredients.map((i) =>
+          i.toLowerCase().trim()
+        ),
+        diet: cleanedDiet.map((d) => d.toLowerCase().trim()),
+        region_pref: cleanedRegion.map((r) => r.toLowerCase().trim()),
+        is_onboarded: true,
       });
     } catch (error) {
       console.error("Failed to save onboarding data:", error);
@@ -126,7 +138,7 @@ export const useOnboardingController = () => {
     await createDocument(AppwriteConfig.INTERACTIONS_COLLECTION_ID, {
       user_id: user.$id,
       item_id: recipeId,
-      type: "coldStart",
+      type: "coldstart",
       value,
       created_at: new Date().toISOString(),
     });

@@ -6,7 +6,8 @@ import { Colors } from "@/constants/Colors";
 import { Routes } from "@/constants/Routes";
 import { ProfileData } from "@/redux/slices/profileSlice";
 import { getOverlayStyle } from "@/utility/imageUtils";
-import { styles } from "@/utility/profile/styles";
+import { styles } from "@/utility/profile/settings/styles";
+import { styles as profileStyles } from "@/utility/profile/styles";
 import { router, Stack } from "expo-router";
 import React, { useMemo } from "react";
 import {
@@ -88,7 +89,7 @@ export default function EditProfileComponent({
   return (
     <>
       <Stack.Screen options={{ headerShown: false }} />
-      <View style={styles.headerContainer}>
+      <View style={profileStyles.headerContainer}>
         <HeaderBar title="Edit Profile" />
         <ImageBackground
           source={{ uri: profileBg }}
@@ -99,10 +100,10 @@ export default function EditProfileComponent({
           className="justify-center items-center h-[210px]"
         >
           <View className="relative">
-            <View style={styles.avatarContainer}>
+            <View style={profileStyles.avatarContainer}>
               <Image
                 source={{ uri: avatarUrl }}
-                style={styles.avatar}
+                style={profileStyles.avatar}
                 resizeMode="cover"
               />
             </View>
@@ -138,7 +139,7 @@ export default function EditProfileComponent({
           </TouchableOpacity>
         </ImageBackground>
 
-        <View style={styles.container}>
+        <View style={profileStyles.container}>
           {fields.map(({ title, value, alwaysShowValue, key, size }, index) => {
             const displayValue = getDisplayValue(title, value, alwaysShowValue);
             const isSetNow =

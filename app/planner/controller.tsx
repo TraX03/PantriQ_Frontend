@@ -64,6 +64,7 @@ export const availableMealtimes = [
     label: "Snacks",
     categories: ["side", "dessert", "miscellaneous"],
   },
+  { id: "all", label: "All", categories: [] },
 ];
 
 const today = startOfDay(new Date());

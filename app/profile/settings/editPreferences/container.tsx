@@ -2,18 +2,30 @@ import { useEffect } from "react";
 import EditPreferencesComponent from "./component";
 import { useEditPreferencesController } from "./controller";
 
-export default function EditPreferencesContainer({}) {
-  const { regionPreferences, refetch, handleSave } =
-    useEditPreferencesController();
+type Props = {
+  keyName: string;
+};
+
+export default function EditPreferencesContainer({ keyName }: Props) {
+  const {
+    editPref,
+    fetchPreferences,
+    handleSave,
+    addItemToList,
+    removeItemFromList,
+  } = useEditPreferencesController();
 
   useEffect(() => {
-    refetch();
+    fetchPreferences(keyName);
   }, []);
 
   return (
     <EditPreferencesComponent
-      regionPreferences={regionPreferences}
+      keyName={keyName}
+      editPref={editPref}
       handleSave={handleSave}
+      addItemToList={addItemToList}
+      removeItemFromList={removeItemFromList}
     />
   );
 }

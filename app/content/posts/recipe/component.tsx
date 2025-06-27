@@ -4,6 +4,7 @@ import { IconSymbol } from "@/components/ui/IconSymbol";
 import { Colors } from "@/constants/Colors";
 import { Routes } from "@/constants/Routes";
 import { useFieldState } from "@/hooks/useFieldState";
+import { capitalize } from "@/utility/capitalize";
 import { styles } from "@/utility/content/posts/styles";
 import { router } from "expo-router";
 import React from "react";
@@ -50,7 +51,7 @@ export default function RecipeComponent({
     <>
       {!!postData?.description && (
         <View style={styles.contentContainer}>
-          <Text>{postData.description}</Text>
+          <Text className="text-base">{postData.description}</Text>
         </View>
       )}
 
@@ -63,40 +64,50 @@ export default function RecipeComponent({
           })
         }
       >
-        <View className="flex-1 flex-row items-center px-7">
-          <ScoreCircle score={nutritionData?.healthScore ?? 0} />
+        <View className="flex-col flex-1">
+          <View className="flex-row items-center">
+            <View className="flex-row items-center px-7 flex-1">
+              <ScoreCircle score={nutritionData?.healthScore ?? 0} />
 
-          <View className="ml-8 gap-3">
-            <View className="items-center mx-2">
-              <Text className="text-[15px]">
-                {rounded.calories} {nutrients.calories.unit}
-              </Text>
-              <Text style={styles.nutrientLabel}>Calories</Text>
-            </View>
-
-            <View className="flex-row gap-4">
-              {[
-                {
-                  label: "Carbs",
-                  value: rounded.carbs,
-                  unit: nutrients.carbs.unit,
-                },
-                { label: "Fat", value: rounded.fat, unit: nutrients.fat.unit },
-              ].map(({ label, value, unit }) => (
-                <View key={label} className="items-center mx-2">
-                  <Text className="text-[15px]">{`${value} ${unit}`}</Text>
-                  <Text style={styles.nutrientLabel}>{label}</Text>
+              <View className="ml-8 gap-3">
+                <View className="items-center mx-2">
+                  <Text className="text-[15px]">
+                    {rounded.calories} {nutrients.calories.unit}
+                  </Text>
+                  <Text style={styles.nutrientLabel}>Calories</Text>
                 </View>
-              ))}
-            </View>
-          </View>
-        </View>
 
-        <IconSymbol
-          name="chevron.right"
-          color={Colors.overlay.base}
-          size={25}
-        />
+                <View className="flex-row gap-4">
+                  {[
+                    {
+                      label: "Carbs",
+                      value: rounded.carbs,
+                      unit: nutrients.carbs.unit,
+                    },
+                    {
+                      label: "Fat",
+                      value: rounded.fat,
+                      unit: nutrients.fat.unit,
+                    },
+                  ].map(({ label, value, unit }) => (
+                    <View key={label} className="items-center mx-2">
+                      <Text className="text-[15px]">{`${value} ${unit}`}</Text>
+                      <Text style={styles.nutrientLabel}>{label}</Text>
+                    </View>
+                  ))}
+                </View>
+              </View>
+            </View>
+            <IconSymbol
+              name="chevron.right"
+              color={Colors.overlay.base}
+              size={25}
+            />
+          </View>
+          <Text style={styles.disclaimerText}>
+            Nutrient data is auto-generated and may be inaccurate.
+          </Text>
+        </View>
       </TouchableOpacity>
 
       <View style={styles.contentContainer}>
@@ -105,10 +116,17 @@ export default function RecipeComponent({
         <View
           style={!expanded ? { maxHeight: 150, overflow: "hidden" } : undefined}
         >
-          {recipeData.ingredients.map(({ name, quantity }, index) => (
-            <View key={index} className="flex-row justify-between mb-1.5">
-              <Text style={styles.ingredientName}>{name}</Text>
-              <Text style={styles.quantityName}>{quantity}</Text>
+          {recipeData.ingredients.map(({ name, quantity, note }, index) => (
+            <View className="flex-col mb-4">
+              <View key={index} className="flex-row justify-between">
+                <Text style={styles.ingredientName}>{capitalize(name)}</Text>
+                <Text style={styles.quantityName}>{quantity}</Text>
+              </View>
+              {note && (
+                <Text style={{ color: Colors.brand.primaryDark, fontSize: 14 }}>
+                  {capitalize(note)}
+                </Text>
+              )}
             </View>
           ))}
         </View>

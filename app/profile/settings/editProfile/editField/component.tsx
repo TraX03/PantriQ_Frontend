@@ -3,7 +3,8 @@ import InputBox from "@/components/InputBox";
 import { Colors } from "@/constants/Colors";
 import { useFieldState } from "@/hooks/useFieldState";
 import { capitalize } from "@/utility/capitalize";
-import { styles } from "@/utility/profile/styles";
+import { styles } from "@/utility/profile/settings/styles";
+import { styles as profileStyles } from "@/utility/profile/styles";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import React from "react";
 import {
@@ -34,7 +35,7 @@ export default function EditFieldComponent({
   const { value, showDatePicker, setFieldState } = edit;
 
   return (
-    <KeyboardAvoidingView style={styles.headerContainer}>
+    <KeyboardAvoidingView style={profileStyles.headerContainer}>
       <HeaderBar title={`Edit ${label}`} />
       <View className="flex-1 px-4">
         {keyName === "gender" ? (
@@ -58,7 +59,7 @@ export default function EditFieldComponent({
                         : Colors.text.placeholder,
                     }}
                   >
-                    {isSelected && <View style={styles.radioButtom} />}
+                    {isSelected && <View style={styles.radioButton} />}
                   </View>
                 </TouchableOpacity>
               );

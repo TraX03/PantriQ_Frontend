@@ -4,7 +4,8 @@ import { IconSymbol } from "@/components/ui/IconSymbol";
 import { Colors } from "@/constants/Colors";
 import { Routes } from "@/constants/Routes";
 import { ProfileData } from "@/redux/slices/profileSlice";
-import { styles } from "@/utility/profile/styles";
+import { styles } from "@/utility/profile/settings/styles";
+import { styles as profileStyles } from "@/utility/profile/styles";
 import { router, Stack } from "expo-router";
 import React from "react";
 import {
@@ -30,11 +31,41 @@ export default function SettingsComponent({ profileData, onLogout }: Props) {
 
   const { avatarUrl, username } = profileData;
 
+  const PreferenceItem = ({
+    label,
+    onPress,
+    isTop = false,
+    isBottom = false,
+  }: {
+    label: string;
+    onPress: () => void;
+    isTop?: boolean;
+    isBottom?: boolean;
+  }) => (
+    <Pressable
+      onPress={onPress}
+      style={[
+        styles.fieldTab,
+        isTop && { borderTopWidth: 1 },
+        isBottom && { borderBottomWidth: 1 },
+      ]}
+    >
+      <View className="flex-row justify-between items-center px-4 py-3">
+        <Text style={styles.tabTitleText}>{label}</Text>
+        <IconSymbol
+          name="chevron.right"
+          color={Colors.overlay.base}
+          size={20}
+        />
+      </View>
+    </Pressable>
+  );
+
   return (
     <>
       <Stack.Screen options={{ headerShown: false }} />
       <ScrollView
-        style={styles.headerContainer}
+        style={profileStyles.headerContainer}
         contentContainerStyle={{ flexGrow: 1 }}
       >
         <HeaderBar title="Settings" />
@@ -42,13 +73,13 @@ export default function SettingsComponent({ profileData, onLogout }: Props) {
           <View style={styles.settingsTab}>
             <View
               style={[
-                styles.avatarContainer,
+                profileStyles.avatarContainer,
                 { width: 70, height: 70, elevation: 4 },
               ]}
             >
               <Image
                 source={{ uri: avatarUrl }}
-                style={styles.avatar}
+                style={profileStyles.avatar}
                 resizeMode="cover"
               />
             </View>
@@ -65,23 +96,63 @@ export default function SettingsComponent({ profileData, onLogout }: Props) {
             />
           </View>
         </TouchableOpacity>
+
         <Text
-          style={{ fontFamily: "RobotoMedium", fontSize: 18, marginTop: 10 }}
+          style={{
+            fontFamily: "RobotoMedium",
+            fontSize: 18,
+            marginTop: 20,
+            marginBottom: 8,
+            marginLeft: 10,
+          }}
         >
           Preferences
         </Text>
+
+        <PreferenceItem
+          label="Cuisine"
+          isTop
+          onPress={() =>
+            router.push({
+              pathname: Routes.EditPreferencesForm,
+              params: { key: "cuisine" },
+            })
+          }
+        />
+
+        <PreferenceItem
+          label="Avoided Ingredients"
+          onPress={() =>
+            router.push({
+              pathname: Routes.EditPreferencesForm,
+              params: { key: "avoidIngredients" },
+            })
+          }
+        />
+
+        <PreferenceItem
+          label="Diet"
+          isBottom
+          onPress={() =>
+            router.push({
+              pathname: Routes.EditPreferencesForm,
+              params: { key: "diet" },
+            })
+          }
+        />
+
         <Pressable
-          onPress={() => router.push(Routes.EditPreferences)}
-          className="border-b"
+          onPress={onLogout}
           style={[
             styles.fieldTab,
             {
-              borderTopWidth: 1,
+              borderWidth: 1,
+              marginTop: 20,
             },
           ]}
         >
           <View className="flex-row justify-between items-center px-4 py-3">
-            <Text style={styles.tabTitleText}>Cusine</Text>
+            <Text style={styles.tabTitleText}>Logout</Text>
             <IconSymbol
               name="chevron.right"
               color={Colors.overlay.base}
@@ -89,12 +160,6 @@ export default function SettingsComponent({ profileData, onLogout }: Props) {
             />
           </View>
         </Pressable>
-
-        <View className="items-center px-4 py-3 justify-center flex-1">
-          <TouchableOpacity onPress={onLogout} style={styles.logoutButton}>
-            <Text style={styles.logoutButtonText}>Log Out</Text>
-          </TouchableOpacity>
-        </View>
       </ScrollView>
     </>
   );

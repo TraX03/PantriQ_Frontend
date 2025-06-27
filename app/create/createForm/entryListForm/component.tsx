@@ -1,3 +1,5 @@
+import { availableMealtimes } from "@/app/planner/controller";
+import CustomPicker from "@/components/CustomPicker";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { Colors } from "@/constants/Colors";
 import { styles } from "@/utility/create/styles";
@@ -54,15 +56,31 @@ export default function EntryListFormComponent({
   const renderEntryRow = (item: EntryItem, index: number) => (
     <View key={index} className="relative mb-3">
       <View className="flex-row items-center gap-2">
-        <TextInput
-          value={item.name}
-          placeholder={placeholder}
-          onFocus={() => handleFocus(index)}
-          onBlur={() => handleFocus(null)}
-          onChangeText={(text) => handleChange(index, "name", text)}
-          style={styles.inputValue}
-          placeholderTextColor={Colors.text.disabled}
-        />
+        {type === "mealtime" ? (
+          <CustomPicker
+            selectedValue={item.name}
+            onValueChange={(value) => {
+              const id =
+                availableMealtimes.find((mt) => mt.label === value)?.id ??
+                value;
+              handleChange(index, "name", id);
+            }}
+            options={availableMealtimes.map((mt) => mt.label)}
+            placeholder={placeholder}
+            style={{ flex: 1, height: 40 }}
+          />
+        ) : (
+          <TextInput
+            value={item.name}
+            placeholder={placeholder}
+            onFocus={() => handleFocus(index)}
+            onBlur={() => handleFocus(null)}
+            onChangeText={(text) => handleChange(index, "name", text)}
+            style={styles.inputValue}
+            placeholderTextColor={Colors.text.disabled}
+          />
+        )}
+
         {type === "ingredient" && (
           <TextInput
             value={item.quantity}
@@ -72,6 +90,7 @@ export default function EntryListFormComponent({
             placeholderTextColor={Colors.text.disabled}
           />
         )}
+
         {!isSingleEntry && (
           <TouchableOpacity
             onPress={() => controller.modifyEntry(type, "remove", index)}
@@ -84,7 +103,22 @@ export default function EntryListFormComponent({
           </TouchableOpacity>
         )}
       </View>
-      {showSuggestions(index, item.name)}
+
+      {type === "ingredient" && (
+        <View className="mt-2">
+          <TextInput
+            value={item.note}
+            placeholder="Note"
+            onFocus={() => handleFocus(index)}
+            onBlur={() => handleFocus(null)}
+            onChangeText={(text) => handleChange(index, "note", text)}
+            style={styles.inputValue}
+            placeholderTextColor={Colors.text.disabled}
+          />
+        </View>
+      )}
+
+      {type !== "mealtime" && showSuggestions(index, item.name)}
     </View>
   );
 

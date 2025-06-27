@@ -97,6 +97,7 @@ export default function SearchResultComponent({
           <MasonryList
             posts={filteredPosts}
             interactionVersion={interactionVersion}
+            source={"searchResults"}
           />
         )}
       </ScrollView>

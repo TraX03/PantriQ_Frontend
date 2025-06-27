@@ -63,8 +63,11 @@ export function useProfileData() {
         mealRegion: userData.region_pref,
         avoidIngredients: userData.avoid_ingredients,
         diet: userData.region_pref,
+        isOnboarded: userData.is_onboarded,
       };
       dispatch(setProfileData(mappedProfileData));
+
+      return mappedProfileData.isOnboarded;
     } catch (error) {
       console.warn("Failed to fetch user profile.", { error });
       dispatch(resetProfileData());

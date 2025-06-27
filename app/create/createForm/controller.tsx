@@ -1,4 +1,3 @@
-import { EntryType } from "@/components/EntryListForm";
 import { PostType } from "@/components/PostCard";
 import { AppwriteConfig } from "@/constants/AppwriteConfig";
 import { useFieldState } from "@/hooks/useFieldState";
@@ -7,6 +6,7 @@ import { setLoading } from "@/redux/slices/loadingSlice";
 import { setRefreshProfile } from "@/redux/slices/profileSlice";
 import { AppDispatch } from "@/redux/store";
 import { createDocument, getCurrentUser } from "@/services/Appwrite";
+import { generateTagsWithGemini } from "@/services/GeminiApi";
 import { detectBackgroundDarkness, isValidUrl } from "@/utility/imageUtils";
 import * as FileSystem from "expo-file-system";
 import * as ImagePicker from "expo-image-picker";
@@ -17,10 +17,12 @@ import { Alert, Keyboard } from "react-native";
 import { ID, Permission, Role } from "react-native-appwrite";
 import Toast from "react-native-toast-message";
 import { useDispatch } from "react-redux";
+import { EntryItem, EntryType } from "./entryListForm/controller";
 
 export interface Ingredient {
   name: string;
   quantity: string;
+  note?: string;
 }
 
 export interface Instruction {
@@ -37,6 +39,7 @@ export interface CreateFormState {
   instructions: Instruction[];
   category: { name: string }[];
   area: string;
+  mealtime: { name: string }[];
   focusedIndex: { [K in EntryType]?: number | null };
 }
 
@@ -54,6 +57,7 @@ export const useCreateFormController = () => {
     instructions: [{ text: "" }],
     category: [],
     area: "",
+    mealtime: [],
     focusedIndex: {},
   });
 
@@ -95,10 +99,14 @@ export const useCreateFormController = () => {
           })
         ),
       };
+
+      const tags = await generateTagsWithGemini(create.postType, create);
+
       const commonFields = {
         image: uploadedImageIds,
         created_at: new Date().toISOString(),
         metadata: JSON.stringify(metadata),
+        tags,
       };
 
       const payloadMap: Record<PostType, any> = {
@@ -144,8 +152,10 @@ export const useCreateFormController = () => {
           ),
           category: create.category.map((c) => c.name.toLowerCase()),
           area: create.area.toLowerCase(),
+          mealtime: create.mealtime,
         },
       };
+
       const collectionMap: Record<PostType, string> = {
         recipe: AppwriteConfig.RECIPES_COLLECTION_ID,
         discussion: AppwriteConfig.POSTS_COLLECTION_ID,
@@ -159,6 +169,7 @@ export const useCreateFormController = () => {
         ID.unique(),
         [Permission.write(Role.user(userId))]
       );
+
       Toast.show({
         type: "success",
         text1: `${
@@ -188,6 +199,7 @@ export const useCreateFormController = () => {
       area,
       category,
       postType,
+      mealtime,
     } = create;
 
     if (postType === "recipe") {
@@ -199,7 +211,9 @@ export const useCreateFormController = () => {
         instructions.every((i) => hasText(i.text)) &&
         hasText(area) &&
         category.length > 0 &&
-        category.every((c) => hasText(c.name))
+        category.every((c) => hasText(c.name)) &&
+        mealtime.length > 0 &&
+        mealtime.every((mt) => hasText(mt.name))
       );
     }
 
@@ -210,16 +224,23 @@ export const useCreateFormController = () => {
     (
       type: keyof CreateFormState,
       index: number,
-      field: "name" | "quantity",
+      field: keyof EntryItem,
       value: string
     ) => {
       if (type === "area" && field === "name") {
         create.setFieldState("area", value.trim());
         return;
       }
+
       const updated = [...(create[type] as any[])];
-      if (field === "quantity" && !(updated[index]?.quantity !== undefined))
+
+      if (
+        (field === "quantity" || field === "note") &&
+        updated[index]?.[field] === undefined
+      ) {
         return;
+      }
+
       updated[index][field] = value.trim();
       create.setFieldState(type, updated);
     },
@@ -232,7 +253,9 @@ export const useCreateFormController = () => {
       const updated = [...(create[type] as any[])];
       if (action === "add") {
         updated.push(
-          type === "ingredient" ? { name: "", quantity: "" } : { name: "" }
+          type === "ingredient"
+            ? { name: "", quantity: "", note: "" }
+            : { name: "" }
         );
       } else if (action === "remove" && index !== undefined) {
         updated.splice(index, 1);

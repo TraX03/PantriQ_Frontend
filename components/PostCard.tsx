@@ -26,9 +26,10 @@ export type Post = {
 
 type PostCardProps = {
   post: Post;
+  source?: string;
 };
 
-const PostCard = ({ post }: PostCardProps) => {
+const PostCard = ({ post, source }: PostCardProps) => {
   const { type, title, image, id } = post;
   const { interactionMap } = useReduxSelectors();
   const status = getInteractionStatus(post.id, interactionMap);
@@ -44,7 +45,7 @@ const PostCard = ({ post }: PostCardProps) => {
         onPress={() =>
           router.push({
             pathname: Routes.PostDetail,
-            params: { id: id },
+            params: { id: id, source: source },
           })
         }
         className="mb-4"
@@ -81,7 +82,7 @@ const PostCard = ({ post }: PostCardProps) => {
       onPress={() =>
         router.push({
           pathname: Routes.PostDetail,
-          params: { id: id },
+          params: { id: id, source: source },
         })
       }
       className="mb-4"

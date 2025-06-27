@@ -1,7 +1,7 @@
 import { ContainerProps } from "./container";
 
-export type EntryType = "ingredient" | "category" | "area";
-export type EntryItem = { name: string; quantity?: string };
+export type EntryType = "ingredient" | "category" | "area" | "mealtime";
+export type EntryItem = { name: string; quantity?: string; note?: string };
 
 type Props = Pick<ContainerProps, "type" | "create" | "controller">;
 

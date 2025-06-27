@@ -107,12 +107,13 @@ export const useAuthController = (mode: AuthMode) => {
         await login(email, password);
       }
 
-      await fetchProfile();
-
+      const isOnboarded = await fetchProfile();
       const destination =
-        mode === "signUp" || typeof redirect !== "string"
-          ? Routes.Home
-          : redirect;
+        isOnboarded === false
+          ? Routes.Onboarding
+          : typeof redirect === "string"
+          ? redirect
+          : Routes.Home;
 
       router.replace(destination as never);
     } catch (error: any) {

@@ -3,10 +3,12 @@ import { Models } from "react-native-appwrite";
 
 interface AuthState {
   user: Models.User<{}> | null;
+  onboarded: boolean;
 }
 
 const initialState: AuthState = {
   user: null,
+  onboarded: true,
 };
 
 const authSlice = createSlice({
@@ -16,8 +18,11 @@ const authSlice = createSlice({
     setUser(state, action: PayloadAction<Models.User<{}> | null>) {
       state.user = action.payload;
     },
+    setOnboarded(state, action: PayloadAction<boolean>) {
+      state.onboarded = action.payload;
+    },
   },
 });
 
-export const { setUser } = authSlice.actions;
+export const { setUser, setOnboarded } = authSlice.actions;
 export default authSlice.reducer;

@@ -7,7 +7,7 @@ export const Routes = {
   Search: "/search/container",
   Settings: "/profile/settings/container",
   EditProfile: "/profile/settings/editProfile/container",
-  EditPreferences: "/profile/settings/editPreferences/container",
+  EditPreferencesForm: "/profile/settings/editPreferences/[key]",
   Onboarding: "/onboarding/container",
   Nutrition: "/content/posts/recipe/nutrition/container",
   ProfileTab: "/(tabs)/profile",

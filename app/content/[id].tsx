@@ -1,8 +1,10 @@
 import ErrorScreen from "@/components/ErrorScreen";
 import { PostType } from "@/components/PostCard";
+import { useReduxSelectors } from "@/hooks/useReduxSelectors";
 import { setLoading } from "@/redux/slices/loadingSlice";
 import { AppDispatch } from "@/redux/store";
 import { getPostTypeById } from "@/services/Appwrite";
+import { logUserView } from "@/services/FastApi";
 import { Stack, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -10,7 +12,8 @@ import CommunityContainer from "./community/container";
 import PostContainer from "./posts/container";
 
 export default function PostRouter() {
-  const { id } = useLocalSearchParams();
+  const { id, source } = useLocalSearchParams();
+  const { currentUserId } = useReduxSelectors();
   const dispatch = useDispatch<AppDispatch>();
   const [postType, setPostType] = useState<PostType | null>(null);
 
@@ -21,6 +24,14 @@ export default function PostRouter() {
       dispatch(setLoading(true));
       const type = await getPostTypeById(id);
       setPostType(type);
+
+      if (currentUserId) {
+        await logUserView(
+          currentUserId,
+          id,
+          typeof source === "string" ? source : "homeFeed"
+        );
+      }
     };
 
     fetchPostType();

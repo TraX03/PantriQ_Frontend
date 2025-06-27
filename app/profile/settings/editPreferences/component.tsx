@@ -1,85 +1,83 @@
+import { pages } from "@/app/onboarding/component";
 import HeaderBar from "@/components/HeaderBar";
 import SearchWithSuggestion from "@/components/SearchWithSuggestions";
-import { styles } from "@/utility/profile/styles";
+import { IconSymbol } from "@/components/ui/IconSymbol";
+import { Colors } from "@/constants/Colors";
+import { useFieldState } from "@/hooks/useFieldState";
+import { capitalize } from "@/utility/capitalize";
+import { styles } from "@/utility/profile/settings/styles";
+import { styles as profileStyles } from "@/utility/profile/styles";
 import { Stack } from "expo-router";
-import { useState } from "react";
 import {
-    KeyboardAvoidingView,
-    Text,
-    TouchableOpacity,
-    View,
+  KeyboardAvoidingView,
+  Pressable,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
+import { EditPreferenceState } from "./controller";
 
 type Props = {
-  regionPreferences: string[] | null;
-  handleSave: (newPreferences: string[]) => Promise<void>;
+  keyName: string;
+  editPref: ReturnType<typeof useFieldState<EditPreferenceState>>;
+  handleSave: (keyName: string, newPreferences: string[]) => Promise<void>;
+  addItemToList: (item: string) => void;
+  removeItemFromList: (item: string) => void;
 };
 
 export default function EditPreferencesComponent({
-  regionPreferences,
+  keyName,
+  editPref,
   handleSave,
+  addItemToList,
+  removeItemFromList,
 }: Props) {
-  const [selectedItems, setSelectedItems] = useState<string[]>(
-    regionPreferences ?? []
-  );
-
-  const normalized = (text: string) => text.toLowerCase();
-
-  const toggleItem = (item: string) => {
-    const normalizedItem = normalized(item);
-    const updatedItems = selectedItems.some(
-      (i) => normalized(i) === normalizedItem
-    )
-      ? selectedItems.filter((i) => normalized(i) !== normalizedItem)
-      : [...selectedItems, item];
-
-    setSelectedItems(updatedItems);
-  };
+  const { selectedPreferences, title } = editPref;
+  const config = pages.find((p) => p.keyName === keyName);
 
   return (
     <>
       <Stack.Screen options={{ headerShown: false }} />
-      <KeyboardAvoidingView style={styles.headerContainer}>
-        <HeaderBar title={"Edit Preferences"} />
-        <View style={{ padding: 16 }}>
-          {selectedItems.length > 0 ? (
-            <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
-              {selectedItems.map((region, index) => (
-                <View
-                  key={index}
-                  style={{
-                    backgroundColor: "#fff",
-                    borderColor: "#ccc",
-                    borderWidth: 1,
-                    borderRadius: 20,
-                    paddingVertical: 6,
-                    paddingHorizontal: 12,
-                  }}
-                >
-                  <Text style={{ color: "#333" }}>{region}</Text>
+      <KeyboardAvoidingView style={profileStyles.headerContainer}>
+        <HeaderBar title={`Edit ${title}`} />
+        <View className="p-5">
+          {selectedPreferences.length > 0 ? (
+            <View style={styles.listContainer}>
+              {selectedPreferences.map((prefs, index) => (
+                <View key={index} style={styles.selectedContainer}>
+                  <Text style={{ color: Colors.text.primary }}>
+                    {capitalize(prefs)}
+                  </Text>
+                  <Pressable onPress={() => removeItemFromList(prefs)}>
+                    <IconSymbol
+                      name="multiply.circle"
+                      color={Colors.brand.primary}
+                      size={16}
+                    />
+                  </Pressable>
                 </View>
               ))}
             </View>
           ) : (
-            <Text style={{ marginTop: 8, color: "#999" }}>No preferences</Text>
+            <Text style={{ color: Colors.text.label }}>
+              No preferences found.
+            </Text>
           )}
-        </View>
-        <View className="h-96">
-          <SearchWithSuggestion
-            onSelectItem={toggleItem}
-            mode={"suggestion-then-custom"}
-            placeholder={"Cuisine"}
-            suggestionType={"area"}
-          />
-        </View>
-        <View className="mr-3">
+
           <TouchableOpacity
             style={styles.saveButton}
-            onPress={() => handleSave(selectedItems)}
+            onPress={() => handleSave(keyName, selectedPreferences)}
           >
             <Text style={styles.saveButtonText}>Save</Text>
           </TouchableOpacity>
         </View>
+
+        <SearchWithSuggestion
+          onSelectItem={(itemName: string) => addItemToList(itemName)}
+          mode={config?.mode}
+          placeholder={config?.placeholder}
+          suggestionType={config?.suggestionType}
+        />
       </KeyboardAvoidingView>
     </>
   );

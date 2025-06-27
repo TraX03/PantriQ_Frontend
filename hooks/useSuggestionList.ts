@@ -5,9 +5,9 @@ import {
 } from "@/services/MealDbApi";
 import { useEffect, useState } from "react";
 
-export type SuggestionType = "ingredient" | "category" | "area";
+export type SuggestionType = "ingredient" | "category" | "area" | "mealtime";
 
-const fetchMap: Record<SuggestionType, () => Promise<string[]>> = {
+const fetchMap: Partial<Record<SuggestionType, () => Promise<string[]>>> = {
   ingredient: fetchIngredients,
   category: fetchCategory,
   area: fetchArea,
@@ -19,6 +19,11 @@ export function useSuggestionList(type: SuggestionType) {
   useEffect(() => {
     const loadItems = async () => {
       const fetchFn = fetchMap[type];
+      if (!fetchFn) {
+        setAllItems([]);
+        return;
+      }
+
       const list = await fetchFn();
       setAllItems(list);
     };

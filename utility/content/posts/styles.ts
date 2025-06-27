@@ -89,6 +89,7 @@ export const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontFamily: "RobotoMedium",
+    marginBottom: 5,
   },
   authorText: {
     color: Colors.text.disabled,
@@ -130,11 +131,13 @@ export const styles = StyleSheet.create({
   nutrientContainer: {
     width: "100%",
     marginTop: 28,
+    marginBottom: 8,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     paddingHorizontal: 16,
-    paddingVertical: 15,
+    paddingTop: 15,
+    paddingBottom: 10,
     backgroundColor: Colors.overlay.ultraLightGray,
   },
   header: {
@@ -178,5 +181,11 @@ export const styles = StyleSheet.create({
   countLabel: {
     fontSize: 10,
     color: Colors.text.disabled,
+  },
+  disclaimerText: {
+    fontSize: 12,
+    color: Colors.text.light,
+    marginTop: 20,
+    alignSelf: "center",
   },
 });
