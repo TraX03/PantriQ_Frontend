@@ -117,8 +117,8 @@ export default function RecipeComponent({
           style={!expanded ? { maxHeight: 150, overflow: "hidden" } : undefined}
         >
           {recipeData.ingredients.map(({ name, quantity, note }, index) => (
-            <View className="flex-col mb-4">
-              <View key={index} className="flex-row justify-between">
+            <View key={index} className="flex-col mb-4">
+              <View className="flex-row justify-between">
                 <Text style={styles.ingredientName}>{capitalize(name)}</Text>
                 <Text style={styles.quantityName}>{quantity}</Text>
               </View>

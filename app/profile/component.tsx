@@ -1,5 +1,6 @@
 import ErrorScreen from "@/components/ErrorScreen";
 import MasonryList from "@/components/MasonryList";
+import { Post } from "@/components/PostCard";
 import ScreenWrapper from "@/components/ScreenWrapper";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { Colors } from "@/constants/Colors";
@@ -69,6 +70,8 @@ export default function ProfileComponent({
   const {
     activeTab,
     posts,
+    likedPosts,
+    bookmarkedPosts,
     subTab: postSubTab,
     setFieldState,
     postLoading,
@@ -92,10 +95,20 @@ export default function ProfileComponent({
   const isFollowing = interaction?.isFollowing ?? false;
   const toggleFollow = interaction?.toggleFollow ?? (() => {});
 
-  const filteredPosts = posts.filter((p) =>
+  let sourcePosts: Post[] = [];
+
+  if (activeTab === "Likes") {
+    sourcePosts = likedPosts;
+  } else if (activeTab === "Collections") {
+    sourcePosts = bookmarkedPosts;
+  } else {
+    sourcePosts = posts;
+  }
+
+  const filteredPosts = sourcePosts.filter((p) =>
     postSubTab === "Recipe"
       ? p.type === "recipe"
-      : p.type.toLowerCase() === postSubTab.toLowerCase()
+      : p.type?.toLowerCase() === postSubTab.toLowerCase()
   );
 
   const sortedPosts = [...filteredPosts].sort(
@@ -288,25 +301,23 @@ export default function ProfileComponent({
           ))}
         </View>
 
-        {activeTab === "Posts" && (
-          <View>
-            {postLoading ? (
-              <View style={styles.loadingContianer}>
-                <ActivityIndicator size="large" color={Colors.brand.primary} />
-              </View>
-            ) : (
-              <MasonryList
-                posts={sortedPosts.map((post) => ({
-                  ...post,
-                  author: username,
-                  profilePic: avatarUrl,
-                }))}
-                interactionVersion={interactionVersion}
-                source={"profilePage"}
-              />
-            )}
-          </View>
-        )}
+        <View>
+          {postLoading ? (
+            <View style={styles.loadingContianer}>
+              <ActivityIndicator size="large" color={Colors.brand.primary} />
+            </View>
+          ) : (
+            <MasonryList
+              posts={sortedPosts.map((post) => ({
+                ...post,
+                author: username,
+                profilePic: avatarUrl,
+              }))}
+              interactionVersion={interactionVersion}
+              source={"profilePage"}
+            />
+          )}
+        </View>
       </View>
     </ScrollView>
   );
