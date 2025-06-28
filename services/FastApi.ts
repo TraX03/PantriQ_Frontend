@@ -20,7 +20,7 @@ const fetchFromApi = async (endpoint: string, data?: any): Promise<any> => {
   }
 };
 
-export const fetchColdStartRecommendations = (userId: string) =>
+export const fetchColdstartRecommendations = (userId: string) =>
   fetchFromApi(`/onboarding/coldstart/${userId}`);
 
 export const fetchHomeFeedRecommendations = (userId: string) =>

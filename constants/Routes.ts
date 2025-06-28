@@ -6,6 +6,7 @@ export const Routes = {
   UserDetail: "/profile/[id]",
   Search: "/search/container",
   Settings: "/profile/settings/container",
+  History: "/profile/history/container",
   EditProfile: "/profile/settings/editProfile/container",
   EditPreferencesForm: "/profile/settings/editPreferences/[key]",
   Onboarding: "/onboarding/container",

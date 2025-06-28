@@ -3,7 +3,6 @@ import { AppwriteConfig } from "@/constants/AppwriteConfig";
 import { useFieldState } from "@/hooks/useFieldState";
 import { useMediaHandler } from "@/hooks/useMediaHandler";
 import { setLoading } from "@/redux/slices/loadingSlice";
-import { setRefreshProfile } from "@/redux/slices/profileSlice";
 import { AppDispatch } from "@/redux/store";
 import { createDocument, getCurrentUser } from "@/services/Appwrite";
 import { generateTagsWithGemini } from "@/services/GeminiApi";
@@ -183,7 +182,6 @@ export const useCreateFormController = () => {
         `Failed to create ${create.postType}. Please try again.`
       );
     } finally {
-      dispatch(setRefreshProfile(true));
       dispatch(setLoading(false));
     }
   }, [create, dispatch, uploadImage]);

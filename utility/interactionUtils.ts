@@ -1,12 +1,12 @@
 import { AppwriteConfig } from "@/constants/AppwriteConfig";
 import { setInteractionMap } from "@/redux/slices/interactionSlice";
 import { AppDispatch } from "@/redux/store";
-import { getCurrentUser, listDocuments } from "@/services/Appwrite";
+import { fetchAllDocuments, getCurrentUser } from "@/services/Appwrite";
 import { Query } from "react-native-appwrite";
 
 export const fetchInteractions = async (): Promise<Map<string, any>> => {
   const user = await getCurrentUser();
-  const interactions = await listDocuments(
+  const interactions = await fetchAllDocuments(
     AppwriteConfig.INTERACTIONS_COLLECTION_ID,
     [Query.equal("user_id", user.$id)]
   );

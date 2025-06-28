@@ -6,7 +6,7 @@ import {
   getCurrentUser,
   updateDocument,
 } from "@/services/Appwrite";
-import { fetchColdStartRecommendations } from "@/services/FastApi";
+import { fetchColdstartRecommendations } from "@/services/FastApi";
 import { cleanPreferencesByType } from "@/services/GeminiApi";
 import { router } from "expo-router";
 import Toast from "react-native-toast-message";
@@ -154,7 +154,7 @@ export const useOnboardingController = () => {
     if (currentPage === pages.length - 1) {
       await saveOnboardingData();
       const user = await getCurrentUser();
-      const data = await fetchColdStartRecommendations(user.$id);
+      const data = await fetchColdstartRecommendations(user.$id);
 
       setFields({
         recommendations: {

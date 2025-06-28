@@ -1,6 +1,5 @@
 import ErrorScreen from "@/components/ErrorScreen";
 import MasonryList from "@/components/MasonryList";
-import { Post } from "@/components/PostCard";
 import ScreenWrapper from "@/components/ScreenWrapper";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { Colors } from "@/constants/Colors";
@@ -38,11 +37,20 @@ type Props = {
     interactionMap: Record<string, any>;
     interactionVersion: number;
   };
+  fetchPostsByUser: (userId: string) => Promise<void>;
 };
 
-const tabs = [
-  { title: "History", icon: "clock" },
-  { title: "Community", icon: "person.2.fill" },
+const menuOptions = [
+  {
+    title: "History",
+    icon: "clock",
+    action: () => router.push(Routes.History),
+  },
+  {
+    title: "Community",
+    icon: "person.2.fill",
+    action: () => console.log("Community coming soon"),
+  },
 ] as const;
 
 export const mainTabs = ["Posts", "Collections", "Likes"] as const;
@@ -57,6 +65,7 @@ export default function ProfileComponent({
   isOwnProfile,
   isBackgroundDark,
   interactionData,
+  fetchPostsByUser,
 }: Props) {
   if (isLoading && !profileData) return null;
 
@@ -95,15 +104,12 @@ export default function ProfileComponent({
   const isFollowing = interaction?.isFollowing ?? false;
   const toggleFollow = interaction?.toggleFollow ?? (() => {});
 
-  let sourcePosts: Post[] = [];
-
-  if (activeTab === "Likes") {
-    sourcePosts = likedPosts;
-  } else if (activeTab === "Collections") {
-    sourcePosts = bookmarkedPosts;
-  } else {
-    sourcePosts = posts;
-  }
+  const sourcePosts =
+    activeTab === "Likes"
+      ? likedPosts
+      : activeTab === "Collections"
+      ? bookmarkedPosts
+      : posts;
 
   const filteredPosts = sourcePosts.filter((p) =>
     postSubTab === "Recipe"
@@ -111,7 +117,7 @@ export default function ProfileComponent({
       : p.type?.toLowerCase() === postSubTab.toLowerCase()
   );
 
-  const sortedPosts = [...filteredPosts].sort(
+  const sortedPosts = filteredPosts.sort(
     (a, b) =>
       new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
   );
@@ -147,6 +153,17 @@ export default function ProfileComponent({
           <View className="flex-row items-center gap-[12px]">
             {isOwnProfile ? (
               <>
+                <TouchableOpacity
+                  onPress={() =>
+                    profileData.id && fetchPostsByUser(profileData.id)
+                  }
+                >
+                  <IconSymbol
+                    name="arrow.clockwise.circle"
+                    size={32}
+                    color={Colors.brand.onPrimary}
+                  />
+                </TouchableOpacity>
                 <TouchableOpacity
                   onPress={() => checkLogin(Routes.EditProfile)}
                 >
@@ -213,12 +230,12 @@ export default function ProfileComponent({
 
         {isOwnProfile && isLoggedIn ? (
           <View className="flex-row justify-start mt-5">
-            {tabs.map(({ title, icon }) => (
+            {menuOptions.map(({ title, icon, action }) => (
               <TouchableOpacity
                 key={title}
                 style={styles.profileTab}
                 activeOpacity={0.8}
-                onPress={() => {}}
+                onPress={action}
               >
                 <IconSymbol
                   name={icon}
@@ -310,8 +327,8 @@ export default function ProfileComponent({
             <MasonryList
               posts={sortedPosts.map((post) => ({
                 ...post,
-                author: username,
-                profilePic: avatarUrl,
+                author: post.author ? post.author : username,
+                profilePic: post.profilePic ? post.profilePic : avatarUrl,
               }))}
               interactionVersion={interactionVersion}
               source={"profilePage"}
