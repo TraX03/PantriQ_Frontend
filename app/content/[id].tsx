@@ -26,9 +26,12 @@ export default function PostRouter() {
       setPostType(type);
 
       if (currentUserId) {
+        const itemType = (await getPostTypeById(id)) ?? "recipe";
+
         await logUserView(
           currentUserId,
           id,
+          itemType,
           typeof source === "string" ? source : "homeFeed"
         );
       }

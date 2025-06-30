@@ -6,6 +6,7 @@ import {
   deleteDocument,
   getCurrentUser,
   getDocumentById,
+  getPostTypeById,
   updateDocument,
 } from "@/services/Appwrite";
 import { refreshInteractionMap } from "@/utility/interactionUtils";
@@ -133,9 +134,15 @@ export function useInteraction(
           });
         }
       } else {
+        const itemType =
+          type === "follow"
+            ? "user"
+            : (await getPostTypeById(targetId)) ?? "recipe";
+
         const newDoc = await createDocument(collection, {
           user_id: currentUser.$id,
           item_id: targetId,
+          item_type: itemType,
           type,
           created_at: new Date().toISOString(),
         });

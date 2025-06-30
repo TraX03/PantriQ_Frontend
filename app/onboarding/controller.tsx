@@ -1,6 +1,8 @@
 import { AppwriteConfig } from "@/constants/AppwriteConfig";
 import { Routes } from "@/constants/Routes";
 import { useFieldState } from "@/hooks/useFieldState";
+import { setOnboarded } from "@/redux/slices/authSlice";
+import { AppDispatch } from "@/redux/store";
 import {
   createDocument,
   getCurrentUser,
@@ -10,6 +12,7 @@ import { fetchColdstartRecommendations } from "@/services/FastApi";
 import { cleanPreferencesByType } from "@/services/GeminiApi";
 import { router } from "expo-router";
 import Toast from "react-native-toast-message";
+import { useDispatch } from "react-redux";
 import { InteractionType, pages } from "./component";
 
 type Recommendation = {
@@ -27,6 +30,7 @@ export interface OnboardingState {
   showSearchModal: boolean;
   recommendations: Recommendation | null;
   currentRatingIndex: number;
+  showLottie: boolean;
 }
 
 const fieldKeys: (keyof OnboardingState)[] = [
@@ -36,6 +40,7 @@ const fieldKeys: (keyof OnboardingState)[] = [
 ];
 
 export const useOnboardingController = () => {
+  const dispatch = useDispatch<AppDispatch>();
   const onboarding = useFieldState<OnboardingState>({
     currentPage: 1,
     ingredientAvoid: [],
@@ -45,6 +50,7 @@ export const useOnboardingController = () => {
     showSearchModal: false,
     recommendations: null,
     currentRatingIndex: 0,
+    showLottie: false,
   });
 
   const {
@@ -124,7 +130,6 @@ export const useOnboardingController = () => {
         ),
         diet: cleanedDiet.map((d) => d.toLowerCase().trim()),
         region_pref: cleanedRegion.map((r) => r.toLowerCase().trim()),
-        is_onboarded: true,
       });
     } catch (error) {
       console.error("Failed to save onboarding data:", error);
@@ -139,6 +144,7 @@ export const useOnboardingController = () => {
       user_id: user.$id,
       item_id: recipeId,
       type: "coldstart",
+      item_type: "recipe",
       value,
       created_at: new Date().toISOString(),
     });
@@ -146,26 +152,31 @@ export const useOnboardingController = () => {
     if (currentRatingIndex + 1 < recommendations!.titles.length) {
       setFieldState("currentRatingIndex", currentRatingIndex + 1);
     } else {
+      await updateDocument(AppwriteConfig.USERS_COLLECTION_ID, user.$id, {
+        is_onboarded: true,
+      });
+      dispatch(setOnboarded(true));
       router.replace(Routes.Home);
     }
   };
 
   const handleNext = async () => {
     if (currentPage === pages.length - 1) {
+      setFieldState("showLottie", true);
       await saveOnboardingData();
       const user = await getCurrentUser();
       const data = await fetchColdstartRecommendations(user.$id);
 
       setFields({
         recommendations: {
-          recipeIds: data.recipe_ids,
+          recipeIds: data.post_ids,
           titles: data.titles,
           images: data.images,
         },
         currentRatingIndex: 0,
       });
     }
-    setFieldState("currentPage", currentPage + 1);
+    setFields({ showLottie: false, currentPage: currentPage + 1 });
   };
 
   const handlePrevious = () => {

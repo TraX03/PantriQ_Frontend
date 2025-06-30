@@ -36,7 +36,6 @@ function RootContent() {
 
 export default function RootLayout() {
   const [loaded] = useFonts({
-    SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
     RobotoMedium: require("../assets/fonts/Roboto-Medium.ttf"),
     RobotoRegular: require("../assets/fonts/Roboto-Regular.ttf"),
     RobotoSemiBold: require("../assets/fonts/Roboto-SemiBold.ttf"),

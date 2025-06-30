@@ -8,6 +8,7 @@ import { SuggestionType } from "@/hooks/useSuggestionList";
 import { getImageUrl } from "@/utility/imageUtils";
 import { styles } from "@/utility/onboarding/styles";
 import { Stack } from "expo-router";
+import LottieView from "lottie-react-native";
 import React from "react";
 import {
   ImageBackground,
@@ -118,6 +119,7 @@ export default function OnboardingComponent({
     handlePrevious,
     handleRating,
   } = actions;
+
   const {
     currentPage,
     ingredientAvoid,
@@ -127,7 +129,9 @@ export default function OnboardingComponent({
     setFieldState,
     recommendations,
     currentRatingIndex,
+    showLottie,
   } = onboarding;
+
   const pageIndex = currentPage - 1;
   const selectedStates = [ingredientAvoid, diet, region];
   const currentPageData = pages[pageIndex];
@@ -288,7 +292,7 @@ export default function OnboardingComponent({
           </>
         )}
 
-        <View className="flex-row justify-between mt-6">
+        <View className="flex-row justify-between items-center mt-6">
           {currentPage > 1 ? (
             <Pressable
               style={[
@@ -310,7 +314,7 @@ export default function OnboardingComponent({
             <View className="w-[100px]" />
           )}
 
-          {pageIndex < 3 && (
+          {pageIndex < 3 && !showLottie && (
             <Pressable
               style={[styles.button, { opacity: isNextEnabled ? 1 : 0.5 }]}
               onPress={isNextEnabled ? handleNext : undefined}
@@ -318,6 +322,17 @@ export default function OnboardingComponent({
             >
               <Text style={styles.buttonText}>Next</Text>
             </Pressable>
+          )}
+
+          {pageIndex === 2 && showLottie && (
+            <View style={styles.loadingContainer}>
+              <LottieView
+                source={require("@/assets/animations/dot-loading.json")}
+                autoPlay
+                loop
+                style={{ width: 150, height: 150 }}
+              />
+            </View>
           )}
         </View>
       </View>

@@ -12,11 +12,7 @@ export interface User {
   bio?: string;
 }
 
-export const fetchPosts = async (
-  limit?: number,
-  regionPref?: string,
-  includeRecipes: boolean = false
-): Promise<Post[]> => {
+export const fetchPosts = async (limit: boolean = true): Promise<Post[]> => {
   const shuffleArray = <T>(array: T[]): T[] =>
     array
       .map((value) => ({ value, sort: Math.random() }))
@@ -50,70 +46,55 @@ export const fetchPosts = async (
     created_at: doc.$createdAt,
   });
 
+  const processPosts = (
+    docs: any[],
+    type: string,
+    usersMap: Map<string, any>,
+    lim?: number
+  ): Post[] =>
+    applyLimit(
+      shuffleArray(
+        docs.filter((d) => d.type === type).map((d) => mapPost(d, usersMap))
+      ),
+      lim
+    );
+
   try {
-    const [postDocs, communityDocs] = await Promise.all([
+    const [postDocs, recipeDocs, communityDocs] = await Promise.all([
       fetchAllDocuments(AppwriteConfig.POSTS_COLLECTION_ID),
+      fetchAllDocuments(AppwriteConfig.RECIPES_COLLECTION_ID),
       fetchAllDocuments(AppwriteConfig.COMMUNITIES_COLLECTION_ID),
     ]);
 
-    const recipeDocs = includeRecipes
-      ? await fetchAllDocuments(AppwriteConfig.RECIPES_COLLECTION_ID)
-      : [];
-
     const authorIds = Array.from(
       new Set(
-        [...postDocs, ...(includeRecipes ? recipeDocs : [])]
-          .map((doc) => doc.author_id)
-          .filter(Boolean)
+        [...postDocs, ...recipeDocs].map((doc) => doc.author_id).filter(Boolean)
       )
     );
 
     const usersMap = await fetchUsers(authorIds);
 
-    const tips = applyLimit(
-      shuffleArray(
-        postDocs
-          .filter((d) => d.type === "tips")
-          .map((d) => mapPost(d, usersMap))
-      )
-    );
+    const limits = {
+      recipe: limit ? 100 : undefined,
+      tips: limit ? 100 : undefined,
+      discussion: limit ? 100 : undefined,
+      community: limit ? 30 : undefined,
+    };
 
-    const discussions = applyLimit(
-      shuffleArray(
-        postDocs
-          .filter((d) => d.type === "discussion")
-          .map((d) => mapPost(d, usersMap))
-      )
-    );
+    const posts: Post[] = [
+      ...applyLimit(
+        shuffleArray(recipeDocs.map((d) => mapPost(d, usersMap))),
+        limits.recipe
+      ),
+      ...processPosts(postDocs, "tips", usersMap, limits.tips),
+      ...processPosts(postDocs, "discussion", usersMap, limits.discussion),
+      ...applyLimit(
+        shuffleArray(communityDocs.map(mapCommunity)),
+        limits.community
+      ),
+    ];
 
-    const communities = applyLimit(
-      shuffleArray(communityDocs.map(mapCommunity))
-    );
-
-    let finalRecipes: Post[] = [];
-    if (includeRecipes) {
-      const allRecipes = recipeDocs.map((d) => mapPost(d, usersMap));
-
-      const regionRecipes = regionPref
-        ? allRecipes.filter((r) => regionPref.includes(r.area || ""))
-        : [];
-      const otherRecipes = regionPref
-        ? allRecipes.filter((r) => !regionPref.includes(r.area || ""))
-        : allRecipes;
-
-      const halfLimit = limit
-        ? Math.floor(limit / 2)
-        : Math.floor(allRecipes.length / 2);
-      const regionHalf = applyLimit(shuffleArray(regionRecipes), halfLimit);
-      const otherHalf = applyLimit(
-        shuffleArray(otherRecipes),
-        limit ? limit - regionHalf.length : undefined
-      );
-
-      finalRecipes = [...regionHalf, ...otherHalf];
-    }
-
-    return [...finalRecipes, ...tips, ...discussions, ...communities];
+    return posts;
   } catch (error) {
     console.error("Failed to fetch posts", error);
     return [];
@@ -124,23 +105,37 @@ export const fetchHomeFeedPosts = async (userId: string): Promise<Post[]> => {
   try {
     const recs = await fetchHomeFeedRecommendations(userId);
 
-    const authorIds = Array.from(
-      new Set((recs.author_ids as string[]).filter(Boolean))
-    );
-    const usersMap = await fetchUsers(authorIds);
+    const allSections = [
+      { ...recs.recipe, type: "recipe" },
+      { ...recs.tip, type: "tips" },
+      { ...recs.discussion, type: "discussion" },
+      { ...recs.community, type: "community" },
+    ];
 
-    return recs.recipe_ids.map((id: string, index: number) => {
-      const authorId = recs.author_ids[index];
-      const authorInfo = usersMap.get(authorId);
-      return {
-        id,
-        type: "recipe",
-        title: recs.titles[index],
-        image: getImageUrl(recs.images[index]),
-        author: authorInfo?.username || "Unknown",
-        profilePic: getImageUrl(authorInfo?.avatarUrl),
-      };
-    });
+    const allAuthorIds = allSections
+      .flatMap((section) => section.author_ids ?? [])
+      .filter(Boolean);
+
+    const uniqueAuthorIds = Array.from(new Set(allAuthorIds));
+    const usersMap = await fetchUsers(uniqueAuthorIds);
+
+    const allPosts: Post[] = allSections.flatMap((section) =>
+      section.post_ids.map((id: string, index: number) => {
+        const authorId = section.author_ids[index];
+        const authorInfo = usersMap.get(authorId);
+
+        return {
+          id,
+          type: section.type,
+          title: section.titles[index],
+          image: getImageUrl(section.images[index]),
+          author: authorInfo?.username || "Unknown",
+          profilePic: getImageUrl(authorInfo?.avatarUrl),
+        };
+      })
+    );
+
+    return allPosts;
   } catch (err) {
     console.error("Failed to fetch home feed", err);
     return [];

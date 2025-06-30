@@ -64,4 +64,11 @@ export const styles = StyleSheet.create({
     color: Colors.brand.onPrimary,
     fontSize: 16,
   },
+  loadingContainer: {
+    width: 80,
+    height: 25,
+    overflow: "hidden",
+    alignItems: "center",
+    justifyContent: "center",
+  },
 });

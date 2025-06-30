@@ -29,34 +29,20 @@ export const useHomeController = () => {
   const { activeSuggestion, setFieldState, refreshing, posts, setFields } =
     home;
 
-  // still working on
   const refreshPosts = useCallback(async () => {
     setFieldState("refreshing", true);
-    let user = null;
 
     try {
-      try {
-        user = await getCurrentUser();
-      } catch {
+      const user = await getCurrentUser().catch(() => {
         console.warn("No user");
-      }
-
-      let recipePosts: Post[] = [];
-      let otherPosts: Post[] = [];
-
-      if (user) {
-        recipePosts = await fetchHomeFeedPosts(user.$id);
-        otherPosts = await fetchPosts(); // don't include recipes
-      } else {
-        otherPosts = await fetchPosts(undefined, undefined, true); // includeRecipes = true
-      }
-
-      const combined = [...recipePosts, ...otherPosts];
-
-      setFields({
-        posts: combined,
-        refreshing: false,
+        return null;
       });
+
+      const posts = user
+        ? await fetchHomeFeedPosts(user.$id)
+        : await fetchPosts(true);
+
+      setFields({ posts, refreshing: false });
     } catch (error) {
       console.error("Failed to refresh posts:", error);
       setFieldState("refreshing", false);

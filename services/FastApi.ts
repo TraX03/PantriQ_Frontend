@@ -29,10 +29,12 @@ export const fetchHomeFeedRecommendations = (userId: string) =>
 export const logUserView = (
   userId: string,
   itemId: string,
+  itemType: string,
   source = "homeFeed"
 ) =>
   fetchFromApi("/interactions/logView", {
     user_id: userId,
     item_id: itemId,
+    item_type: itemType,
     source,
   });

@@ -1,5 +1,6 @@
 import { setOnboarded, setUser } from "@/redux/slices/authSlice";
 import { setInteractionMap } from "@/redux/slices/interactionSlice";
+import { setLoading } from "@/redux/slices/loadingSlice";
 import { AppDispatch } from "@/redux/store";
 import { getCurrentUser } from "@/services/Appwrite";
 import { fetchInteractions } from "@/utility/interactionUtils";
@@ -10,6 +11,8 @@ import { useProfileData } from "./useProfileData";
 export function useHydrateAppState() {
   const dispatch = useDispatch<AppDispatch>();
   const { fetchProfile } = useProfileData();
+
+  dispatch(setLoading(true));
 
   useEffect(() => {
     const hydrate = async () => {
