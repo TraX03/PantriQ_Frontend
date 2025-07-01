@@ -9,18 +9,30 @@ export const styles = StyleSheet.create({
     borderRadius: 99,
     paddingHorizontal: 10,
   },
-  tabsContainer: {
+  tabContainer: {
     flexDirection: "row",
     alignItems: "center",
-    flexWrap: "wrap",
+    justifyContent: "space-between",
     paddingHorizontal: 16,
-    paddingVertical: 8,
+    paddingBottom: 8,
     borderBottomColor: Colors.surface.border,
     borderBottomWidth: 1,
+    gap: 2,
+  },
+  tabsWrapper: {
+    flex: 1,
+    flexDirection: "row",
+    justifyContent: "flex-start",
+    flexWrap: "wrap",
   },
   tabText: {
     fontFamily: "RobotoRegular",
     fontSize: 18,
+  },
+  tabTextContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 10,
   },
   divider: {
     color: Colors.text.disabled,
@@ -63,5 +75,10 @@ export const styles = StyleSheet.create({
     borderWidth: 1,
     alignSelf: "flex-start",
     borderColor: Colors.text.primary,
+  },
+  loadingContainer: {
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 30,
   },
 });

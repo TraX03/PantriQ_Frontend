@@ -40,7 +40,7 @@ export const useHomeController = () => {
 
       const posts = user
         ? await fetchHomeFeedPosts(user.$id)
-        : await fetchPosts(true);
+        : await fetchPosts();
 
       setFields({ posts, refreshing: false });
     } catch (error) {

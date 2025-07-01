@@ -17,6 +17,7 @@ export interface SearchState {
   hasSearched: boolean;
   recentSearches: string[];
   expanded: boolean;
+  postLoading: boolean;
 }
 
 const useSearchController = () => {
@@ -29,6 +30,7 @@ const useSearchController = () => {
     hasSearched: false,
     recentSearches: [],
     expanded: false,
+    postLoading: false,
   });
 
   const { posts, searchText, setFieldState, setFields } = search;
@@ -38,7 +40,7 @@ const useSearchController = () => {
     setFieldState("recentSearches", recent);
 
     const [postData, userData] = await Promise.all([
-      fetchPosts(),
+      fetchPosts(false, false),
       fetchUserList(),
     ]);
 
@@ -51,13 +53,15 @@ const useSearchController = () => {
   };
 
   const handleSearch = async (term?: string) => {
+    setFieldState("postLoading", true);
+
     const query = (term ?? searchText).trim();
     if (!query) return;
 
     await updateRecentSearches(query);
 
     const postFuse = new Fuse(posts, {
-      keys: ["title", "description"],
+      keys: ["title", "description", "area", "category", "ingredients"],
       threshold: 0.3,
     });
 
@@ -74,6 +78,7 @@ const useSearchController = () => {
       filteredUsers: userResults,
       searchText: query,
       hasSearched: true,
+      postLoading: false,
     });
   };
 

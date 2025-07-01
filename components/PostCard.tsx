@@ -22,6 +22,8 @@ export type Post = {
   recipesCount?: number;
   description?: string;
   created_at: string;
+  ingredients?: string[];
+  category?: string[];
 };
 
 type PostCardProps = {

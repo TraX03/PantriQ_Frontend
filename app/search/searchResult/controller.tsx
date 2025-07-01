@@ -1,7 +1,5 @@
 import { Post } from "@/components/PostCard";
 import { useFieldState } from "@/hooks/useFieldState";
-import { isEqual } from "lodash";
-import { useEffect } from "react";
 
 export const tabs = [
   "Recipes",
@@ -28,7 +26,7 @@ const useSearchResultController = (posts: Post[]) => {
     filteredPosts: [],
   });
 
-  const { activeTab, filteredPosts, setFieldState } = searchResult;
+  const { activeTab } = searchResult;
 
   const getFilteredPostsByTab = () => {
     if (!posts) return [];
@@ -49,15 +47,9 @@ const useSearchResultController = (posts: Post[]) => {
     });
   };
 
-  useEffect(() => {
-    const filtered = getFilteredPostsByTab();
-    if (!isEqual(filtered, filteredPosts)) {
-      setFieldState("filteredPosts", filtered);
-    }
-  }, [posts, activeTab, filteredPosts, setFieldState]);
-
   return {
     searchResult,
+    getFilteredPostsByTab,
   };
 };
 

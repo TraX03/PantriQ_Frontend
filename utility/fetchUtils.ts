@@ -12,18 +12,25 @@ export interface User {
   bio?: string;
 }
 
-export const fetchPosts = async (limit: boolean = true): Promise<Post[]> => {
+export const fetchPosts = async (
+  limit: boolean = true,
+  shuffle: boolean = true
+): Promise<Post[]> => {
   const shuffleArray = <T>(array: T[]): T[] =>
     array
       .map((value) => ({ value, sort: Math.random() }))
       .sort((a, b) => a.sort - b.sort)
       .map(({ value }) => value);
 
+  const maybeShuffle = <T>(array: T[]): T[] =>
+    shuffle ? shuffleArray(array) : array;
+
   const applyLimit = <T>(arr: T[], lim?: number): T[] =>
     lim ? arr.slice(0, lim) : arr;
 
   const mapPost = (doc: any, usersMap: Map<string, any>): Post => {
     const author = usersMap.get(doc.author_id);
+
     return {
       id: doc.$id,
       type: doc.type || "recipe",
@@ -32,7 +39,12 @@ export const fetchPosts = async (limit: boolean = true): Promise<Post[]> => {
       author: author?.username || "Unknown",
       profilePic: author?.avatarUrl,
       area: doc.area,
+      description: !doc.type ? doc.description : doc.content,
       created_at: doc.$createdAt,
+      category: doc.category,
+      ingredients: Array.isArray(doc.ingredients)
+        ? doc.ingredients.map((ing: any) => ing.name).filter(Boolean)
+        : [],
     };
   };
 
@@ -44,6 +56,7 @@ export const fetchPosts = async (limit: boolean = true): Promise<Post[]> => {
     membersCount: doc.members_count,
     recipesCount: doc.recipes_count,
     created_at: doc.$createdAt,
+    description: doc.description,
   });
 
   const processPosts = (
@@ -53,7 +66,7 @@ export const fetchPosts = async (limit: boolean = true): Promise<Post[]> => {
     lim?: number
   ): Post[] =>
     applyLimit(
-      shuffleArray(
+      maybeShuffle(
         docs.filter((d) => d.type === type).map((d) => mapPost(d, usersMap))
       ),
       lim
@@ -83,13 +96,13 @@ export const fetchPosts = async (limit: boolean = true): Promise<Post[]> => {
 
     const posts: Post[] = [
       ...applyLimit(
-        shuffleArray(recipeDocs.map((d) => mapPost(d, usersMap))),
+        maybeShuffle(recipeDocs.map((d) => mapPost(d, usersMap))),
         limits.recipe
       ),
       ...processPosts(postDocs, "tips", usersMap, limits.tips),
       ...processPosts(postDocs, "discussion", usersMap, limits.discussion),
       ...applyLimit(
-        shuffleArray(communityDocs.map(mapCommunity)),
+        maybeShuffle(communityDocs.map(mapCommunity)),
         limits.community
       ),
     ];

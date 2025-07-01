@@ -5,52 +5,58 @@ import { Colors } from "@/constants/Colors";
 import { useFieldState } from "@/hooks/useFieldState";
 import { User } from "@/utility/fetchUtils";
 import { styles } from "@/utility/search/styles";
-import { Pressable, ScrollView, Text, View } from "react-native";
+import {
+  ActivityIndicator,
+  Pressable,
+  ScrollView,
+  Text,
+  View,
+} from "react-native";
 import { SearchResultState, tabs } from "./controller";
 
 export type Props = {
   searchResult: ReturnType<typeof useFieldState<SearchResultState>>;
   filteredUsers: User[];
   interactionVersion: number;
+  postLoading: boolean;
 };
 
 export default function SearchResultComponent({
   searchResult,
   filteredUsers,
   interactionVersion,
+  postLoading,
 }: Props) {
   const { filterActive, orderActive, activeTab, filteredPosts, setFieldState } =
     searchResult;
 
   return (
     <>
-      <View
-        className="flex-row items-center flex-wrap px-4 py-2"
-        style={styles.tabsContainer}
-      >
-        {tabs.map((tab, index) => (
-          <View key={tab} className="flex-row items-center mt-3">
-            <Pressable onPress={() => setFieldState("activeTab", tab)}>
-              <Text
-                style={[
-                  styles.tabText,
-                  {
-                    color:
-                      activeTab === tab
-                        ? Colors.brand.primaryDark
-                        : Colors.text.disabled,
-                  },
-                ]}
-              >
-                {tab}
-              </Text>
-            </Pressable>
+      <View style={styles.tabContainer}>
+        <View style={styles.tabsWrapper}>
+          {tabs.map((tab, index) => (
+            <View key={tab} style={styles.tabTextContainer}>
+              <Pressable onPress={() => setFieldState("activeTab", tab)}>
+                <Text
+                  style={[
+                    styles.tabText,
+                    {
+                      color:
+                        activeTab === tab
+                          ? Colors.brand.primaryDark
+                          : Colors.text.disabled,
+                    },
+                  ]}
+                >
+                  {tab}
+                </Text>
+              </Pressable>
+              {index < tabs.length - 1 && <Text style={styles.divider}>|</Text>}
+            </View>
+          ))}
+        </View>
 
-            {index < tabs.length - 1 && <Text style={styles.divider}>|</Text>}
-          </View>
-        ))}
-
-        <View className="flex-row items-center flex-1 justify-end gap-2">
+        <View className="flex-row gap-[2px]">
           <Pressable
             onPress={() => setFieldState("filterActive", !filterActive)}
           >
@@ -87,6 +93,10 @@ export default function SearchResultComponent({
               ))}
             </View>
           )
+        ) : postLoading ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color={Colors.brand.primary} />
+          </View>
         ) : filteredPosts.length === 0 ? (
           <View className="items-center justify-center mt-10">
             <Text style={styles.noFoundText}>

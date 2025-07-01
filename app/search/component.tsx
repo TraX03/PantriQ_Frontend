@@ -29,6 +29,7 @@ export default function SearchComponent({
     searchText,
     hasSearched,
     expanded,
+    postLoading,
     setFieldState,
   } = search;
 
@@ -58,6 +59,7 @@ export default function SearchComponent({
             <SearchResultContainer
               filteredPosts={filteredPosts}
               filteredUsers={filteredUsers}
+              postLoading={postLoading}
             />
           ) : (
             <View className="px-4 py-3">
