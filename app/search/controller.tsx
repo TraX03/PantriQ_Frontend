@@ -11,81 +11,94 @@ import Fuse from "fuse.js";
 export interface SearchState {
   posts: Post[];
   users: User[];
-  filteredPosts: Post[];
+  allFilteredPosts: Post[];
   filteredUsers: User[];
   searchText: string;
   hasSearched: boolean;
   recentSearches: string[];
   expanded: boolean;
   postLoading: boolean;
+  isInitialized: boolean;
 }
 
 const useSearchController = () => {
   const search = useFieldState<SearchState>({
     posts: [],
     users: [],
-    filteredPosts: [],
+    allFilteredPosts: [],
     filteredUsers: [],
     searchText: "",
     hasSearched: false,
     recentSearches: [],
     expanded: false,
     postLoading: false,
+    isInitialized: false,
   });
 
-  const { posts, searchText, setFieldState, setFields } = search;
+  const { searchText, setFieldState, setFields } = search;
 
   const init = async () => {
-    const recent = getRecentSearches();
+    const recent = await getRecentSearches();
     setFieldState("recentSearches", recent);
 
-    const [postData, userData] = await Promise.all([
+    const [posts, users] = await Promise.all([
       fetchPosts(false, false),
       fetchUserList(),
     ]);
 
     setFields({
-      posts: postData,
-      users: userData,
-      filteredPosts: postData,
-      filteredUsers: userData,
+      posts,
+      users,
+      allFilteredPosts: posts,
+      filteredUsers: users,
+      isInitialized: true,
     });
+
+    return { posts, users };
   };
 
   const handleSearch = async (term?: string) => {
-    setFieldState("postLoading", true);
-
     const query = (term ?? searchText).trim();
     if (!query) return;
 
-    await updateRecentSearches(query);
-
-    const postFuse = new Fuse(posts, {
-      keys: ["title", "description", "area", "category", "ingredients"],
-      threshold: 0.3,
-    });
-
-    const userFuse = new Fuse(search.users, {
-      keys: ["name", "bio"],
-      threshold: 0.3,
-    });
-
-    const postResults = postFuse.search(query).map((r) => r.item);
-    const userResults = userFuse.search(query).map((r) => r.item);
-
     setFields({
-      filteredPosts: postResults,
-      filteredUsers: userResults,
       searchText: query,
+      postLoading: true,
       hasSearched: true,
-      postLoading: false,
     });
-  };
 
-  const updateRecentSearches = async (query: string) => {
+    let posts = search.posts;
+    let users = search.users;
+
+    if (!search.isInitialized) {
+      const result = await init();
+      posts = result.posts;
+      users = result.users;
+    }
+
     await addRecentSearch(query);
     const recent = await getRecentSearches();
     setFieldState("recentSearches", recent);
+
+    const postResults = new Fuse(posts, {
+      keys: ["title", "description", "area", "category", "ingredients"],
+      threshold: 0.3,
+    })
+      .search(query)
+      .map((res) => res.item);
+
+    const userResults = new Fuse(users, {
+      keys: ["name", "bio"],
+      threshold: 0.3,
+    })
+      .search(query)
+      .map((res) => res.item);
+
+    setFields({
+      allFilteredPosts: postResults,
+      filteredUsers: userResults,
+      postLoading: false,
+    });
   };
 
   const handleClear = async () => {

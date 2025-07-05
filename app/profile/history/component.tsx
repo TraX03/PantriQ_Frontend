@@ -19,10 +19,6 @@ export default function HistoryComponent({
 }: Props) {
   const { posts } = history;
 
-  const sortedPosts = [...posts].sort(
-    (a, b) =>
-      new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-  );
   return (
     <>
       <Stack.Screen options={{ headerShown: false }} />
@@ -31,7 +27,7 @@ export default function HistoryComponent({
           <HeaderBar title="History" />
 
           <MasonryList
-            posts={sortedPosts}
+            posts={posts}
             interactionVersion={interactionVersion}
             source="historyPage"
           />

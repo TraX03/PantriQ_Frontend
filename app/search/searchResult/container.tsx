@@ -7,23 +7,23 @@ import SearchResultComponent from "./component";
 import useSearchResultController from "./controller";
 
 interface Props {
-  filteredPosts: Post[];
+  allFilteredPosts: Post[];
   filteredUsers: User[];
   postLoading: boolean;
 }
 
 export default function SearchResultContainer({
-  filteredPosts,
+  allFilteredPosts,
   filteredUsers,
   postLoading,
 }: Props) {
   const { searchResult, getFilteredPostsByTab } =
-    useSearchResultController(filteredPosts);
+    useSearchResultController(allFilteredPosts);
   const { interactionVersion } = useReduxSelectors();
 
   useEffect(() => {
     const filtered = getFilteredPostsByTab();
-    if (!isEqual(filtered, filteredPosts)) {
+    if (!isEqual(filtered, allFilteredPosts)) {
       searchResult.setFieldState("filteredPosts", filtered);
     }
   }, [searchResult.activeTab, postLoading]);

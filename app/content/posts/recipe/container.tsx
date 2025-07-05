@@ -1,4 +1,5 @@
 import { useFieldState } from "@/hooks/useFieldState";
+import { useReduxSelectors } from "@/hooks/useReduxSelectors";
 import { getCachedNutrition } from "@/utility/nutritionCacheUtils";
 import { useEffect } from "react";
 import { PostState, RecipePost } from "../controller";
@@ -10,19 +11,24 @@ type Props = {
 };
 
 export default function RecipeContainer({ post }: Props) {
-  const { recipe, getNutritionEntry } = useRecipeController();
+  const { recipe, getNutritionEntry, getRecipeRatings } = useRecipeController();
+  const { currentUserId } = useReduxSelectors();
   const recipeData = post.postData as RecipePost;
 
   useEffect(() => {
-    if (!post.postData || recipe.nutritionData) return;
+    if (!post.postData) return;
 
-    const loadNutrition = async () => {
-      const nutrition = await getCachedNutrition(recipeData);
-      recipe.setFieldState("nutritionData", nutrition);
+    const loadData = async () => {
+      await getRecipeRatings(recipeData.id);
+
+      if (!recipe.nutritionData) {
+        const nutrition = await getCachedNutrition(recipeData);
+        recipe.setFieldState("nutritionData", nutrition);
+      }
     };
 
-    loadNutrition();
-  }, [post.postData, recipe.nutritionData]);
+    loadData();
+  }, [post.postData]);
 
   return (
     <RecipeComponent
@@ -30,6 +36,7 @@ export default function RecipeContainer({ post }: Props) {
       recipe={recipe}
       recipeData={recipeData}
       getNutritionEntry={getNutritionEntry}
+      currentUserId={currentUserId}
     />
   );
 }

@@ -7,10 +7,8 @@ import { AppDispatch } from "@/redux/store";
 import { createDocument, getCurrentUser } from "@/services/Appwrite";
 import { generateTagsWithGemini } from "@/services/GeminiApi";
 import { detectBackgroundDarkness, isValidUrl } from "@/utility/imageUtils";
-import * as FileSystem from "expo-file-system";
 import * as ImagePicker from "expo-image-picker";
 import { router, useLocalSearchParams } from "expo-router";
-import mime from "mime";
 import { useCallback, useMemo } from "react";
 import { Alert, Keyboard } from "react-native";
 import { ID, Permission, Role } from "react-native-appwrite";
@@ -40,11 +38,12 @@ export interface CreateFormState {
   area: string;
   mealtime: { name: string }[];
   focusedIndex: { [K in EntryType]?: number | null };
+  keyboardVisible: boolean;
 }
 
 export const useCreateFormController = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { pickImageFile, uploadFile } = useMediaHandler();
+  const { uploadFile } = useMediaHandler();
   const { type } = useLocalSearchParams<{ type: string }>();
 
   const create = useFieldState<CreateFormState>({
@@ -58,48 +57,34 @@ export const useCreateFormController = () => {
     area: "",
     mealtime: [],
     focusedIndex: {},
+    keyboardVisible: false,
   });
-
-  const handlePickImage = useCallback(async () => {
-    if (create.images.length >= 5) return;
-    const file = await pickImageFile();
-    if (file) create.setFieldState("images", [...create.images, file.uri]);
-  }, [create, pickImageFile]);
-
-  const uploadImage = useCallback(
-    async (uri: string, userId: string) => {
-      const name = uri.split("/").pop() ?? `image-${Date.now()}`;
-      const type = mime.getType(uri) ?? "image/jpeg";
-      const fileInfo = await FileSystem.getInfoAsync(uri);
-      if (!fileInfo.exists) return null;
-      return uploadFile({ uri, name, type, size: fileInfo.size ?? 0 }, userId);
-    },
-    [uploadFile]
-  );
 
   const handleSubmit = useCallback(async () => {
     dispatch(setLoading(true));
+
     try {
       const user = await getCurrentUser();
       const userId = user.$id;
 
-      const uploadedImageIds = (
-        await Promise.all(create.images.map((uri) => uploadImage(uri, userId)))
-      ).filter((id): id is string => !!id);
+      const [uploadedImageIds, metadata, tags] = await Promise.all([
+        Promise.all(
+          create.images.map((uri) => uploadFile({ uri }, userId))
+        ).then((ids) => ids.filter((id): id is string => !!id)),
 
-      const metadata = {
-        images: await Promise.all(
+        Promise.all(
           create.images.map(async (uri) => {
             try {
-              return { isDark: await detectBackgroundDarkness(uri) };
+              const isDark = await detectBackgroundDarkness(uri);
+              return { isDark };
             } catch {
               return { isDark: false };
             }
           })
-        ),
-      };
+        ).then((images) => ({ images })),
 
-      const tags = await generateTagsWithGemini(create.postType, create);
+        generateTagsWithGemini(create.postType, create),
+      ]);
 
       const commonFields = {
         image: uploadedImageIds,
@@ -140,7 +125,7 @@ export const useCreateFormController = () => {
             create.instructions.map(async ({ image, text }) => {
               const uploadedImage =
                 image && !isValidUrl(image)
-                  ? await uploadImage(image, userId)
+                  ? await uploadFile({ uri: image }, userId)
                   : image;
 
               return JSON.stringify({
@@ -151,7 +136,7 @@ export const useCreateFormController = () => {
           ),
           category: create.category.map((c) => c.name.toLowerCase()),
           area: create.area.toLowerCase(),
-          mealtime: create.mealtime,
+          mealtime: create.mealtime.map((mt) => mt.name),
         },
       };
 
@@ -175,8 +160,10 @@ export const useCreateFormController = () => {
           create.postType[0].toUpperCase() + create.postType.slice(1)
         } created successfully!`,
       });
+
       router.back();
     } catch (err) {
+      console.warn("Failed to create post:", err);
       Alert.alert(
         "Error",
         `Failed to create ${create.postType}. Please try again.`
@@ -184,7 +171,7 @@ export const useCreateFormController = () => {
     } finally {
       dispatch(setLoading(false));
     }
-  }, [create, dispatch, uploadImage]);
+  }, [create, dispatch, getCurrentUser]);
 
   const isFormValid = useMemo(() => {
     const hasText = (str: string) => str.trim().length > 0;
@@ -327,7 +314,6 @@ export const useCreateFormController = () => {
   return {
     create,
     controller: {
-      handlePickImage,
       handleSubmit,
       updateEntry,
       modifyEntry,

@@ -24,6 +24,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { PostState, RecipePost } from "./controller";
 import ForumContainer from "./forum/container";
 import RecipeContainer from "./recipe/container";
+import RatingModalContainer from "./recipe/ratingModal/container";
 
 type Props = {
   post: ReturnType<typeof useFieldState<PostState>>;
@@ -41,11 +42,13 @@ export default function PostComponent({
   const {
     postData,
     showStepsModal,
+    showRatingModal,
     fullscreenImage,
     imageIndex,
     showModal,
     metadata,
     setFieldState,
+    keyboardVisible,
     interactionState,
   } = post;
 
@@ -192,28 +195,45 @@ export default function PostComponent({
         ]}
       />
 
-      {postType === "recipe" && showStepsModal && (
-        <BottomSheetModal
-          isVisible={showStepsModal}
-          onClose={() => setFieldState("showStepsModal", false)}
-          modalStyle={styles.instructionModal}
-          zIndex={10}
-        >
-          <ScrollView showsVerticalScrollIndicator={false}>
-            <Text style={styles.modalHeader}>All Steps</Text>
-            {recipeData?.instructions?.filter(Boolean).map((step, index) => (
-              <RecipeStep key={index} index={index} step={step} />
-            ))}
-          </ScrollView>
-        </BottomSheetModal>
+      {postType === "recipe" && (
+        <>
+          <BottomSheetModal
+            isVisible={showStepsModal}
+            onClose={() => setFieldState("showStepsModal", false)}
+            modalStyle={styles.instructionModal}
+            zIndex={10}
+          >
+            <ScrollView showsVerticalScrollIndicator={false}>
+              <Text style={styles.modalHeader}>All Steps</Text>
+              {recipeData?.instructions?.filter(Boolean).map((step, index) => (
+                <RecipeStep key={index} index={index} step={step} />
+              ))}
+            </ScrollView>
+          </BottomSheetModal>
+
+          <BottomSheetModal
+            isVisible={showRatingModal}
+            onClose={() => setFieldState("showRatingModal", false)}
+            modalStyle={[
+              styles.instructionModal,
+              keyboardVisible ? { flex: 1 } : { height: "80%" },
+            ]}
+            zIndex={10}
+          >
+            <RatingModalContainer postData={postData} post={post} />
+          </BottomSheetModal>
+        </>
       )}
 
       <GestureHandlerRootView>
         <ScreenWrapper>
           <ScrollView
             showsVerticalScrollIndicator={false}
-            style={styles.container}
-            contentContainerStyle={{ paddingBottom: 50 }}
+            style={[
+              styles.container,
+              { backgroundColor: Colors.surface.background },
+            ]}
+            contentContainerStyle={{ paddingBottom: 10 }}
           >
             {renderImages()}
 

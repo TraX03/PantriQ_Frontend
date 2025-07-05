@@ -1,10 +1,13 @@
 import { Post } from "@/components/PostCard";
 import { AppwriteConfig } from "@/constants/AppwriteConfig";
 import { useFieldState } from "@/hooks/useFieldState";
+import { setLoading } from "@/redux/slices/loadingSlice";
+import { AppDispatch } from "@/redux/store";
 import { fetchAllDocuments } from "@/services/Appwrite";
 import { getImageUrl } from "@/utility/imageUtils";
 import { fetchUsers } from "@/utility/userCacheUtils";
 import { Query } from "react-native-appwrite";
+import { useDispatch } from "react-redux";
 
 export interface HistoryState {
   posts: Post[];
@@ -15,8 +18,11 @@ export const useHistoryController = () => {
     posts: [],
   });
 
+  const dispatch = useDispatch<AppDispatch>();
+
   const fetchHistory = async (userId: string) => {
     if (!userId) return;
+    dispatch(setLoading(true));
 
     try {
       const interactions = await fetchAllDocuments(
@@ -51,7 +57,15 @@ export const useHistoryController = () => {
         ...recipes.map((r) => formatPost(r, "recipe")),
         ...posts.map((p) => formatPost(p)),
       ];
+
       const postMap = new Map<string, Post>(all.map((p) => [p.id, p]));
+
+      const viewMap = new Map<string, string>(
+        interactions.map((doc: any) => [
+          doc.item_id,
+          doc.timestamps?.at(-1) ?? doc.created_at,
+        ])
+      );
 
       const historyPosts = viewedIds
         .map((id) => postMap.get(id))
@@ -72,9 +86,17 @@ export const useHistoryController = () => {
         }));
       }
 
+      enrichedPosts.sort((a, b) => {
+        const aTime = new Date(viewMap.get(a.id) ?? 0).getTime();
+        const bTime = new Date(viewMap.get(b.id) ?? 0).getTime();
+        return bTime - aTime;
+      });
+
       history.setFieldState("posts", enrichedPosts);
     } catch (error) {
       console.error("Failed to fetch history:", error);
+    } finally {
+      dispatch(setLoading(false));
     }
   };
 

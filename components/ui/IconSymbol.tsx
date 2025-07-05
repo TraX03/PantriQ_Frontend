@@ -1,6 +1,7 @@
 import {
   AntDesign,
   Feather,
+  FontAwesome,
   Ionicons,
   MaterialCommunityIcons,
   MaterialIcons,
@@ -94,6 +95,16 @@ const MAPPING = {
     type: "MaterialCommunityIcons",
   },
   "heart.slash.fill": { name: "heart-broken", type: "MaterialCommunityIcons" },
+  "star.fill": { name: "star", type: "FontAwesome" },
+  "star.lefthalf.fill": { name: "star-half", type: "FontAwesome" },
+  "checkmark.circle": {
+    name: "checkbox-blank-circle-outline",
+    type: "MaterialCommunityIcons",
+  },
+  "checkmark.circle.fill": {
+    name: "checkbox-marked-circle-outline",
+    type: "MaterialCommunityIcons",
+  },
 } as const;
 
 export type IconSymbolName = keyof typeof MAPPING;
@@ -128,6 +139,7 @@ export function IconSymbol({
     Octicons: Octicons,
     MaterialCommunityIcons: MaterialCommunityIcons,
     AntDesign: AntDesign,
+    FontAwesome: FontAwesome,
   };
 
   const IconComponent = iconComponentMap[type];

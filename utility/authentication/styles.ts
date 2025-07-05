@@ -67,4 +67,9 @@ export const styles = StyleSheet.create({
     backgroundColor: Colors.brand.onPrimary,
     borderColor: Colors.brand.primary,
   },
+  background: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+  },
 });

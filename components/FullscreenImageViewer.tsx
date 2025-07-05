@@ -1,3 +1,4 @@
+import { getImageUrl } from "@/utility/imageUtils";
 import React from "react";
 import { Image, Modal, TouchableOpacity } from "react-native";
 import { styles } from "./styles";
@@ -17,7 +18,7 @@ const FullscreenImageViewer = ({
     <Modal visible transparent statusBarTranslucent>
       <TouchableOpacity style={styles.modalContainer} onPress={onClose}>
         <Image
-          source={{ uri: imageUri }}
+          source={{ uri: getImageUrl(imageUri) }}
           style={styles.fullImage}
           resizeMode="contain"
         />

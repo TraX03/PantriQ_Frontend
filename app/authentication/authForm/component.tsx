@@ -57,13 +57,13 @@ export default function AuthFormComponent({
 
       <ImageBackground
         source={require("@/assets/images/gradient.png")}
-        style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          width: width,
-          height: height + statusBarHeight,
-        }}
+        style={[
+          styles.background,
+          {
+            width: width,
+            height: height + statusBarHeight,
+          },
+        ]}
         resizeMode="cover"
       />
 

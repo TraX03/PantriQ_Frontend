@@ -232,4 +232,48 @@ export const styles = StyleSheet.create({
     textDecorationLine: "underline",
     fontFamily: "RobotoMedium",
   },
+  addImageButton: {
+    width: 112,
+    height: 112,
+    borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: Colors.surface.buttonSecondary,
+  },
+  removeButton: {
+    position: "absolute",
+    top: -8,
+    right: -8,
+    borderRadius: 9999,
+    backgroundColor: Colors.overlay.light,
+  },
+  authorAvatar: {
+    width: 90,
+    height: 90,
+    marginRight: 8,
+    borderRadius: 8,
+  },
+  ratingDivider: {
+    height: 1,
+    backgroundColor: Colors.surface.border,
+    marginVertical: 20,
+  },
+  dateText: {
+    color: Colors.text.label,
+    fontSize: 12,
+    paddingTop: 2,
+  },
+  username: {
+    fontFamily: "RobotoMedium",
+    marginBottom: 4,
+  },
+  pillContainer: {
+    borderWidth: 1,
+    borderRadius: 20,
+    paddingVertical: 6,
+    paddingHorizontal: 15,
+    flexDirection: "row",
+    gap: 6,
+    alignItems: "center",
+  },
 });

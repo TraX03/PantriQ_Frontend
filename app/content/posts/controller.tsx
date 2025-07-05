@@ -36,6 +36,7 @@ export interface RecipePost extends BasePost {
   ingredients: Ingredient[];
   instructions: Instruction[];
   rating: number;
+  ratingCount: number;
   category: string[];
 }
 
@@ -54,7 +55,9 @@ export interface PostState {
     isBookmarked: boolean;
     bookmarkDocId?: string;
   };
-  showStepsModal?: boolean;
+  showStepsModal: boolean;
+  showRatingModal: boolean;
+  keyboardVisible: boolean;
 }
 
 export const usePostController = (
@@ -64,7 +67,7 @@ export const usePostController = (
 ) => {
   const dispatch = useDispatch<AppDispatch>();
 
-  const initialState: PostState = {
+  const post = useFieldState<PostState>({
     postData: null,
     imageIndex: 0,
     showModal: false,
@@ -74,10 +77,11 @@ export const usePostController = (
       isLiked: false,
       isBookmarked: false,
     },
-    ...(type === "recipe" && { showStepsModal: false }),
-  };
+    showStepsModal: false,
+    showRatingModal: false,
+    keyboardVisible: false,
+  });
 
-  const post = useFieldState<PostState>(initialState);
   const { setFields, setFieldState } = post;
 
   const parseJsonSafe = <T,>(json: string, fallback: T): T => {
@@ -130,6 +134,7 @@ export const usePostController = (
                 };
               }),
               rating: doc.rating ?? 0,
+              ratingCount: doc.rating_count ?? 0,
               category: doc.category ?? [],
             }
           : baseData;

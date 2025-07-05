@@ -23,7 +23,7 @@ export default function SearchComponent({
   handleClear,
 }: Props) {
   const {
-    filteredPosts,
+    allFilteredPosts,
     filteredUsers,
     recentSearches,
     searchText,
@@ -57,7 +57,7 @@ export default function SearchComponent({
           />
           {hasSearched ? (
             <SearchResultContainer
-              filteredPosts={filteredPosts}
+              allFilteredPosts={allFilteredPosts}
               filteredUsers={filteredUsers}
               postLoading={postLoading}
             />

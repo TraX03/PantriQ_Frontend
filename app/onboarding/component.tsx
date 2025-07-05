@@ -20,8 +20,14 @@ import {
 } from "react-native";
 import { OnboardingState } from "./controller";
 
-export const INTERACTION_TYPES = ["like", "neutral", "dislike"] as const;
-export type InteractionType = (typeof INTERACTION_TYPES)[number];
+export const INTERACTION_LABELS = ["like", "neutral", "dislike"] as const;
+export type InteractionLabel = (typeof INTERACTION_LABELS)[number];
+
+export const INTERACTION_SCORES: Record<InteractionLabel, number> = {
+  like: 1.0,
+  neutral: 0.5,
+  dislike: 0.0,
+};
 
 export const pages: {
   keyName?: string;
@@ -130,6 +136,7 @@ export default function OnboardingComponent({
     recommendations,
     currentRatingIndex,
     showLottie,
+    keyboardVisible,
   } = onboarding;
 
   const pageIndex = currentPage - 1;
@@ -144,7 +151,10 @@ export default function OnboardingComponent({
         <BottomSheetModal
           isVisible={showSearchModal}
           onClose={() => setFieldState("showSearchModal", false)}
-          modalStyle={styles.optionModal}
+          modalStyle={[
+            styles.optionModal,
+            keyboardVisible && { height: "85%" },
+          ]}
           zIndex={10}
         >
           <SearchWithSuggestion
@@ -251,7 +261,7 @@ export default function OnboardingComponent({
                     </View>
 
                     <View className="m-8 flex-row items-center justify-center gap-4 px-4">
-                      {INTERACTION_TYPES.map((type) => {
+                      {INTERACTION_LABELS.map((type) => {
                         const label =
                           type.charAt(0).toUpperCase() + type.slice(1);
                         const icon =

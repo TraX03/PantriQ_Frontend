@@ -1,5 +1,5 @@
 import { AppwriteConfig } from "@/constants/AppwriteConfig";
-import { useMediaHandler } from "@/hooks/useMediaHandler";
+import { FileToUpload, useMediaHandler } from "@/hooks/useMediaHandler";
 import { setLoading } from "@/redux/slices/loadingSlice";
 import { guestPicture, updateProfileField } from "@/redux/slices/profileSlice";
 import { AppDispatch } from "@/redux/store";
@@ -36,7 +36,7 @@ export const useEditProfileController = (profileData: any) => {
   };
 
   const uploadFileAndUpdateProfile = async (
-    file: { name: string; type: string; size: number; uri: string },
+    file: FileToUpload,
     userId: string,
     fieldKey: "profile_bg" | "avatar"
   ) => {
@@ -44,6 +44,7 @@ export const useEditProfileController = (profileData: any) => {
       AppwriteConfig.USERS_COLLECTION_ID,
       userId
     );
+
     const oldFileId = userDoc[fieldKey];
     const isGuestImage = oldFileId === guestPicture;
 
@@ -70,6 +71,7 @@ export const useEditProfileController = (profileData: any) => {
         ["profileBg", "isDark"],
         isDark
       );
+
       updatePayload.metadata = JSON.stringify(updatedMetadata);
     }
 

@@ -62,6 +62,7 @@ export interface ListsState {
   amount: number;
   amountText?: string;
   showAmountModal: boolean;
+  keyboardVisible: boolean;
 }
 
 export const useListsController = () => {
@@ -77,6 +78,7 @@ export const useListsController = () => {
     modalItem: null,
     amount: 0,
     showAmountModal: false,
+    keyboardVisible: false,
   });
 
   const { setFieldState, formDrafts, activeTab, items, setFields } = lists;

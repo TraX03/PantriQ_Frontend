@@ -13,7 +13,7 @@ import { cleanPreferencesByType } from "@/services/GeminiApi";
 import { router } from "expo-router";
 import Toast from "react-native-toast-message";
 import { useDispatch } from "react-redux";
-import { InteractionType, pages } from "./component";
+import { INTERACTION_SCORES, InteractionLabel, pages } from "./component";
 
 type Recommendation = {
   recipeIds: string[];
@@ -31,6 +31,7 @@ export interface OnboardingState {
   recommendations: Recommendation | null;
   currentRatingIndex: number;
   showLottie: boolean;
+  keyboardVisible: boolean;
 }
 
 const fieldKeys: (keyof OnboardingState)[] = [
@@ -51,6 +52,7 @@ export const useOnboardingController = () => {
     recommendations: null,
     currentRatingIndex: 0,
     showLottie: false,
+    keyboardVisible: false,
   });
 
   const {
@@ -136,8 +138,8 @@ export const useOnboardingController = () => {
     }
   };
 
-  const handleRating = async (value: InteractionType) => {
-    const recipeId = recommendations?.recipeIds[onboarding.currentRatingIndex];
+  const handleRating = async (label: InteractionLabel) => {
+    const recipeId = recommendations?.recipeIds[currentRatingIndex];
     const user = await getCurrentUser();
 
     await createDocument(AppwriteConfig.INTERACTIONS_COLLECTION_ID, {
@@ -145,12 +147,13 @@ export const useOnboardingController = () => {
       item_id: recipeId,
       type: "coldstart",
       item_type: "recipe",
-      value,
+      score: INTERACTION_SCORES[label],
       created_at: new Date().toISOString(),
     });
 
-    if (currentRatingIndex + 1 < recommendations!.titles.length) {
-      setFieldState("currentRatingIndex", currentRatingIndex + 1);
+    const nextIndex = currentRatingIndex + 1;
+    if (nextIndex < recommendations!.titles.length) {
+      setFieldState("currentRatingIndex", nextIndex);
     } else {
       await updateDocument(AppwriteConfig.USERS_COLLECTION_ID, user.$id, {
         is_onboarded: true,

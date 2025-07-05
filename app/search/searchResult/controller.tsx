@@ -18,7 +18,7 @@ export interface SearchResultState {
   filteredPosts: Post[];
 }
 
-const useSearchResultController = (posts: Post[]) => {
+const useSearchResultController = (allFilteredPosts: Post[]) => {
   const searchResult = useFieldState<SearchResultState>({
     filterActive: false,
     orderActive: false,
@@ -29,9 +29,9 @@ const useSearchResultController = (posts: Post[]) => {
   const { activeTab } = searchResult;
 
   const getFilteredPostsByTab = () => {
-    if (!posts) return [];
+    if (!allFilteredPosts) return [];
 
-    return posts.filter((post) => {
+    return allFilteredPosts.filter((post) => {
       switch (activeTab) {
         case "Recipes":
           return post.type === "recipe";

@@ -3,7 +3,9 @@ import React, { useState } from "react";
 import {
   FlatList,
   Modal,
+  StyleProp,
   Text,
+  TextStyle,
   TouchableOpacity,
   View,
   ViewStyle,
@@ -16,7 +18,10 @@ type CustomPickerProps = {
   onValueChange: (value: string) => void;
   options: string[];
   placeholder?: string;
-  style?: ViewStyle;
+  style?: StyleProp<ViewStyle>;
+  textStyle?: TextStyle;
+  iconColor?: string;
+  includeEmptyOption?: boolean;
 };
 
 const CustomPicker = ({
@@ -25,6 +30,9 @@ const CustomPicker = ({
   options,
   placeholder = "Unit",
   style,
+  textStyle,
+  iconColor,
+  includeEmptyOption = true,
 }: CustomPickerProps) => {
   const [visible, setVisible] = useState(false);
   const open = () => setVisible(true);
@@ -37,12 +45,17 @@ const CustomPicker = ({
         style={[styles.pickerContainer, style]}
         className="flex-row items-center justify-between"
       >
-        <Text style={selectedValue ? styles.pickerText : styles.placeholder}>
+        <Text
+          style={[
+            selectedValue ? styles.pickerText : styles.placeholder,
+            textStyle,
+          ]}
+        >
           {selectedValue || placeholder}
         </Text>
         <IconSymbol
           name="arrowtriangle.down.fill"
-          color={Colors.text.disabled}
+          color={iconColor ? iconColor : Colors.text.disabled}
           size={10}
         />
       </TouchableOpacity>
@@ -60,7 +73,7 @@ const CustomPicker = ({
         >
           <View style={styles.modalContent}>
             <FlatList
-              data={["", ...options]}
+              data={includeEmptyOption ? ["", ...options] : options}
               keyExtractor={(item) => item || "_empty"}
               renderItem={({ item }) => (
                 <TouchableOpacity

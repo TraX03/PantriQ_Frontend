@@ -4,6 +4,7 @@ import { Colors } from "@/constants/Colors";
 import { useFieldState } from "@/hooks/useFieldState";
 import { ProfileData } from "@/redux/slices/profileSlice";
 import { styles } from "@/utility/content/posts/styles";
+import { styles as homeStyles } from "@/utility/home/styles";
 import React from "react";
 import { Image, Pressable, ScrollView, Text, View } from "react-native";
 import { ForumPost, PostState } from "../controller";
@@ -66,7 +67,12 @@ export default function ForumComponent({
   const forumData = postData as ForumPost;
 
   return (
-    <View className="flex-1 px-[12px] pt-[15px]">
+    <View
+      style={[
+        styles.contentContainer,
+        { borderBottomLeftRadius: 25, borderBottomRightRadius: 25 },
+      ]}
+    >
       <Text style={styles.content}>{forumData.description}</Text>
       <Text style={styles.dateText}>
         {getUpdatedText(new Date(forumData.createdAt))}
@@ -106,15 +112,23 @@ export default function ForumComponent({
       </View>
 
       <ScrollView className="mt-3 px-1">
-        {comments.map((c) => (
-          <CommentItem
-            key={c.id}
-            avatarUrl={c.user.avatarUrl}
-            username={c.user.username}
-            timeAgo={c.timeAgo}
-            content={c.content}
-          />
-        ))}
+        {comments.length > 0 ? (
+          comments.map((c) => (
+            <CommentItem
+              key={c.id}
+              avatarUrl={c.user.avatarUrl}
+              username={c.user.username}
+              timeAgo={c.timeAgo}
+              content={c.content}
+            />
+          ))
+        ) : (
+          <View className="flex-row items-center justify-center mb-12 mt-3">
+            <View style={homeStyles.divider} />
+            <Text style={homeStyles.endText}>No comments yet</Text>
+            <View style={homeStyles.divider} />
+          </View>
+        )}
       </ScrollView>
     </View>
   );

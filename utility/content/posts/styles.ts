@@ -106,67 +106,6 @@ export const styles = StyleSheet.create({
     fontSize: 12,
     marginTop: 4,
   },
-  ingredientName: {
-    color: Colors.text.primary,
-    fontSize: 15,
-    fontFamily: "RobotoRegular",
-    flexShrink: 1,
-  },
-  quantityName: {
-    color: Colors.text.disabled,
-    fontSize: 14,
-    fontFamily: "RobotoRegular",
-  },
-  buttonText: {
-    color: Colors.brand.primary,
-    fontFamily: "RobotoMedium",
-    fontSize: 15,
-    textDecorationLine: "underline",
-  },
-  nutrientLabel: {
-    fontSize: 18,
-    fontFamily: "RobotoMedium",
-    color: Colors.brand.primary,
-  },
-  nutrientContainer: {
-    width: "100%",
-    marginTop: 28,
-    marginBottom: 8,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 16,
-    paddingTop: 15,
-    paddingBottom: 10,
-    backgroundColor: Colors.overlay.ultraLightGray,
-  },
-  header: {
-    fontFamily: "RobotoSemiBold",
-    fontSize: 20,
-  },
-  subHeader: {
-    fontFamily: "RobotoSemiBold",
-    fontSize: 16,
-    marginBottom: 10,
-    color: Colors.text.primary,
-  },
-  infoContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    paddingVertical: 4,
-    borderBottomWidth: 0.5,
-    borderColor: Colors.surface.buttonSecondary,
-  },
-  itemLabel: {
-    fontSize: 14,
-    color: Colors.text.light,
-    fontFamily: "RobotoRegular",
-  },
-  amount: {
-    fontSize: 14,
-    color: Colors.brand.onBackground,
-    fontFamily: "RobotoMedium",
-  },
   content: {
     fontFamily: "RobotoRegular",
     fontSize: 14,
@@ -181,11 +120,5 @@ export const styles = StyleSheet.create({
   countLabel: {
     fontSize: 10,
     color: Colors.text.disabled,
-  },
-  disclaimerText: {
-    fontSize: 12,
-    color: Colors.text.light,
-    marginTop: 20,
-    alignSelf: "center",
   },
 });

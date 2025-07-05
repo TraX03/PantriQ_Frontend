@@ -11,6 +11,7 @@ export const Routes = {
   EditPreferencesForm: "/profile/settings/editPreferences/[key]",
   Onboarding: "/onboarding/container",
   Nutrition: "/content/posts/recipe/nutrition/container",
+  Rating: "/content/posts/recipe/rating/container",
   ProfileTab: "/(tabs)/profile",
   Home: "/",
 } as const;

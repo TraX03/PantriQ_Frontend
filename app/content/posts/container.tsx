@@ -1,4 +1,5 @@
 import { PostType } from "@/components/PostCard";
+import { useKeyboardVisibility } from "@/hooks/useKeyboardVisibility";
 import { useReduxSelectors } from "@/hooks/useReduxSelectors";
 import { setLoading } from "@/redux/slices/loadingSlice";
 import { AppDispatch } from "@/redux/store";
@@ -19,6 +20,10 @@ export default function PostContainer({ postId, postType }: Props) {
     postType,
     interactionMap,
     currentUserId
+  );
+
+  useKeyboardVisibility((visible) =>
+    post.setFieldState("keyboardVisible", visible)
   );
 
   useEffect(() => {

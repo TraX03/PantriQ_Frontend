@@ -47,6 +47,7 @@ export default function ListsComponent({ lists, listData, actions }: Props) {
     setFieldState,
     setFields,
     showAmountModal,
+    keyboardVisible,
   } = lists;
 
   const {
@@ -180,7 +181,10 @@ export default function ListsComponent({ lists, listData, actions }: Props) {
             formDrafts: {},
           })
         }
-        modalStyle={[onboardingStyles.optionModal, { paddingBottom: 60 }]}
+        modalStyle={[
+          onboardingStyles.optionModal,
+          { paddingBottom: 60, ...(keyboardVisible && { flex: 1 }) },
+        ]}
         zIndex={12}
       >
         {listData.checkedItems?.[lists.currentStepIndex] && (
