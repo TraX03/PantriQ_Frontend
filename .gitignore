@@ -44,3 +44,4 @@ settings.json
 # Ignore specific scripts
 scripts/misc.ts
 scripts/official-account.ts
+.env
