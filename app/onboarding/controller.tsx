@@ -21,6 +21,12 @@ type Recommendation = {
   images: string[];
 };
 
+type Rating = {
+  item_id: string;
+  score: number;
+  created_at: string;
+};
+
 export interface OnboardingState {
   currentPage: number;
   ingredientAvoid: string[];
@@ -32,6 +38,7 @@ export interface OnboardingState {
   currentRatingIndex: number;
   showLottie: boolean;
   keyboardVisible: boolean;
+  ratings: Rating[];
 }
 
 const fieldKeys: (keyof OnboardingState)[] = [
@@ -53,6 +60,7 @@ export const useOnboardingController = () => {
     currentRatingIndex: 0,
     showLottie: false,
     keyboardVisible: false,
+    ratings: [],
   });
 
   const {
@@ -140,27 +148,49 @@ export const useOnboardingController = () => {
 
   const handleRating = async (label: InteractionLabel) => {
     const recipeId = recommendations?.recipeIds[currentRatingIndex];
-    const user = await getCurrentUser();
+    if (!recipeId) return;
 
-    await createDocument(AppwriteConfig.INTERACTIONS_COLLECTION_ID, {
-      user_id: user.$id,
+    const newRating = {
       item_id: recipeId,
-      type: "coldstart",
-      item_type: "recipe",
       score: INTERACTION_SCORES[label],
       created_at: new Date().toISOString(),
-    });
+    };
+
+    const updatedRatings = [...onboarding.ratings, newRating];
+    setFieldState("ratings", updatedRatings);
 
     const nextIndex = currentRatingIndex + 1;
-    if (nextIndex < recommendations!.titles.length) {
-      setFieldState("currentRatingIndex", nextIndex);
+    const isLastRating = nextIndex >= recommendations!.titles.length;
+
+    if (isLastRating) {
+      await submitAllRatings(updatedRatings);
     } else {
-      await updateDocument(AppwriteConfig.USERS_COLLECTION_ID, user.$id, {
-        is_onboarded: true,
-      });
-      dispatch(setOnboarded(true));
-      router.replace(Routes.Home);
+      setFieldState("currentRatingIndex", nextIndex);
     }
+  };
+
+  const submitAllRatings = async (ratings: Rating[]) => {
+    const user = await getCurrentUser();
+
+    await Promise.all(
+      ratings.map((r) =>
+        createDocument(AppwriteConfig.INTERACTIONS_COLLECTION_ID, {
+          user_id: user.$id,
+          item_id: r.item_id,
+          type: "coldstart",
+          item_type: "recipe",
+          score: r.score,
+          created_at: r.created_at,
+        })
+      )
+    );
+
+    await updateDocument(AppwriteConfig.USERS_COLLECTION_ID, user.$id, {
+      is_onboarded: true,
+    });
+
+    dispatch(setOnboarded(true));
+    router.replace(Routes.Home);
   };
 
   const handleNext = async () => {

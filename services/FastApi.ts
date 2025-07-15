@@ -1,3 +1,7 @@
+// const FastApi_Config = {
+//   BASE_URL: "https://recommendation-ai.onrender.com",
+// };
+
 const fetchFromApi = async (endpoint: string, data?: any): Promise<any> => {
   try {
     const res = await fetch(`${FastApi_Config.BASE_URL}${endpoint}`, {
@@ -26,15 +30,46 @@ export const fetchColdstartRecommendations = (userId: string) =>
 export const fetchHomeFeedRecommendations = (userId: string) =>
   fetchFromApi(`/recommendation/homeFeed/${userId}`);
 
+export const fetchGeneratedMealPlan = (
+  userId: string,
+  date: string,
+  mealtimes: string[],
+  targetRecipeId?: string
+) => {
+  return fetchFromApi(`/recommendation/mealplan/${userId}`, {
+    date,
+    mealtime: mealtimes,
+    target_recipe_id: targetRecipeId,
+  });
+};
+
 export const logUserView = (
   userId: string,
   itemId: string,
   itemType: string,
   source = "homeFeed"
 ) =>
-  fetchFromApi("/interactions/logView", {
+  fetchFromApi("/interaction/logView", {
     user_id: userId,
     item_id: itemId,
     item_type: itemType,
     source,
   });
+
+export const logHomeFeedSessionFeedback = (userId: string) =>
+  fetchFromApi(`/feedback/homeFeed/${userId}`);
+
+export const logMealplanInventoryFeedback = (
+  userId: string,
+  date: string,
+  mealtime: string[],
+  targetRecipeId?: string,
+  isRegenerate?: boolean
+) => {
+  return fetchFromApi(`/feedback/mealplan/${userId}`, {
+    date,
+    mealtime,
+    target_recipe_id: targetRecipeId,
+    is_regenerate: isRegenerate,
+  });
+};

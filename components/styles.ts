@@ -276,4 +276,11 @@ export const styles = StyleSheet.create({
     gap: 6,
     alignItems: "center",
   },
+  counterContainer: {
+    borderColor: Colors.surface.border,
+    borderWidth: 1,
+    width: 60,
+    alignItems: "center",
+    justifyContent: "center",
+  },
 });

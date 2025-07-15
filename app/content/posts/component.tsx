@@ -1,3 +1,4 @@
+import ActionSheetModal from "@/components/ActionSheetModal";
 import BottomSheetModal from "@/components/BottomSheetModal";
 import ErrorScreen from "@/components/ErrorScreen";
 import FullscreenImageViewer from "@/components/FullscreenImageViewer";
@@ -180,18 +181,14 @@ export default function PostComponent({
         onClose={() => setFieldState("fullscreenImage", null)}
       />
 
-      <BottomSheetModal
-        isVisible={showModal}
+      <ActionSheetModal
+        visible={showModal}
         onClose={() => setFieldState("showModal", false)}
-        modalStyle={styles.postSettings}
-        zIndex={10}
         options={[
-          { key: "delete", label: "Delete Post", onPress: deletePost },
-          {
-            key: "cancel",
-            label: "Cancel",
-            onPress: () => setFieldState("showModal", false),
-          },
+          { label: "Edit Post" },
+          { label: "Share Post" },
+          { label: "Report Post" },
+          { label: "Delete Post", action: deletePost, isDestructive: true },
         ]}
       />
 

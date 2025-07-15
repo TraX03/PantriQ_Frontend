@@ -5,7 +5,7 @@ import { Colors } from "@/constants/Colors";
 import { useFieldState } from "@/hooks/useFieldState";
 import { styles as profileStyles } from "@/utility/profile/styles";
 import { Stack } from "expo-router";
-import { View } from "react-native";
+import { ScrollView } from "react-native";
 import { HistoryState } from "./controller";
 
 type Props = {
@@ -23,7 +23,10 @@ export default function HistoryComponent({
     <>
       <Stack.Screen options={{ headerShown: false }} />
       <ScreenWrapper style={{ backgroundColor: Colors.surface.background }}>
-        <View style={profileStyles.headerContainer}>
+        <ScrollView
+          style={profileStyles.headerContainer}
+          contentContainerStyle={{ paddingBottom: 30 }}
+        >
           <HeaderBar title="History" />
 
           <MasonryList
@@ -31,7 +34,7 @@ export default function HistoryComponent({
             interactionVersion={interactionVersion}
             source="historyPage"
           />
-        </View>
+        </ScrollView>
       </ScreenWrapper>
     </>
   );

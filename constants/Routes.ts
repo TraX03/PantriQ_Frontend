@@ -9,6 +9,7 @@ export const Routes = {
   History: "/profile/history/container",
   EditProfile: "/profile/settings/editProfile/container",
   EditPreferencesForm: "/profile/settings/editPreferences/[key]",
+  MealConfiguration: "/planner/mealConfig/container",
   Onboarding: "/onboarding/container",
   Nutrition: "/content/posts/recipe/nutrition/container",
   Rating: "/content/posts/recipe/rating/container",

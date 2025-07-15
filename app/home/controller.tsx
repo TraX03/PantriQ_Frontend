@@ -1,6 +1,7 @@
 import { Post } from "@/components/PostCard";
 import { useFieldState } from "@/hooks/useFieldState";
 import { getCurrentUser } from "@/services/Appwrite";
+import { logHomeFeedSessionFeedback } from "@/services/FastApi";
 import { fetchHomeFeedPosts, fetchPosts } from "@/utility/fetchUtils";
 import { useCallback, useMemo } from "react";
 
@@ -9,6 +10,7 @@ export interface HomeState {
   activeSuggestion: string;
   posts: Post[];
   refreshing: boolean;
+  hasLoadedOnce: boolean;
 }
 
 export const SUGGESTIONS = [
@@ -24,10 +26,17 @@ export const useHomeController = () => {
     activeSuggestion: "Recipe",
     posts: [],
     refreshing: false,
+    hasLoadedOnce: false,
   });
 
-  const { activeSuggestion, setFieldState, refreshing, posts, setFields } =
-    home;
+  const {
+    activeSuggestion,
+    setFieldState,
+    refreshing,
+    posts,
+    setFields,
+    getFieldState,
+  } = home;
 
   const refreshPosts = useCallback(async () => {
     setFieldState("refreshing", true);
@@ -38,11 +47,17 @@ export const useHomeController = () => {
         return null;
       });
 
+      const latestHasLoadedOnce = getFieldState("hasLoadedOnce");
+
+      if (user && latestHasLoadedOnce) {
+        logHomeFeedSessionFeedback(user.$id);
+      }
+
       const posts = user
         ? await fetchHomeFeedPosts(user.$id)
         : await fetchPosts();
 
-      setFields({ posts, refreshing: false });
+      setFields({ posts, refreshing: false, hasLoadedOnce: true });
     } catch (error) {
       console.error("Failed to refresh posts:", error);
       setFieldState("refreshing", false);

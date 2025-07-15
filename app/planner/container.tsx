@@ -39,6 +39,7 @@ export default function PlannerContainer() {
 
   useEffect(() => {
     if (isFocused && isLoggedIn) {
+      setFieldState("planLoading", true);
       fetchMealsForDate(selectedDate);
     }
   }, [isFocused, selectedDate, isLoggedIn]);

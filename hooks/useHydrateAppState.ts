@@ -12,10 +12,10 @@ export function useHydrateAppState() {
   const dispatch = useDispatch<AppDispatch>();
   const { fetchProfile } = useProfileData();
 
-  dispatch(setLoading(true));
-
   useEffect(() => {
     const hydrate = async () => {
+      dispatch(setLoading(true));
+
       try {
         const user = await getCurrentUser();
         dispatch(setUser(user));

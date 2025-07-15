@@ -1,15 +1,21 @@
+import ActionSheetModal from "@/components/ActionSheetModal";
 import BottomSheetModal from "@/components/BottomSheetModal";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { Colors } from "@/constants/Colors";
 import { Routes } from "@/constants/Routes";
 import { useFieldState } from "@/hooks/useFieldState";
+import { capitalize } from "@/utility/capitalize";
 import { styles as homeStyles } from "@/utility/home/styles";
+import { getImageUrl } from "@/utility/imageUtils";
 import { styles } from "@/utility/planner/styles";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { addDays, endOfWeek, format, isThisWeek, startOfDay } from "date-fns";
 import { router } from "expo-router";
+import LottieView from "lottie-react-native";
 import React, { useRef } from "react";
 import {
+  ActivityIndicator,
+  Alert,
   Image,
   Pressable,
   ScrollView,
@@ -25,29 +31,44 @@ type DateInfo = {
   weekStart: Date;
 };
 
-type MealTime = {
-  id: string;
-  label: string;
-  categories: string[];
-};
-
 type Props = {
   planner: ReturnType<typeof useFieldState<PlannerState>>;
   date: DateInfo;
   actions: {
-    generateMeals: () => Promise<void>;
+    generateMeals: (
+      mealtimes: string[],
+      targetRecipeId?: string,
+      isRegenerate?: boolean
+    ) => Promise<void>;
     handleChangeWeek: (direction: "prev" | "next") => void;
-    getMealsForDate: (date: Date) => Meal[];
+    getCachedMealsForDate: (date: Date) => Meal[];
     addMealtime: (mealtime: string) => void;
+    deleteFromMealplan: (mealtime: string, recipeId?: string) => Promise<void>;
   };
 };
 
 export default function PlannerComponent({ planner, date, actions }: Props) {
   const scrollRef = useRef<ScrollView>(null);
-  const { selectedDate, showDatePicker, setFieldState, showMealtimeModal } =
-    planner;
-  const { generateMeals, handleChangeWeek, getMealsForDate, addMealtime } =
-    actions;
+  const {
+    selectedDate,
+    showDatePicker,
+    setFieldState,
+    setFields,
+    showMealtimeModal,
+    planLoading,
+    generateLoading,
+    showSettingModal,
+    selectedMealtime,
+    showRegenerateButton,
+    showDeleteButton,
+  } = planner;
+  const {
+    generateMeals,
+    handleChangeWeek,
+    getCachedMealsForDate,
+    addMealtime,
+    deleteFromMealplan,
+  } = actions;
   const { weekStart, minDate } = date;
 
   const formattedWeek = isThisWeek(selectedDate, { weekStartsOn: 1 })
@@ -70,7 +91,43 @@ export default function PlannerComponent({ planner, date, actions }: Props) {
             onPress: () => addMealtime(meal.id),
           }))}
         zIndex={20}
-        modalStyle={styles.mealTimeModal}
+        modalStyle={styles.mealtimeModal}
+      />
+
+      <ActionSheetModal
+        visible={showSettingModal}
+        onClose={() => setFieldState("showSettingModal", false)}
+        options={[
+          {
+            label: "Regenerate Dish",
+            action: () =>
+              setFields({
+                showDeleteButton: false,
+                showRegenerateButton: true,
+              }),
+          },
+          {
+            label: "Regenerate Mealtime",
+            action: () =>
+              selectedMealtime &&
+              generateMeals([selectedMealtime], undefined, true),
+          },
+          {
+            label: "Delete Dish",
+            isDestructive: true,
+            action: () =>
+              setFields({
+                showRegenerateButton: false,
+                showDeleteButton: true,
+              }),
+          },
+          {
+            label: "Delete Mealtime",
+            isDestructive: true,
+            action: () =>
+              selectedMealtime && deleteFromMealplan(selectedMealtime),
+          },
+        ]}
       />
 
       <View style={homeStyles.container}>
@@ -89,7 +146,11 @@ export default function PlannerComponent({ planner, date, actions }: Props) {
                   color={Colors.brand.primary}
                 />
               </Pressable>
-              <Pressable>
+              <Pressable
+                onPress={() => {
+                  router.push(Routes.MealConfiguration);
+                }}
+              >
                 <IconSymbol
                   name="ellipsis.circle"
                   color={Colors.brand.primary}
@@ -192,9 +253,7 @@ export default function PlannerComponent({ planner, date, actions }: Props) {
               <Text style={styles.dateText}>
                 {format(selectedDate, "d, LLLL yyyy")}
               </Text>
-              <Pressable
-                onPress={() => setFieldState("selectedDate", new Date())}
-              >
+              <Pressable onPress={() => getCachedMealsForDate(selectedDate)}>
                 <IconSymbol
                   name="arrow.2.circlepath"
                   color={Colors.brand.primary}
@@ -203,75 +262,176 @@ export default function PlannerComponent({ planner, date, actions }: Props) {
               </Pressable>
             </View>
 
-            {getMealsForDate(selectedDate).map((meal) => (
-              <View key={meal.mealtime} style={styles.mealtimeContainer}>
-                <View className="flex-row justify-between items-center mb-3">
-                  <Text style={styles.mealtimeTitle}>{meal.mealtime}</Text>
-                  <IconSymbol
-                    name="ellipsis"
-                    color={Colors.brand.primary}
-                    size={22}
-                    selectedIcon={1}
-                  />
-                </View>
-
-                <View className="flex-row items-start flex-1">
-                  <ScrollView
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                    contentContainerStyle={{ gap: 12 }}
-                  >
-                    {meal.recipes.map((recipe) => (
-                      <View
-                        key={recipe.id}
-                        className="flex-col gap-2 w-[130px]"
-                      >
-                        <TouchableOpacity
-                          onPress={() => {
-                            router.push({
-                              pathname: Routes.PostDetail,
-                              params: { id: recipe.id },
-                            });
-                          }}
-                        >
-                          <Image
-                            source={{ uri: recipe.image }}
-                            style={styles.addMealButton}
-                            resizeMode="cover"
-                          />
-                        </TouchableOpacity>
-                        <Text style={styles.recipeTitle}>{recipe.name}</Text>
-                      </View>
-                    ))}
-
-                    <TouchableOpacity
-                      onPress={() => router.push(Routes.Search)}
-                      style={styles.addMealButton}
-                    >
-                      <IconSymbol
-                        name="plus"
-                        color={Colors.overlay.base}
-                        size={30}
-                      />
-                    </TouchableOpacity>
-                  </ScrollView>
-                </View>
+            {planLoading ? (
+              <View className="items-center justify-center py-10">
+                <ActivityIndicator size="large" color={Colors.brand.primary} />
               </View>
-            ))}
+            ) : (
+              <>
+                {getCachedMealsForDate(selectedDate).map((meal) => {
+                  const isSelectedMealtime = selectedMealtime === meal.mealtime;
 
-            <TouchableOpacity
-              onPress={() => setFieldState("showMealtimeModal", true)}
-              style={styles.addContianer}
-            >
-              <Text style={styles.addText}>Add Mealtime</Text>
-              <IconSymbol name="plus" color={Colors.overlay.base} size={20} />
-            </TouchableOpacity>
+                  return (
+                    <View key={meal.mealtime} style={styles.mealtimeContainer}>
+                      <View className="flex-row justify-between items-center mb-3">
+                        <Text style={styles.mealtimeTitle}>
+                          {capitalize(meal.mealtime)}
+                        </Text>
+                        <Pressable
+                          onPress={() =>
+                            setFields({
+                              showSettingModal: true,
+                              selectedMealtime: meal.mealtime,
+                            })
+                          }
+                        >
+                          <IconSymbol
+                            name="ellipsis"
+                            color={Colors.brand.primary}
+                            size={22}
+                            selectedIcon={1}
+                          />
+                        </Pressable>
+                      </View>
+
+                      <View className="flex-row items-start flex-1">
+                        <ScrollView
+                          horizontal
+                          showsHorizontalScrollIndicator={false}
+                          contentContainerStyle={{ gap: 12 }}
+                        >
+                          {meal.recipes.map((recipe) => (
+                            <View
+                              key={recipe.id}
+                              className="flex-col justify-between gap-3"
+                            >
+                              <View className="flex-col gap-2 w-[130px]">
+                                <TouchableOpacity
+                                  onPress={() =>
+                                    router.push({
+                                      pathname: Routes.PostDetail,
+                                      params: { id: recipe.id },
+                                    })
+                                  }
+                                >
+                                  <Image
+                                    source={{ uri: getImageUrl(recipe.image) }}
+                                    style={styles.addMealButton}
+                                    resizeMode="cover"
+                                  />
+                                </TouchableOpacity>
+                                <Text style={styles.recipeTitle}>
+                                  {recipe.name}
+                                </Text>
+                              </View>
+
+                              {(showRegenerateButton || showDeleteButton) &&
+                                isSelectedMealtime && (
+                                  <Pressable
+                                    onPress={() => {
+                                      showDeleteButton
+                                        ? deleteFromMealplan(
+                                            meal.mealtime,
+                                            recipe.id
+                                          )
+                                        : generateMeals(
+                                            [meal.mealtime],
+                                            recipe.id,
+                                            true
+                                          );
+                                    }}
+                                    style={styles.button}
+                                  >
+                                    <IconSymbol
+                                      name={
+                                        showDeleteButton
+                                          ? "trash"
+                                          : "arrow.clockwise.circle"
+                                      }
+                                      color={Colors.brand.onPrimary}
+                                      size={22}
+                                    />
+                                  </Pressable>
+                                )}
+                            </View>
+                          ))}
+
+                          <TouchableOpacity
+                            onPress={() => router.push(Routes.Search)}
+                            style={styles.addMealButton}
+                          >
+                            <IconSymbol
+                              name="plus"
+                              color={Colors.overlay.base}
+                              size={30}
+                            />
+                          </TouchableOpacity>
+                        </ScrollView>
+                      </View>
+                    </View>
+                  );
+                })}
+
+                <TouchableOpacity
+                  onPress={() => setFieldState("showMealtimeModal", true)}
+                  style={styles.addContianer}
+                >
+                  <Text style={styles.addText}>Add Mealtime</Text>
+                  <IconSymbol
+                    name="plus"
+                    color={Colors.overlay.base}
+                    size={20}
+                  />
+                </TouchableOpacity>
+              </>
+            )}
           </View>
         </ScrollView>
 
-        <Pressable onPress={generateMeals} style={styles.generateButton}>
-          <IconSymbol name="plus" color={Colors.brand.onPrimary} size={22} />
-          <Text style={styles.generateText}>Generate</Text>
+        <Pressable
+          disabled={generateLoading}
+          onPress={() => {
+            if (showRegenerateButton || showDeleteButton) {
+              setFields({
+                showDeleteButton: false,
+                showRegenerateButton: false,
+              });
+              return;
+            }
+
+            const addedMeals = getCachedMealsForDate(selectedDate);
+            if (addedMeals.length === 0) {
+              Alert.alert(
+                "No Mealtime Added",
+                "Please add at least one mealtime before generating meals."
+              );
+              return;
+            }
+
+            const mealtimes = addedMeals.map((meal) => meal.mealtime);
+            generateMeals(mealtimes);
+          }}
+          style={styles.generateButton}
+        >
+          {generateLoading ? (
+            <LottieView
+              source={require("@/assets/animations/insider-loading.json")}
+              autoPlay
+              loop
+              style={{ width: 120, height: 120 }}
+            />
+          ) : showRegenerateButton || showDeleteButton ? (
+            <Text style={[styles.generateText, { fontSize: 15 }]}>Cancel</Text>
+          ) : (
+            <>
+              <IconSymbol
+                name="plus"
+                color={Colors.brand.onPrimary}
+                size={22}
+              />
+              <Text style={styles.generateText}>Generate</Text>
+            </>
+          )}
         </Pressable>
       </View>
     </>

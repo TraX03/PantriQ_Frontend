@@ -55,16 +55,6 @@ export const styles = StyleSheet.create({
   },
 
   // Modals & Panels
-  postSettings: {
-    width: "100%",
-    borderRadius: 0,
-    borderTopLeftRadius: 30,
-    borderTopRightRadius: 30,
-    paddingVertical: 20,
-    paddingBottom: 80,
-    marginBottom: -30,
-    elevation: 8,
-  },
   instructionModal: {
     height: "85%",
     width: "100%",

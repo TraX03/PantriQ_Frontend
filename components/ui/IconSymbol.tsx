@@ -70,6 +70,10 @@ const MAPPING = {
     name: "chevron-down",
     type: "Ionicons",
   },
+  "chevron.up": {
+    name: "chevron-up",
+    type: "Ionicons",
+  },
   "checkmark.square": {
     name: "check-box-outline-blank",
     type: "MaterialIcons",
@@ -104,6 +108,14 @@ const MAPPING = {
   "checkmark.circle.fill": {
     name: "checkbox-marked-circle-outline",
     type: "MaterialCommunityIcons",
+  },
+  "plus.square.fill": {
+    name: "plussquare",
+    type: "AntDesign",
+  },
+  "minus.square.fill": {
+    name: "minussquare",
+    type: "AntDesign",
   },
 } as const;
 

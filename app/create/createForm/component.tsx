@@ -1,7 +1,7 @@
 import HeaderBar from "@/components/HeaderBar";
 import HorizontalImagePicker from "@/components/HorizontalImagePicker";
 import InputBox from "@/components/InputBox";
-import { PostType } from "@/components/PostCard";
+import RadioSelect from "@/components/RadioSelect";
 import ScreenWrapper from "@/components/ScreenWrapper";
 import { Colors } from "@/constants/Colors";
 import { useFieldState } from "@/hooks/useFieldState";
@@ -141,38 +141,14 @@ export default function CreateFormComponent({ create, controller }: Props) {
                 {isTipsOrDiscussion && (
                   <>
                     <Text style={styles.inputTitle}>Post Type</Text>
-                    <View className="flex-row mb-6 gap-3">
-                      {(["tips", "discussion"] as PostType[]).map((type) => (
-                        <TouchableOpacity
-                          key={type}
-                          onPress={() => setFieldState("postType", type)}
-                          className="flex-row items-center px-4 py-2 rounded-full border"
-                          style={{
-                            borderColor:
-                              postType === type
-                                ? Colors.brand.primary
-                                : Colors.text.placeholder,
-                          }}
-                        >
-                          <View
-                            className="w-5 h-5 rounded-full border items-center justify-center mr-2"
-                            style={{
-                              borderColor:
-                                postType === type
-                                  ? Colors.brand.primary
-                                  : Colors.text.placeholder,
-                            }}
-                          >
-                            {postType === type && (
-                              <View style={settingStyles.radioButton} />
-                            )}
-                          </View>
-                          <Text className="capitalize">
-                            {type === "tips" ? "Tips & Advice" : type}
-                          </Text>
-                        </TouchableOpacity>
-                      ))}
-                    </View>
+                    <RadioSelect
+                      options={[
+                        ["tips", "Tips & Advice"],
+                        ["discussion", "Discussion"],
+                      ]}
+                      value={postType}
+                      onSelect={(val) => setFieldState("postType", val)}
+                    />
                   </>
                 )}
 

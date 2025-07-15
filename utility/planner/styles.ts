@@ -92,8 +92,27 @@ export const styles = StyleSheet.create({
     textAlign: "center",
     fontFamily: "RobotoRegular",
   },
-  mealTimeModal: {
+  mealtimeModal: {
     paddingBottom: 50,
     marginBottom: -20,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontFamily: "RobotoMedium",
+    marginVertical: 8,
+  },
+  counterContainer: {
+    borderColor: Colors.surface.border,
+    borderWidth: 1,
+    width: 60,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  button: {
+    height: 30,
+    backgroundColor: Colors.brand.primary,
+    borderRadius: 5,
+    justifyContent: "center",
+    alignItems: "center",
   },
 });

@@ -2,14 +2,13 @@ import { Colors } from "@/constants/Colors";
 import React, { useState } from "react";
 import {
   FlatList,
-  Modal,
   StyleProp,
   Text,
   TextStyle,
   TouchableOpacity,
-  View,
   ViewStyle,
 } from "react-native";
+import CustomModal from "./CustomModal";
 import { styles } from "./styles";
 import { IconSymbol } from "./ui/IconSymbol";
 
@@ -60,38 +59,25 @@ const CustomPicker = ({
         />
       </TouchableOpacity>
 
-      <Modal
-        transparent
-        animationType="fade"
-        visible={visible}
-        onRequestClose={close}
-      >
-        <TouchableOpacity
-          style={styles.modalOverlay}
-          activeOpacity={1}
-          onPressOut={close}
-        >
-          <View style={styles.modalContent}>
-            <FlatList
-              data={includeEmptyOption ? ["", ...options] : options}
-              keyExtractor={(item) => item || "_empty"}
-              renderItem={({ item }) => (
-                <TouchableOpacity
-                  style={styles.option}
-                  onPress={() => {
-                    onValueChange(item);
-                    close();
-                  }}
-                >
-                  <Text style={[{ fontSize: 14 }, !item && styles.placeholder]}>
-                    {item || placeholder}
-                  </Text>
-                </TouchableOpacity>
-              )}
-            />
-          </View>
-        </TouchableOpacity>
-      </Modal>
+      <CustomModal visible={visible} close={close}>
+        <FlatList
+          data={includeEmptyOption ? ["", ...options] : options}
+          keyExtractor={(item) => item || "_empty"}
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              style={styles.option}
+              onPress={() => {
+                onValueChange(item);
+                close();
+              }}
+            >
+              <Text style={[{ fontSize: 14 }, !item && styles.placeholder]}>
+                {item || placeholder}
+              </Text>
+            </TouchableOpacity>
+          )}
+        />
+      </CustomModal>
     </>
   );
 };
