@@ -1,12 +1,12 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 type InteractionState = {
-  interactions: Map<string, any>;
+  interactions: Record<string, any>;
   version: number;
 };
 
 const initialState: InteractionState = {
-  interactions: new Map(),
+  interactions: {},
   version: 0,
 };
 
@@ -14,13 +14,13 @@ const interactionSlice = createSlice({
   name: "interaction",
   initialState,
   reducers: {
-    setInteractionMap(state, action: PayloadAction<Map<string, any>>) {
+    setInteractionRecords(state, action: PayloadAction<Record<string, any>>) {
       state.interactions = action.payload;
       state.version += 1;
     },
   },
 });
 
-export const { setInteractionMap } = interactionSlice.actions;
+export const { setInteractionRecords } = interactionSlice.actions;
 
 export default interactionSlice.reducer;

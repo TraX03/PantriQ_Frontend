@@ -87,6 +87,7 @@ const SearchWithSuggestion = ({
 
         {shouldShowAddButton && (
           <Pressable
+            testID="add-button"
             onPress={() => handleSelect(trimmedText)}
             style={styles.modalAddButton}
           >

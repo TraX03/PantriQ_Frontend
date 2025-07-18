@@ -16,7 +16,7 @@ import {
 } from "react-native";
 import { HomeState } from "./controller";
 
-type Props = {
+export type Props = {
   suggestions: string[];
   filteredPosts: Post[];
   home: ReturnType<typeof useFieldState<HomeState>>;
@@ -101,7 +101,10 @@ export default function HomeComponent({
         </View>
 
         <View className="flex-row items-center gap-2">
-          <Pressable onPress={() => router.push(Routes.Search)}>
+          <Pressable
+            testID="search-icon"
+            onPress={() => router.push(Routes.Search)}
+          >
             <IconSymbol name="magnifyingglass" color={Colors.brand.primary} />
           </Pressable>
           <Pressable>

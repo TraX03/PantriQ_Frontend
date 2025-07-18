@@ -15,6 +15,7 @@ type Option = {
   key: string;
   label: string;
   onPress: () => void;
+  testID?: string;
 };
 
 type BottomSheetModalProps = {
@@ -82,9 +83,10 @@ const BottomSheetModal = ({
       >
         <View style={styles.divider} />
         {children ??
-          options?.map(({ key, label, onPress }) => (
+          options?.map(({ key, label, onPress, testID }) => (
             <TouchableOpacity
               key={key}
+              testID={testID}
               className="py-1"
               onPress={() => {
                 setOverlayColor("transparent");

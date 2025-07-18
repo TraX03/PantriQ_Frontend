@@ -14,6 +14,7 @@ interface FloatingButtonProps extends TouchableOpacityProps {
 
 const FloatingActionButton = ({
   bottomOffset = 22,
+  testID = "fab-button",
   ...props
 }: FloatingButtonProps) => {
   const { width, height } = Image.resolveAssetSource(imageSource);
@@ -21,6 +22,7 @@ const FloatingActionButton = ({
 
   return (
     <TouchableOpacity
+      testID={testID}
       className="absolute bottom-7 z-10 self-center"
       style={{ bottom: bottomOffset }}
       activeOpacity={0.8}

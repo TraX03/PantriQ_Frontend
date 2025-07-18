@@ -72,7 +72,7 @@ export default function AuthFormComponent({
         keyboardShouldPersistTaps="handled"
       >
         <View className="px-6 pt-16">
-          <Pressable onPress={() => router.back()}>
+          <Pressable testID="back-button" onPress={() => router.back()}>
             <IconSymbol
               name="chevron.left"
               color={Colors.brand.primaryDark}
@@ -116,7 +116,11 @@ export default function AuthFormComponent({
             <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
           )}
 
-          <TouchableOpacity style={styles.buttonStyle} onPress={onSubmit}>
+          <TouchableOpacity
+            testID="auth-submit-button"
+            style={styles.buttonStyle}
+            onPress={onSubmit}
+          >
             <Text style={styles.buttonText}>
               {isSignIn ? "Sign In" : "Sign Up"}
             </Text>
@@ -145,7 +149,7 @@ export default function AuthFormComponent({
           <View className="items-center mb-10">
             <TouchableOpacity
               onPress={() =>
-                router.push({
+                router.replace({
                   pathname: Routes.AuthForm,
                   params: { mode: isSignIn ? "signUp" : "signIn" },
                 })

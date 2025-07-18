@@ -71,6 +71,7 @@ export default function EntryListFormComponent({
           />
         ) : (
           <TextInput
+            testID={`name-input-${index}`}
             value={item.name}
             placeholder={placeholder}
             onFocus={() => handleFocus(index)}
@@ -83,6 +84,7 @@ export default function EntryListFormComponent({
 
         {type === "ingredient" && (
           <TextInput
+            testID={`ingredient-quantity-input-${index}`}
             value={item.quantity}
             placeholder="Qty"
             onChangeText={(text) => handleChange(index, "quantity", text)}
@@ -93,6 +95,7 @@ export default function EntryListFormComponent({
 
         {!isSingleEntry && (
           <TouchableOpacity
+            testID={`remove-button-${index}`}
             onPress={() => controller.modifyEntry(type, "remove", index)}
           >
             <IconSymbol
@@ -107,6 +110,7 @@ export default function EntryListFormComponent({
       {type === "ingredient" && (
         <View className="mt-2">
           <TextInput
+            testID={`ingredient-note-input-${index}`}
             value={item.note}
             placeholder="Note"
             onFocus={() => handleFocus(index)}

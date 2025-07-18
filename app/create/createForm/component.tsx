@@ -194,6 +194,7 @@ export default function CreateFormComponent({ create, controller }: Props) {
                 )}
 
                 <TouchableOpacity
+                  testID="submit-button"
                   style={[
                     settingStyles.saveButton,
                     { opacity: controller.isFormValid ? 1 : 0.5 },

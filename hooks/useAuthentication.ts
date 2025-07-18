@@ -1,7 +1,7 @@
 import { AppwriteConfig } from "@/constants/AppwriteConfig";
 import { Routes } from "@/constants/Routes";
 import { setUser } from "@/redux/slices/authSlice";
-import { setInteractionMap } from "@/redux/slices/interactionSlice";
+import { setInteractionRecords } from "@/redux/slices/interactionSlice";
 import { setLoading } from "@/redux/slices/loadingSlice";
 import { AppDispatch } from "@/redux/store";
 import { account, createDocument, getCurrentUser } from "@/services/Appwrite";
@@ -41,8 +41,8 @@ export function useAuthentication() {
         const currentUser = await getCurrentUser();
         dispatch(setUser(currentUser));
 
-        const map = await fetchInteractions();
-        dispatch(setInteractionMap(map));
+        const interactionRecords = await fetchInteractions();
+        dispatch(setInteractionRecords(interactionRecords));
       } catch (error) {
         handleError("Login", error);
       } finally {
@@ -73,7 +73,7 @@ export function useAuthentication() {
           userId
         );
 
-        dispatch(setInteractionMap(new Map()));
+        dispatch(setInteractionRecords({}));
       } catch (error) {
         handleError("SignUp", error);
       } finally {
@@ -87,7 +87,7 @@ export function useAuthentication() {
     try {
       await account.deleteSession("current");
       dispatch(setUser(null));
-      dispatch(setInteractionMap(new Map()));
+      dispatch(setInteractionRecords({}));
       router.replace(Routes.Home);
       fetchProfile();
     } catch (error) {

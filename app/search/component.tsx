@@ -65,7 +65,7 @@ export default function SearchComponent({
             <View className="px-4 py-3">
               <View className="flex-row items-center justify-between mb-4">
                 <Text style={styles.titleText}>Recent Searches</Text>
-                <TouchableOpacity onPress={handleClear}>
+                <TouchableOpacity testID="clear-button" onPress={handleClear}>
                   <IconSymbol
                     name="trash"
                     color={Colors.brand.primary}

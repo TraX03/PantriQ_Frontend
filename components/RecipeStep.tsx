@@ -37,11 +37,13 @@ const RecipeStep = ({ index, step }: RecipeStepProps) => {
         {imageUri && (
           <View className="mb-2 relative">
             <Image
+              testID="step-image"
               source={{ uri: imageUri }}
               style={styles.stepImage}
               resizeMode="cover"
             />
             <TouchableOpacity
+              testID="fullscreen-button"
               className="absolute top-3 right-3 p-1 rounded-full"
               style={{ backgroundColor: Colors.overlay.light }}
               onPress={() => setFullscreenImage(imageUri)}

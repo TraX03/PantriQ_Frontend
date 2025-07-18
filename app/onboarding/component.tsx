@@ -326,6 +326,7 @@ export default function OnboardingComponent({
 
           {pageIndex < 3 && !showLottie && (
             <Pressable
+              testID="next-button"
               style={[styles.button, { opacity: isNextEnabled ? 1 : 0.5 }]}
               onPress={isNextEnabled ? handleNext : undefined}
               disabled={!isNextEnabled}
@@ -337,6 +338,7 @@ export default function OnboardingComponent({
           {pageIndex === 2 && showLottie && (
             <View style={styles.loadingContainer}>
               <LottieView
+                testID="LottieView"
                 source={require("@/assets/animations/dot-loading.json")}
                 autoPlay
                 loop

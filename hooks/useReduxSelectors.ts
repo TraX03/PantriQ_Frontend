@@ -13,7 +13,7 @@ const selectReduxData = createSelector(
     isLoggedIn: !!auth.user,
     user: auth.user,
     onboarded: auth.onboarded,
-    interactionMap: interaction.interactions,
+    interactionRecords: interaction.interactions,
     interactionVersion: interaction.version,
     currentUserId: profile.userData?.id,
     currentUserProfile: profile.userData,

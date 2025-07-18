@@ -633,6 +633,7 @@ export const useListsController = () => {
       uncheckedItems,
       expiredItems,
     },
+    getUpdatedQuantitiesAfterRemoval,
   };
 };
 

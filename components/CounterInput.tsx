@@ -18,7 +18,7 @@ const CounterInput = ({
 }: CounterInputProps) => (
   <View className="flex-row items-center gap-2 mt-2">
     <Text className="text-[15px]">{label}</Text>
-    <Pressable onPress={onDecrement}>
+    <Pressable testID="decrement-button" onPress={onDecrement}>
       <IconSymbol
         name="minus.square.fill"
         color={Colors.brand.primaryDark}
@@ -28,7 +28,7 @@ const CounterInput = ({
     <View style={styles.counterContainer}>
       <Text>{value}</Text>
     </View>
-    <Pressable onPress={onIncrement}>
+    <Pressable testID="increment-button" onPress={onIncrement}>
       <IconSymbol
         name="plus.square.fill"
         color={Colors.brand.primaryDark}

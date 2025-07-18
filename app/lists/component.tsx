@@ -74,6 +74,7 @@ export default function ListsComponent({ lists, listData, actions }: Props) {
       <>
         {showCheckbox && (
           <Pressable
+            testID={`checkbox-${item.id}`}
             onPress={() => {
               if (item.type === "inventory") {
                 setFields({ modalItem: item, showAmountModal: true });

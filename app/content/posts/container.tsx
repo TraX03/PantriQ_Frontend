@@ -15,10 +15,10 @@ type Props = {
 
 export default function PostContainer({ postId, postType }: Props) {
   const dispatch = useDispatch<AppDispatch>();
-  const { interactionMap, currentUserId } = useReduxSelectors();
+  const { interactionRecords, currentUserId } = useReduxSelectors();
   const { post, actions, handleAuthorPress } = usePostController(
     postType,
-    interactionMap,
+    interactionRecords,
     currentUserId
   );
 

@@ -82,6 +82,7 @@ export default function TabLayout() {
       <View style={[styles.dent, { bottom: 12 + insets.bottom }]} />
 
       <FloatingActionButton
+        testID="fab-button"
         bottomOffset={12 + insets.bottom}
         onPress={() => checkLogin(() => setShowModal((prev) => !prev))}
       />

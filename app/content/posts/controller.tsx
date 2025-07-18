@@ -62,7 +62,7 @@ export interface PostState {
 
 export const usePostController = (
   type: PostType,
-  interactionMap?: Map<string, any>,
+  interactionRecords?: Record<string, any>,
   currentUserId?: string
 ) => {
   const dispatch = useDispatch<AppDispatch>();
@@ -139,10 +139,10 @@ export const usePostController = (
             }
           : baseData;
 
-      if (currentUser && interactionMap) {
+      if (currentUser && interactionRecords) {
         setFieldState(
           "interactionState",
-          getInteractionStatus(doc.$id, interactionMap)
+          getInteractionStatus(doc.$id, interactionRecords)
         );
       }
 

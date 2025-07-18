@@ -89,6 +89,7 @@ export default function PlannerComponent({ planner, date, actions }: Props) {
             key: meal.id,
             label: meal.label,
             onPress: () => addMealtime(meal.id),
+            testID: `mealtime-option-${meal.id}`,
           }))}
         zIndex={20}
         modalStyle={styles.mealtimeModal}
@@ -147,6 +148,7 @@ export default function PlannerComponent({ planner, date, actions }: Props) {
                 />
               </Pressable>
               <Pressable
+                testID="meal-config-button"
                 onPress={() => {
                   router.push(Routes.MealConfiguration);
                 }}
@@ -307,6 +309,7 @@ export default function PlannerComponent({ planner, date, actions }: Props) {
                             >
                               <View className="flex-col gap-2 w-[130px]">
                                 <TouchableOpacity
+                                  testID={`recipe-card-${recipe.id}`}
                                   onPress={() =>
                                     router.push({
                                       pathname: Routes.PostDetail,
@@ -389,6 +392,7 @@ export default function PlannerComponent({ planner, date, actions }: Props) {
         </ScrollView>
 
         <Pressable
+          testID="planner-generate-button"
           disabled={generateLoading}
           onPress={() => {
             if (showRegenerateButton || showDeleteButton) {
@@ -415,6 +419,7 @@ export default function PlannerComponent({ planner, date, actions }: Props) {
         >
           {generateLoading ? (
             <LottieView
+              testID="lottie-loading"
               source={require("@/assets/animations/insider-loading.json")}
               autoPlay
               loop

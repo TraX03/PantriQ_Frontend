@@ -34,7 +34,7 @@ type Props = {
   isOwnProfile: boolean;
   isBackgroundDark: boolean;
   interactionData: {
-    interactionMap: Record<string, any>;
+    interactionRecords: Record<string, any>;
     interactionVersion: number;
   };
   fetchPostsByUser: (userId: string) => Promise<void>;
@@ -74,7 +74,7 @@ export default function ProfileComponent({
       <ErrorScreen message="Something went wrong while loading your profile data. Please refresh or try again later." />
     );
 
-  const { interactionMap, interactionVersion } = interactionData;
+  const { interactionRecords, interactionVersion } = interactionData;
 
   const {
     activeTab,
@@ -97,8 +97,8 @@ export default function ProfileComponent({
   } = profileData;
 
   const interaction = useInteraction(id ?? "", {
-    isFollowing: interactionMap.get(`follow_${id}`)?.$id != null,
-    followDocId: interactionMap.get(`follow_${id}`)?.$id,
+    isFollowing: interactionRecords[`follow_${id}`]?.$id != null,
+    followDocId: interactionRecords[`follow_${id}`]?.$id,
   });
 
   const isFollowing = interaction?.isFollowing ?? false;
@@ -154,6 +154,7 @@ export default function ProfileComponent({
             {isOwnProfile ? (
               <>
                 <TouchableOpacity
+                  testID="refresh-button"
                   onPress={() =>
                     profileData.id && fetchPostsByUser(profileData.id)
                   }
@@ -165,6 +166,7 @@ export default function ProfileComponent({
                   />
                 </TouchableOpacity>
                 <TouchableOpacity
+                  testID="edit-button"
                   onPress={() => checkLogin(Routes.EditProfile)}
                 >
                   <IconSymbol
@@ -321,7 +323,11 @@ export default function ProfileComponent({
         <View>
           {postLoading ? (
             <View style={styles.loadingContianer}>
-              <ActivityIndicator size="large" color={Colors.brand.primary} />
+              <ActivityIndicator
+                testID="activity-indicator"
+                size="large"
+                color={Colors.brand.primary}
+              />
             </View>
           ) : (
             <MasonryList

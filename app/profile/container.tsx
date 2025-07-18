@@ -20,7 +20,7 @@ export default function ProfileContainer({ profileId }: Props) {
 
   const {
     user,
-    interactionMap,
+    interactionRecords,
     interactionVersion,
     currentUserId,
     currentUserProfile,
@@ -73,7 +73,7 @@ export default function ProfileContainer({ profileId }: Props) {
       isOwnProfile={isOwnProfile}
       isBackgroundDark={isBackgroundDark}
       interactionData={{
-        interactionMap,
+        interactionRecords,
         interactionVersion,
       }}
       fetchPostsByUser={fetchPostsByUser}

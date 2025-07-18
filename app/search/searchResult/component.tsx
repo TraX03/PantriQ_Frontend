@@ -32,7 +32,7 @@ export default function SearchResultComponent({
 
   return (
     <>
-      <View style={styles.tabContainer}>
+      <View testID="search-result-container" style={styles.tabContainer}>
         <View style={styles.tabsWrapper}>
           {tabs.map((tab, index) => (
             <View key={tab} style={styles.tabTextContainer}>

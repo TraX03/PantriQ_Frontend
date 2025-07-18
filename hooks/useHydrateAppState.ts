@@ -1,5 +1,5 @@
 import { setOnboarded, setUser } from "@/redux/slices/authSlice";
-import { setInteractionMap } from "@/redux/slices/interactionSlice";
+import { setInteractionRecords } from "@/redux/slices/interactionSlice";
 import { setLoading } from "@/redux/slices/loadingSlice";
 import { AppDispatch } from "@/redux/store";
 import { getCurrentUser } from "@/services/Appwrite";
@@ -24,12 +24,14 @@ export function useHydrateAppState() {
           const onboarded = await fetchProfile();
           dispatch(setOnboarded(onboarded ?? true));
 
-          const map = await fetchInteractions();
-          dispatch(setInteractionMap(map));
+          const interactionRecords = await fetchInteractions();
+          dispatch(setInteractionRecords(interactionRecords));
         }
       } catch {
         dispatch(setUser(null));
-        dispatch(setInteractionMap(new Map()));
+        dispatch(setInteractionRecords({}));
+      } finally {
+        dispatch(setLoading(false));
       }
     };
 

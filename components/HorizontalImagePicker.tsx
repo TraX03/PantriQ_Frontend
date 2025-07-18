@@ -41,11 +41,13 @@ const HorizontalImagePicker: React.FC<HorizontalImagePickerProps> = ({
         {images.map((uri, index) => (
           <View key={index} className="relative mr-4">
             <Image
+              testID={`image-${index}`}
               source={{ uri }}
               className="w-32 h-32 rounded"
               resizeMode="cover"
             />
             <TouchableOpacity
+              testID={`remove-button-${index}`}
               onPress={() => handleRemove(index)}
               style={styles.removeButton}
             >
@@ -59,7 +61,11 @@ const HorizontalImagePicker: React.FC<HorizontalImagePickerProps> = ({
         ))}
 
         {showAddButton && (
-          <TouchableOpacity onPress={handleAdd} style={styles.addImageButton}>
+          <TouchableOpacity
+            testID="add-image-button"
+            onPress={handleAdd}
+            style={styles.addImageButton}
+          >
             <IconSymbol name="plus" color={Colors.overlay.base} size={30} />
           </TouchableOpacity>
         )}

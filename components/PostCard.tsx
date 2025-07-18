@@ -33,8 +33,8 @@ type PostCardProps = {
 
 const PostCard = ({ post, source }: PostCardProps) => {
   const { type, title, image, id } = post;
-  const { interactionMap } = useReduxSelectors();
-  const status = getInteractionStatus(post.id, interactionMap);
+  const { interactionRecords } = useReduxSelectors();
+  const status = getInteractionStatus(post.id, interactionRecords);
   const { isLiked, isBookmarked, toggleLike, toggleBookmark } = useInteraction(
     post.id,
     status

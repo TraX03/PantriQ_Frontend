@@ -9,7 +9,7 @@ import {
   getPostTypeById,
   updateDocument,
 } from "@/services/Appwrite";
-import { refreshInteractionMap } from "@/utility/interactionUtils";
+import { refreshInteractionRecords } from "@/utility/interactionUtils";
 import { useState } from "react";
 import Toast from "react-native-toast-message";
 import { useDispatch } from "react-redux";
@@ -81,7 +81,7 @@ export function useInteraction(
       const currentUser = await getCurrentUser();
       const collection = AppwriteConfig.INTERACTIONS_COLLECTION_ID;
 
-      const interactionMap = {
+      const interactionRecords = {
         like: {
           active: state.isLiked,
           docId: state.likeDocId,
@@ -119,7 +119,7 @@ export function useInteraction(
         },
       };
 
-      const { active, docId, update } = interactionMap[type];
+      const { active, docId, update } = interactionRecords[type];
 
       if (active && docId) {
         await deleteDocument(collection, docId);
@@ -127,10 +127,10 @@ export function useInteraction(
 
         if (type === "follow") {
           await updateFollowCounts(currentUser.$id, targetId, -1);
-        } else if ("toast" in interactionMap[type]) {
+        } else if ("toast" in interactionRecords[type]) {
           Toast.show({
             type: "success",
-            text1: (interactionMap[type] as any).toast.removed,
+            text1: (interactionRecords[type] as any).toast.removed,
           });
         }
       } else {
@@ -151,15 +151,15 @@ export function useInteraction(
 
         if (type === "follow") {
           await updateFollowCounts(currentUser.$id, targetId, 1);
-        } else if ("toast" in interactionMap[type]) {
+        } else if ("toast" in interactionRecords[type]) {
           Toast.show({
             type: "success",
-            text1: (interactionMap[type] as any).toast.added,
+            text1: (interactionRecords[type] as any).toast.added,
           });
         }
       }
 
-      refreshInteractionMap(dispatch);
+      refreshInteractionRecords(dispatch);
     } catch (err) {
       console.warn(`Failed to toggle ${type}:`, err);
     }

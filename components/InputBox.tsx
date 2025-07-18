@@ -72,6 +72,7 @@ const InputBox = ({
 
       {value.length > 0 && (
         <TouchableOpacity
+          testID="clear-button"
           onPress={() => onChangeText("")}
           className={
             containerStyle

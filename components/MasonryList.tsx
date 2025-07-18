@@ -33,6 +33,7 @@ const MasonryList = ({
 
   return (
     <ScrollView
+      testID="ScrollView"
       showsVerticalScrollIndicator={false}
       {...(onRefresh && {
         refreshControl: (

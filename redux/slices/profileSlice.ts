@@ -22,7 +22,7 @@ export interface ProfileData {
   isOnboarded?: boolean;
 }
 
-export const guestPicture: string = "6820391600141fa25422";
+export const guestPicture: string = "687991440001bb3db31b"; // rmb update
 
 export const guestProfile: ProfileData = {
   username: "Guest",
