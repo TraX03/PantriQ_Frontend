@@ -27,6 +27,7 @@ type InputBoxProps = TextInputProps & {
   onChangeText: (text: string) => void;
   clearColor?: string;
   keyboardType?: string;
+  showClearButton?: boolean;
 };
 
 const InputBox = ({
@@ -43,6 +44,7 @@ const InputBox = ({
   onChangeText,
   clearColor,
   keyboardType,
+  showClearButton = true,
   ...props
 }: InputBoxProps) => (
   <>
@@ -70,7 +72,7 @@ const InputBox = ({
         placeholderTextColor={Colors.text.disabled}
       />
 
-      {value.length > 0 && (
+      {showClearButton && value.length > 0 && (
         <TouchableOpacity
           testID="clear-button"
           onPress={() => onChangeText("")}

@@ -1,9 +1,10 @@
 import BottomSheetModal from "@/components/BottomSheetModal";
+import CounterInput from "@/components/CounterInput";
 import SearchWithSuggestion from "@/components/SearchWithSuggestions";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { Colors } from "@/constants/Colors";
 import { useFieldState } from "@/hooks/useFieldState";
-import { capitalize } from "@/utility/capitalize";
+import { capitalize, titleCase } from "@/utility/capitalize";
 import { styles as homeStyles } from "@/utility/home/styles";
 import { styles } from "@/utility/lists/styles";
 import { styles as onboardingStyles } from "@/utility/onboarding/styles";
@@ -16,11 +17,6 @@ import InventoryModalContainer from "./inventoryModal/container";
 
 type Props = {
   lists: ReturnType<typeof useFieldState<ListsState>>;
-  listData: {
-    checkedItems: ListItem[];
-    uncheckedItems: ListItem[];
-    expiredItems: ListItem[];
-  };
   actions: {
     addItemToList: (name: string, quantity?: number[]) => Promise<void>;
     handleShoppingCheck: (itemId: string, checked: boolean) => Promise<void>;
@@ -34,12 +30,20 @@ type Props = {
       label: string;
       color: string;
     } | null;
+    handleQuantityChange: (itemId: string, delta: number) => void;
+    saveQuantityChange: (item: ListItem) => Promise<void>;
+    handleRemoveItem: (itemId: string) => Promise<void>;
+  };
+  listData: {
+    checkedItems: ListItem[];
+    uncheckedItems: ListItem[];
+    expiredItems: ListItem[];
   };
 };
 
 export const LIST_TABS = ["shopping", "inventory"] as const;
 
-export default function ListsComponent({ lists, listData, actions }: Props) {
+export default function ListsComponent({ lists, actions, listData }: Props) {
   const {
     activeTab,
     showAddModal,
@@ -48,6 +52,7 @@ export default function ListsComponent({ lists, listData, actions }: Props) {
     setFields,
     showAmountModal,
     keyboardVisible,
+    isEditing,
   } = lists;
 
   const {
@@ -57,9 +62,12 @@ export default function ListsComponent({ lists, listData, actions }: Props) {
     handleClearItems,
     handleInventoryCheck,
     getExpiryStatus,
+    handleQuantityChange,
+    saveQuantityChange,
+    handleRemoveItem,
   } = actions;
 
-  const { uncheckedItems, checkedItems, expiredItems } = listData;
+  const { checkedItems, uncheckedItems, expiredItems } = listData;
 
   const renderListItem = (
     item: ListItem,
@@ -67,7 +75,10 @@ export default function ListsComponent({ lists, listData, actions }: Props) {
     useContainer: boolean = true,
     showCheckbox: boolean = true
   ) => {
-    const expiryInfo = getExpiryStatus(item.expiries);
+    const expiryInfo =
+      item.checked && activeTab === "inventory"
+        ? null
+        : getExpiryStatus(item.expiries);
     const color = disabled ? Colors.brand.primaryLight : Colors.brand.primary;
 
     const content = (
@@ -91,9 +102,13 @@ export default function ListsComponent({ lists, listData, actions }: Props) {
         )}
 
         <View className="flex-row items-center justify-between flex-1">
-          <View>
-            <Text style={disabled ? styles.disabledItem : { fontSize: 16 }}>
-              {item.name}
+          <View style={{ flexShrink: 1, marginRight: 8 }}>
+            <Text
+              numberOfLines={1}
+              ellipsizeMode="tail"
+              style={[{ fontSize: 16 }, disabled && styles.disabledItem]}
+            >
+              {titleCase(item.name)}
             </Text>
             {expiryInfo && (
               <View className="flex-row items-center mt-1 gap-1.5">
@@ -107,10 +122,34 @@ export default function ListsComponent({ lists, listData, actions }: Props) {
               </View>
             )}
           </View>
-          <Text style={disabled ? styles.disabledItem : { fontSize: 16 }}>
-            {"\u00D7"} {item.checked ? item.checkedCount : item.quantityDisplay}
-            {item.unit}
-          </Text>
+
+          {isEditing && !item.checked && activeTab !== "inventory" ? (
+            <View className="flex-row gap-2 items-center">
+              <CounterInput
+                value={item.quantityDisplay}
+                onDecrement={() => handleQuantityChange(item.id!, -1)}
+                onIncrement={() => handleQuantityChange(item.id!, 1)}
+                noMarginTop={true}
+              />
+              <Pressable onPress={() => handleRemoveItem(item.id!)}>
+                <IconSymbol
+                  name="trash"
+                  color={Colors.brand.primary}
+                  size={22}
+                />
+              </Pressable>
+            </View>
+          ) : (
+            <Text style={[{ fontSize: 16 }, disabled && styles.disabledItem]}>
+              {"\u00D7"}{" "}
+              {!showCheckbox
+                ? item.expiredQuantity
+                : item.checked
+                ? item.checkedCount
+                : item.quantityDisplay}
+              {showCheckbox || !item.expiredUnit ? item.unit : item.expiredUnit}
+            </Text>
+          )}
         </View>
       </>
     );
@@ -188,13 +227,12 @@ export default function ListsComponent({ lists, listData, actions }: Props) {
         ]}
         zIndex={12}
       >
-        {listData.checkedItems?.[lists.currentStepIndex] && (
-          <InventoryModalContainer
-            lists={lists}
-            listData={listData}
-            handleMoveToInventory={handleMoveToInventory}
-          />
-        )}
+        <InventoryModalContainer
+          lists={lists}
+          isFromInventory={activeTab === "inventory"}
+          checkedItems={checkedItems}
+          handleMoveToInventory={handleMoveToInventory}
+        />
       </BottomSheetModal>
 
       {showAmountModal && (
@@ -257,13 +295,38 @@ export default function ListsComponent({ lists, listData, actions }: Props) {
 
             <View className="flex-row justify-between mt-6">
               <Text className="text-[14px]">{uncheckedItems.length} items</Text>
-              <View className="flex-row gap-1">
-                <Text style={styles.filterText}>Name</Text>
-                <IconSymbol
-                  name="chevron.down"
-                  color={Colors.text.disabled}
-                  size={20}
-                />
+              <View className="flex-row gap-2 items-center">
+                <View className="flex-row gap-1">
+                  <Text style={styles.filterText}>Name</Text>
+                  <IconSymbol
+                    name="chevron.down"
+                    color={Colors.text.disabled}
+                    size={20}
+                  />
+                </View>
+                {activeTab !== "inventory" && (
+                  <Pressable
+                    onPress={async () => {
+                      if (isEditing) {
+                        setFieldState("isEditing", false);
+
+                        for (const item of uncheckedItems) {
+                          await saveQuantityChange(item);
+                        }
+                      } else {
+                        setFieldState("isEditing", true);
+                      }
+                    }}
+                  >
+                    <IconSymbol
+                      name={isEditing ? "arrow.down.doc" : "pencil.circle"}
+                      color={
+                        isEditing ? Colors.brand.primary : Colors.text.disabled
+                      }
+                      size={20}
+                    />
+                  </Pressable>
+                )}
               </View>
             </View>
           </View>
@@ -271,7 +334,14 @@ export default function ListsComponent({ lists, listData, actions }: Props) {
           <View className="px-4 mt-4">
             {uncheckedItems.length === 0 ? (
               <Pressable
-                onPress={() => setFieldState("showAddModal", true)}
+                onPress={() =>
+                  setFieldState(
+                    activeTab === "inventory"
+                      ? "showInventoryModal"
+                      : "showAddModal",
+                    true
+                  )
+                }
                 style={styles.addItemButton}
               >
                 <Text style={styles.addItemText}>+ Add Items</Text>
@@ -318,7 +388,12 @@ export default function ListsComponent({ lists, listData, actions }: Props) {
         </ScrollView>
 
         <Pressable
-          onPress={() => setFieldState("showAddModal", true)}
+          onPress={() =>
+            setFieldState(
+              activeTab === "inventory" ? "showInventoryModal" : "showAddModal",
+              true
+            )
+          }
           style={plannerStyles.generateButton}
         >
           <IconSymbol name="plus" color={Colors.brand.onPrimary} size={22} />

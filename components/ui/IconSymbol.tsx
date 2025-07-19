@@ -117,6 +117,11 @@ const MAPPING = {
     name: "minussquare",
     type: "AntDesign",
   },
+  "info.circle": { name: "info", type: "Feather" },
+  "arrow.down.doc": {
+    name: "save",
+    type: "Feather",
+  },
 } as const;
 
 export type IconSymbolName = keyof typeof MAPPING;

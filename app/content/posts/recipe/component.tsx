@@ -1,3 +1,4 @@
+import CustomModal from "@/components/CustomModal";
 import FullscreenImageViewer from "@/components/FullscreenImageViewer";
 import RatingCard from "@/components/RatingCard";
 import RecipeStep from "@/components/RecipeStep";
@@ -6,12 +7,13 @@ import { IconSymbol } from "@/components/ui/IconSymbol";
 import { Colors } from "@/constants/Colors";
 import { Routes } from "@/constants/Routes";
 import { useFieldState } from "@/hooks/useFieldState";
-import { capitalize } from "@/utility/capitalize";
+import { capitalize, titleCase } from "@/utility/capitalize";
 import { styles } from "@/utility/content/posts/recipe/styles";
 import { styles as postStyles } from "@/utility/content/posts/styles";
 import { router } from "expo-router";
 import React from "react";
 import {
+  ActivityIndicator,
   Pressable,
   ScrollView,
   Text,
@@ -34,6 +36,7 @@ type Props = {
     unit: string;
   };
   currentUserId: string | undefined;
+  handleIngredientPress: (ingredientName: string) => Promise<void>;
 };
 
 export default function RecipeComponent({
@@ -42,6 +45,7 @@ export default function RecipeComponent({
   recipeData,
   getNutritionEntry,
   currentUserId,
+  handleIngredientPress,
 }: Props) {
   const { postData } = post;
   const {
@@ -50,6 +54,9 @@ export default function RecipeComponent({
     isInstructionsOverflow,
     fullscreenImage,
     setFieldState,
+    selectedIngredient,
+    showLoading,
+    showSubstituteModal,
   } = recipe;
 
   const nutrients = {
@@ -72,6 +79,34 @@ export default function RecipeComponent({
         imageUri={fullscreenImage}
         onClose={() => setFieldState("fullscreenImage", "")}
       />
+
+      <CustomModal
+        visible={showSubstituteModal}
+        close={() => setFieldState("showSubstituteModal", false)}
+      >
+        <View className="py-4 px-6">
+          <Text className="text-xl font-semibold mb-3">
+            Substitutes for {titleCase(selectedIngredient)}
+          </Text>
+
+          {showLoading ? (
+            <ActivityIndicator size="large" color={Colors.brand.primary} />
+          ) : recipe.ingredientSubstitutes &&
+            recipe.ingredientSubstitutes.length > 0 ? (
+            <View className="gap-2">
+              {recipe.ingredientSubstitutes.map((sub, index) => (
+                <Text key={index} className="text-base">
+                  {capitalize(sub)}
+                </Text>
+              ))}
+            </View>
+          ) : (
+            <Text className="text-base text-gray-500">
+              No substitutes found.
+            </Text>
+          )}
+        </View>
+      </CustomModal>
 
       {!!postData?.description && (
         <View style={postStyles.contentContainer}>
@@ -150,7 +185,18 @@ export default function RecipeComponent({
           {recipeData.ingredients.map(({ name, quantity, note }, index) => (
             <View key={index} className="flex-col mb-4">
               <View className="flex-row justify-between">
-                <Text style={styles.ingredientName}>{capitalize(name)}</Text>
+                <TouchableOpacity onPress={() => handleIngredientPress(name)}>
+                  <View className="flex-row gap-2 items-center">
+                    <Text style={styles.ingredientName}>
+                      {capitalize(name)}
+                    </Text>
+                    <IconSymbol
+                      name="info.circle"
+                      color={Colors.brand.primary}
+                      size={15}
+                    />
+                  </View>
+                </TouchableOpacity>
                 <Text style={styles.quantityName}>{quantity}</Text>
               </View>
               {note && <Text style={styles.noteText}>{capitalize(note)}</Text>}

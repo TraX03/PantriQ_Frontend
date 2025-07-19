@@ -11,19 +11,26 @@ export default function AmountModalComponent({
   const { setFieldState, setFields, amountText, amount, modalItem } = lists;
 
   if (!modalItem) return null;
+  const isRevert = modalItem.checked === true;
 
   const closeModal = () => {
     setFieldState("showAmountModal", false);
-    setFieldState("amount", 0);
-    setFieldState("amountText", "");
+    setFields({
+      amount: 0,
+      amountText: "",
+    });
   };
 
   return (
     <TouchableOpacity onPressOut={closeModal} style={styles.overlay}>
       <View style={styles.amountContainer}>
-        <Text style={styles.label}>Enter Amount</Text>
+        <Text style={styles.label}>
+          {isRevert ? "Revert from Finished" : "Use from Inventory"}
+        </Text>
         <Text className="mb-2 mt-2">
-          {`Available: ${modalItem.quantityDisplay} ${modalItem.unit ?? ""}`}
+          {`Available: ${
+            isRevert ? modalItem.checkedCount : modalItem.quantityDisplay
+          } ${modalItem.unit ?? ""}`}
         </Text>
 
         <InputBox
@@ -52,10 +59,7 @@ export default function AmountModalComponent({
                 alert("Please enter a valid number.");
                 return;
               }
-              const isRevert = (modalItem.checkedCount ?? 0) > 0;
-              const finalUsed = isRevert ? -amount : amount;
-
-              handleInventoryCheck(modalItem.id!, finalUsed);
+              handleInventoryCheck(modalItem.id!, amount, isRevert);
               closeModal();
             }}
           >

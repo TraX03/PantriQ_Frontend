@@ -22,7 +22,8 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.anonymous.pantriQ"
+      "package": "com.anonymous.pantriQ",
+      "permissions": ["NOTIFICATIONS"]
     },
     "web": {
       "bundler": "metro",
@@ -34,7 +35,8 @@
       "./plugins/custom-android-styles.js",
       "./plugins/withAbiFilters.js",
       "expo-font",
-      "expo-web-browser"
+      "expo-web-browser",
+      "expo-notifications"
     ],
     "experiments": {
       "typedRoutes": true,

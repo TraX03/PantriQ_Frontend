@@ -1,12 +1,17 @@
 import { useKeyboardVisibility } from "@/hooks/useKeyboardVisibility";
 import { useReduxSelectors } from "@/hooks/useReduxSelectors";
+import { useSplitInventoryItems } from "@/hooks/useSplitInventoryItems";
 import { useEffect } from "react";
 import ListsComponent from "./component";
 import useListsController from "./controller";
 
 export default function ListsContainer() {
   const { isLoggedIn } = useReduxSelectors();
-  const { lists, actions, listData } = useListsController();
+  const { lists, actions } = useListsController();
+  const { checkedItems, uncheckedItems, expiredItems } = useSplitInventoryItems(
+    lists.items,
+    lists.activeTab
+  );
 
   useKeyboardVisibility((visible) =>
     lists.setFieldState("keyboardVisible", visible)
@@ -22,5 +27,11 @@ export default function ListsContainer() {
     fetchAndPrepare();
   }, [isLoggedIn, lists.showInventoryModal, lists.currentStepIndex]);
 
-  return <ListsComponent lists={lists} listData={listData} actions={actions} />;
+  return (
+    <ListsComponent
+      lists={lists}
+      actions={actions}
+      listData={{ checkedItems, uncheckedItems, expiredItems }}
+    />
+  );
 }

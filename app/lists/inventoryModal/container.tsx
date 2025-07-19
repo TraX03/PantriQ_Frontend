@@ -1,32 +1,43 @@
 import { useFieldState } from "@/hooks/useFieldState";
+import { useSuggestionList } from "@/hooks/useSuggestionList";
 import { ListItem, ListsState } from "../controller";
 import InventoryModalComponent from "./component";
-import useInventoryModalController from "./controller";
+import useInventoryModalController, { NewItemDraft } from "./controller";
 
 export type ContainerProps = {
   lists: ReturnType<typeof useFieldState<ListsState>>;
-  listData: {
-    checkedItems: ListItem[];
-    uncheckedItems: ListItem[];
-  };
-  handleMoveToInventory: () => Promise<void>;
+  checkedItems?: ListItem[];
+  handleMoveToInventory: (newItemDraft?: NewItemDraft) => Promise<void>;
+  isFromInventory?: boolean;
 };
 
 export default function InventoryModalContainer({
   lists,
-  listData,
+  checkedItems,
   handleMoveToInventory,
+  isFromInventory,
 }: ContainerProps) {
-  const { hasMismatch, modifyDraftFieldAtIndex } =
-    useInventoryModalController(lists);
+  const { getSuggestions } = useSuggestionList("ingredient");
+  const {
+    hasMismatch,
+    modifyDraftFieldAtIndex,
+    modifyNewItemDraftField,
+    modal,
+    selectSuggestion,
+  } = useInventoryModalController(lists);
 
   return (
     <InventoryModalComponent
       lists={lists}
-      listData={listData}
+      checkedItems={checkedItems}
       hasMismatch={hasMismatch}
       handleMoveToInventory={handleMoveToInventory}
       modifyDraftFieldAtIndex={modifyDraftFieldAtIndex}
+      modifyNewItemDraftField={modifyNewItemDraftField}
+      isFromInventory={isFromInventory}
+      modal={modal}
+      getSuggestions={getSuggestions}
+      selectSuggestion={selectSuggestion}
     />
   );
 }

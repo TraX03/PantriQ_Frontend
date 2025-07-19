@@ -1,6 +1,7 @@
 import { AppwriteConfig } from "@/constants/AppwriteConfig";
 import { useFieldState } from "@/hooks/useFieldState";
 import { fetchAllDocuments } from "@/services/Appwrite";
+import { getIngredientSubstitutes } from "@/services/GeminiApi";
 import { fetchUsers } from "@/utility/userCacheUtils";
 import { Query } from "react-native-appwrite";
 
@@ -20,6 +21,10 @@ export interface RecipeState {
   expanded?: boolean;
   reviews?: Review[];
   fullscreenImage: string;
+  showSubstituteModal: boolean;
+  ingredientSubstitutes: string[];
+  selectedIngredient: string;
+  showLoading: boolean;
 }
 
 export const useRecipeController = () => {
@@ -28,9 +33,13 @@ export const useRecipeController = () => {
     nutritionData: null,
     expanded: false,
     fullscreenImage: "",
+    showSubstituteModal: false,
+    ingredientSubstitutes: [],
+    selectedIngredient: "",
+    showLoading: false,
   });
 
-  const { setFieldState } = recipe;
+  const { setFieldState, setFields } = recipe;
 
   const getNutritionEntry = (
     data: any,
@@ -92,10 +101,29 @@ export const useRecipeController = () => {
     }
   };
 
+  const handleIngredientPress = async (ingredientName: string) => {
+    setFields({
+      showSubstituteModal: true,
+      selectedIngredient: ingredientName,
+      showLoading: true,
+    });
+
+    try {
+      const substitutes = await getIngredientSubstitutes(ingredientName);
+      setFields({
+        ingredientSubstitutes: substitutes,
+        showLoading: false,
+      });
+    } catch (err) {
+      console.error("Failed to fetch ingredient substitutes:", err);
+    }
+  };
+
   return {
     recipe,
     getNutritionEntry,
     getRecipeRatings,
+    handleIngredientPress,
   };
 };
 

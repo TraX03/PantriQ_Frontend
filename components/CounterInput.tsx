@@ -4,10 +4,11 @@ import { styles } from "./styles";
 import { IconSymbol } from "./ui/IconSymbol";
 
 type CounterInputProps = {
-  label: string;
+  label?: string;
   value?: number;
   onDecrement: () => void;
   onIncrement: () => void;
+  noMarginTop?: boolean;
 };
 
 const CounterInput = ({
@@ -15,8 +16,9 @@ const CounterInput = ({
   value,
   onDecrement,
   onIncrement,
+  noMarginTop,
 }: CounterInputProps) => (
-  <View className="flex-row items-center gap-2 mt-2">
+  <View className={`flex-row items-center gap-2 ${noMarginTop ? "" : "mt-2"}`}>
     <Text className="text-[15px]">{label}</Text>
     <Pressable testID="decrement-button" onPress={onDecrement}>
       <IconSymbol

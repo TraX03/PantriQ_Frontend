@@ -4,7 +4,11 @@ import AmountModalComponent from "./component";
 
 export type Props = {
   lists: ReturnType<typeof useFieldState<ListsState>>;
-  handleInventoryCheck: (itemId: string, usedAmount: number) => Promise<void>;
+  handleInventoryCheck: (
+    itemId: string,
+    amount: number,
+    isRevert?: boolean
+  ) => Promise<void>;
 };
 
 export default function AmountModalContainer({

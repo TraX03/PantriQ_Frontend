@@ -12,6 +12,7 @@ import { predictExpiryDateTime } from "@/services/GeminiApi";
 import { Alert } from "react-native";
 import { Query } from "react-native-appwrite";
 import { LIST_TABS } from "./component";
+import { NewItemDraft } from "./inventoryModal/controller";
 
 export const UNIT_CONVERSIONS: Record<string, { to: string; factor: number }> =
   {
@@ -47,6 +48,8 @@ export type ListItem = {
   expiries?: string[];
   checkedCount?: number;
   quantityDisplay?: number;
+  expiredQuantity?: number;
+  expiredUnit?: string;
 };
 
 export interface ListsState {
@@ -63,6 +66,8 @@ export interface ListsState {
   amountText?: string;
   showAmountModal: boolean;
   keyboardVisible: boolean;
+  isEditing: boolean;
+  showLoading: boolean;
 }
 
 export const useListsController = () => {
@@ -79,78 +84,11 @@ export const useListsController = () => {
     amount: 0,
     showAmountModal: false,
     keyboardVisible: false,
+    isEditing: false,
+    showLoading: false,
   });
 
-  const { setFieldState, formDrafts, activeTab, items, setFields } = lists;
-  const filteredItems = items.filter((item) => item.type === activeTab);
-  const expiredItems: ListItem[] = [];
-
-  const splitInventoryItems = filteredItems.flatMap((item) => {
-    if (!Array.isArray(item.quantity)) return [item];
-
-    const { quantity, expiries = [], checkedCount = 0 } = item;
-    const used: number[] = [],
-      usedExp: string[] = [];
-    const remaining: number[] = [],
-      remainingExp: string[] = [];
-    const expired: number[] = [],
-      expiredExp: string[] = [];
-
-    let toSplit = checkedCount;
-
-    quantity.forEach((qty, i) => {
-      const expiry = expiries[i];
-      const isExpired = expiry && new Date(expiry) < new Date();
-
-      if (isExpired) {
-        expired.push(qty);
-        expiredExp.push(expiry);
-        return;
-      }
-
-      if (toSplit > 0) {
-        if (qty > toSplit) {
-          used.push(toSplit);
-          remaining.push(qty - toSplit);
-          if (expiry) {
-            usedExp.push(expiry);
-            remainingExp.push(expiry);
-          }
-          toSplit = 0;
-        } else {
-          used.push(qty);
-          if (expiry) usedExp.push(expiry);
-          toSplit -= qty;
-        }
-      } else {
-        remaining.push(qty);
-        if (expiry) remainingExp.push(expiry);
-      }
-    });
-
-    const createItem = (
-      q: number[],
-      e: string[],
-      checked: boolean
-    ): ListItem => ({
-      ...item,
-      quantity: q,
-      expiries: e,
-      quantityDisplay: q.reduce((sum, x) => sum + x, 0),
-      checked,
-    });
-
-    if (expired.length)
-      expiredItems.push(createItem(expired, expiredExp, false));
-
-    return [
-      ...(remaining.length ? [createItem(remaining, remainingExp, false)] : []),
-      ...(used.length ? [createItem(used, usedExp, true)] : []),
-    ];
-  });
-
-  const uncheckedItems = splitInventoryItems.filter((i) => !i.checked);
-  const checkedItems = splitInventoryItems.filter((i) => i.checked);
+  const { setFieldState, activeTab, items, setFields } = lists;
 
   const loadItems = async () => {
     try {
@@ -159,24 +97,72 @@ export const useListsController = () => {
         Query.equal("user_id", user.$id),
       ]);
 
+      const now = new Date();
+
       const items: ListItem[] = docs.map((doc) => {
         const quantity = Array.isArray(doc.quantity)
           ? doc.quantity
           : [doc.quantity ?? 0];
+        const expiries = doc.expiries ?? [];
+        const checkedCount = doc.checkedCount || 0;
+        const originalUnit = doc.unit ?? "";
+
+        const validQuantities: number[] = [];
+        const expiredQuantities: number[] = [];
+
+        quantity.forEach((q: number, i: number) => {
+          const expiry = expiries[i];
+          (expiry && new Date(expiry) < now
+            ? expiredQuantities
+            : validQuantities
+          ).push(q);
+        });
+
+        const totalValidQty = validQuantities.reduce((sum, q) => sum + q, 0);
+        const totalExpiredQty = expiredQuantities.reduce(
+          (sum, q) => sum + q,
+          0
+        );
+        const displayQty = Math.max(0, totalValidQty - checkedCount);
+
+        let display = displayQty;
+        let expired = totalExpiredQty;
+        let unit = originalUnit;
+
+        if (doc.type === "inventory" && UNIT_CONVERSIONS[unit]) {
+          const { to, factor } = UNIT_CONVERSIONS[unit];
+          display *= factor;
+          expired *= factor;
+          unit = to;
+
+          const reverse = Object.entries(UNIT_CONVERSIONS).find(
+            ([fromUnit, config]) => config.to === unit && config.factor > 1
+          );
+
+          if (reverse) {
+            const [fromUnit, { factor: reverseFactor }] = reverse;
+            const reversedDisplay = display / reverseFactor;
+            const reversedExpired = expired / reverseFactor;
+
+            if (reversedDisplay >= 1) {
+              display = parseFloat(reversedDisplay.toFixed(2));
+              expired = parseFloat(reversedExpired.toFixed(2));
+              unit = fromUnit;
+            }
+          }
+        }
 
         return {
           id: doc.$id,
           type: doc.type,
           name: doc.name,
           quantity,
-          unit: doc.unit || undefined,
+          unit,
           checked: !!doc.checked,
-          checkedCount: doc.checkedCount || undefined,
-          expiries: doc.expiries || undefined,
-          quantityDisplay: quantity.reduce(
-            (sum: number, q: number) => sum + q,
-            0
-          ),
+          checkedCount,
+          expiries,
+          quantityDisplay: display,
+          expiredQuantity: expired,
         };
       });
 
@@ -218,10 +204,10 @@ export const useListsController = () => {
                   ? existingItem.quantity
                   : [existingItem.quantity ?? 0];
                 const updatedQty = [...prevQty, 1];
-                const updatedDisplay = updatedQty.reduce(
-                  (sum, q) => sum + q,
-                  0
-                );
+
+                const updatedDisplay =
+                  updatedQty.reduce((sum, q) => sum + q, 0) -
+                  (existingItem.checkedCount ?? 0);
 
                 await updateDocument(
                   AppwriteConfig.LISTS_COLLECTION_ID,
@@ -294,12 +280,15 @@ export const useListsController = () => {
       const quantity = Array.isArray(item.quantity)
         ? item.quantity
         : [item.quantity ?? 0];
-      const quantityDisplay = quantity.reduce((sum, q) => sum + q, 0);
+
+      const totalQuantity = quantity.reduce((sum, q) => sum + q, 0);
 
       const checkedCount = Math.max(
         0,
-        Math.min(quantityDisplay, (item.checkedCount ?? 0) + (checked ? 1 : -1))
+        Math.min(totalQuantity, (item.checkedCount ?? 0) + (checked ? 1 : -1))
       );
+
+      const quantityDisplay = totalQuantity - checkedCount;
 
       await updateDocument(AppwriteConfig.LISTS_COLLECTION_ID, itemId, {
         checked,
@@ -317,17 +306,31 @@ export const useListsController = () => {
     }
   };
 
-  const handleInventoryCheck = async (itemId: string, usedAmount: number) => {
+  const handleInventoryCheck = async (
+    itemId: string,
+    amount: number,
+    isRevert?: boolean
+  ) => {
     try {
       const item = items.find((i) => i.id === itemId);
       if (!item) return;
 
-      const max = item.quantityDisplay ?? 1;
-      const newChecked = (item.checkedCount ?? 0) + usedAmount;
+      const quantityDisplay = item.quantityDisplay ?? 0;
+      const currentChecked = item.checkedCount ?? 0;
 
-      if (usedAmount === 0 || newChecked < 0 || newChecked > max) {
-        alert("Invalid amount. Please enter a valid number.");
-        return;
+      let newChecked = currentChecked;
+      let newDisplay = quantityDisplay;
+
+      if (isRevert) {
+        newChecked = Math.max(0, currentChecked - amount);
+        newDisplay = quantityDisplay + amount;
+      } else {
+        if (amount > quantityDisplay) {
+          alert("Not enough quantity left to use.");
+          return;
+        }
+        newChecked = currentChecked + amount;
+        newDisplay = Math.max(0, quantityDisplay - amount);
       }
 
       await updateDocument(AppwriteConfig.LISTS_COLLECTION_ID, itemId, {
@@ -337,7 +340,13 @@ export const useListsController = () => {
       setFieldState(
         "items",
         items.map((i) =>
-          i.id === itemId ? { ...i, checkedCount: newChecked } : i
+          i.id === itemId
+            ? {
+                ...i,
+                checkedCount: newChecked,
+                quantityDisplay: newDisplay,
+              }
+            : i
         )
       );
     } catch (err) {
@@ -345,142 +354,130 @@ export const useListsController = () => {
     }
   };
 
-  const handleMoveToInventory = async () => {
-    const checkedItems = items.filter(
-      (i) => i.type === "shopping" && i.checked
-    );
+  const handleMoveToInventory = async (newItemDraft?: NewItemDraft) => {
+    setFieldState("showLoading", true);
+    const items = lists.items;
+    const formDrafts = lists.formDrafts;
     const inventoryItems = items.filter((i) => i.type === "inventory");
 
     try {
-      const user = await getCurrentUser();
       const updatedItems: ListItem[] = [];
 
-      for (let i = 0; i < checkedItems.length; i++) {
-        const shoppingItem = checkedItems[i];
-        const draft = formDrafts?.[i] ?? {};
+      if (newItemDraft) {
+        const rawQuantities =
+          newItemDraft.quantity?.length > 0
+            ? newItemDraft.quantity
+            : [Math.max(1, parseInt(newItemDraft.itemCount ?? "1", 10) || 1)];
 
-        const originalQuantities = Array.isArray(shoppingItem.quantity)
-          ? shoppingItem.quantity
-          : [shoppingItem.quantity ?? 1];
-
-        const originalExpiries = shoppingItem.expiries ?? [];
-        const toMove = Math.min(
-          shoppingItem.checkedCount ?? 0,
-          originalQuantities.reduce((sum, q) => sum + q, 0)
-        );
-
-        const movedQ: number[] = [],
-          movedE: string[] = [];
-        const remainingQ: number[] = [],
-          remainingE: string[] = [];
-        let remaining = toMove;
-
-        originalQuantities.forEach((qty, idx) => {
-          const exp = originalExpiries[idx] ?? "";
-          if (remaining <= 0) {
-            remainingQ.push(qty);
-            remainingE.push(exp);
-          } else if (qty > remaining) {
-            movedQ.push(remaining);
-            remainingQ.push(qty - remaining);
-            movedE.push(exp);
-            remainingE.push(exp);
-            remaining = 0;
-          } else {
-            movedQ.push(qty);
-            movedE.push(exp);
-            remaining -= qty;
-          }
-        });
-
-        let finalExpiries = draft.expiries?.filter(Boolean) ?? [];
-        if (finalExpiries.length === 0 || finalExpiries.every((e) => !e)) {
-          const predicted = await predictExpiryDateTime(shoppingItem.name);
-          finalExpiries = Array(movedQ.length).fill(predicted);
-        }
-
-        const rawQuantities = draft.quantity ?? movedQ;
         const rawUnits =
-          draft.unit ??
-          Array(rawQuantities.length).fill(shoppingItem.unit ?? "");
-        const { converted, baseUnit } = rawQuantities.reduce(
-          (acc, qty, idx) => {
-            const unit = rawUnits[idx];
-            const conv = UNIT_CONVERSIONS[unit];
-            acc.converted.push(conv ? qty * conv.factor : qty);
-            acc.baseUnit = conv?.to ?? unit;
-            return acc;
-          },
-          { converted: [] as number[], baseUnit: "" }
+          newItemDraft.unit?.length > 0
+            ? newItemDraft.unit
+            : Array(rawQuantities.length).fill("");
+
+        const { converted, baseUnit } = convertQuantities(
+          rawQuantities,
+          rawUnits
         );
 
-        const existing = inventoryItems.find(
-          (inv) =>
-            inv.name.trim().toLowerCase() ===
-            shoppingItem.name.trim().toLowerCase()
-        );
-
-        if (existing) {
-          const newQ = [
-            ...(Array.isArray(existing.quantity)
-              ? existing.quantity
-              : [existing.quantity ?? 0]),
-            ...converted,
-          ];
-          const newE = [...(existing.expiries ?? []), ...finalExpiries];
-
-          await updateDocument(
-            AppwriteConfig.LISTS_COLLECTION_ID,
-            existing.id!,
-            {
-              quantity: newQ,
-              expiries: newE,
-            }
-          );
-
-          updatedItems.push({ ...existing, quantity: newQ, expiries: newE });
-        } else {
-          const created = await createDocument(
-            AppwriteConfig.LISTS_COLLECTION_ID,
-            {
-              user_id: user.$id,
-              type: "inventory",
-              name: shoppingItem.name,
-              quantity: converted,
-              unit: baseUnit,
-              expiries: finalExpiries,
-              checked: false,
-              created_at: new Date().toISOString(),
-            }
-          );
-
-          updatedItems.push({
-            id: created.$id,
-            type: "inventory",
-            name: shoppingItem.name,
-            quantity: converted,
-            unit: baseUnit,
-            expiries: finalExpiries,
-            checked: false,
-          });
+        let finalExpiries = newItemDraft.expiries?.filter(Boolean) ?? [];
+        if (finalExpiries.length === 0 || finalExpiries.every((e) => !e)) {
+          const predicted = await predictExpiryDateTime(newItemDraft.itemName);
+          finalExpiries = Array(converted.length).fill(predicted);
         }
 
-        if (remainingQ.length > 0) {
-          await updateDocument(
-            AppwriteConfig.LISTS_COLLECTION_ID,
-            shoppingItem.id!,
-            {
-              quantity: remainingQ,
-              expiries: remainingE,
-              checked: false,
-              checkedCount: 0,
+        const item = await mergeOrCreateInventoryItem(
+          newItemDraft.itemName,
+          converted,
+          baseUnit,
+          finalExpiries,
+          inventoryItems
+        );
+
+        updatedItems.push(item);
+      } else {
+        const checkedItems = items.filter(
+          (i) => i.type === "shopping" && i.checked
+        );
+
+        for (let i = 0; i < checkedItems.length; i++) {
+          const shoppingItem = checkedItems[i];
+          const draft = formDrafts?.[i] ?? {};
+
+          const originalQuantities = Array.isArray(shoppingItem.quantity)
+            ? shoppingItem.quantity
+            : [shoppingItem.quantity ?? 1];
+          const originalExpiries = shoppingItem.expiries ?? [];
+
+          const toMove = Math.min(
+            shoppingItem.checkedCount ?? 0,
+            originalQuantities.reduce((sum, q) => sum + q, 0)
+          );
+
+          const movedQ: number[] = [],
+            movedE: string[] = [];
+          const remainingQ: number[] = [],
+            remainingE: string[] = [];
+          let remaining = toMove;
+
+          originalQuantities.forEach((qty, idx) => {
+            const exp = originalExpiries[idx] ?? "";
+            if (remaining <= 0) {
+              remainingQ.push(qty);
+              remainingE.push(exp);
+            } else if (qty > remaining) {
+              movedQ.push(remaining);
+              remainingQ.push(qty - remaining);
+              movedE.push(exp);
+              remainingE.push(exp);
+              remaining = 0;
+            } else {
+              movedQ.push(qty);
+              movedE.push(exp);
+              remaining -= qty;
             }
+          });
+
+          let finalExpiries = draft.expiries?.filter(Boolean) ?? [];
+          if (finalExpiries.length === 0 || finalExpiries.every((e) => !e)) {
+            const predicted = await predictExpiryDateTime(shoppingItem.name);
+            finalExpiries = Array(movedQ.length).fill(predicted);
+          }
+
+          const rawQuantities = draft.quantity ?? movedQ;
+          const rawUnits =
+            draft.unit ??
+            Array(rawQuantities.length).fill(shoppingItem.unit ?? "");
+          const { converted, baseUnit } = convertQuantities(
+            rawQuantities,
+            rawUnits
           );
-        } else {
-          await deleteDocument(
-            AppwriteConfig.LISTS_COLLECTION_ID,
-            shoppingItem.id!
+
+          const item = await mergeOrCreateInventoryItem(
+            shoppingItem.name,
+            converted,
+            baseUnit,
+            finalExpiries,
+            inventoryItems
           );
+          updatedItems.push(item);
+
+          if (remainingQ.length > 0) {
+            await updateDocument(
+              AppwriteConfig.LISTS_COLLECTION_ID,
+              shoppingItem.id!,
+              {
+                quantity: remainingQ,
+                expiries: remainingE,
+                checked: false,
+                checkedCount: 0,
+              }
+            );
+          } else {
+            await deleteDocument(
+              AppwriteConfig.LISTS_COLLECTION_ID,
+              shoppingItem.id!
+            );
+          }
         }
       }
 
@@ -490,11 +487,85 @@ export const useListsController = () => {
           ...updatedItems,
         ],
         showInventoryModal: false,
+        showLoading: false,
         formDrafts: {},
       });
+
       loadItems();
     } catch (err) {
-      console.error("Failed to move checked shopping items to inventory:", err);
+      console.error("Failed to move items to inventory:", err);
+    }
+  };
+
+  const convertQuantities = (quantities: number[], units: string[]) => {
+    return quantities.reduce(
+      (acc, qty, idx) => {
+        const unit = units[idx];
+        const conv = UNIT_CONVERSIONS[unit];
+        acc.converted.push(conv ? qty * conv.factor : qty);
+        acc.baseUnit = conv?.to ?? unit;
+        return acc;
+      },
+      { converted: [] as number[], baseUnit: "" }
+    );
+  };
+
+  const mergeOrCreateInventoryItem = async (
+    name: string,
+    quantity: number[],
+    unit: string,
+    expiries: string[],
+    inventoryItems: ListItem[]
+  ): Promise<ListItem> => {
+    const nameLower = name.trim().toLowerCase();
+
+    const existing = inventoryItems.find(
+      (inv) => inv.name.trim().toLowerCase() === nameLower
+    );
+
+    if (existing) {
+      const newQ = [
+        ...(Array.isArray(existing.quantity)
+          ? existing.quantity
+          : [existing.quantity ?? 0]),
+        ...quantity,
+      ];
+      const newE = [...(existing.expiries ?? []), ...expiries];
+
+      await updateDocument(AppwriteConfig.LISTS_COLLECTION_ID, existing.id!, {
+        quantity: newQ,
+        expiries: newE,
+        name: nameLower,
+      });
+
+      return {
+        ...existing,
+        quantity: newQ,
+        expiries: newE,
+        type: "inventory",
+      };
+    } else {
+      const user = await getCurrentUser();
+      const created = await createDocument(AppwriteConfig.LISTS_COLLECTION_ID, {
+        user_id: user.$id,
+        type: "inventory",
+        name: nameLower,
+        quantity,
+        unit,
+        expiries,
+        checked: false,
+        created_at: new Date().toISOString(),
+      });
+
+      return {
+        id: created.$id,
+        type: "inventory",
+        name,
+        quantity,
+        unit,
+        expiries,
+        checked: false,
+      };
     }
   };
 
@@ -617,6 +688,51 @@ export const useListsController = () => {
     return { label: parts.join(" "), color };
   };
 
+  const handleQuantityChange = (itemId: string, delta: number) => {
+    const updatedItems = items.map((item) => {
+      if (item.id === itemId) {
+        const current = item.quantityDisplay ?? 1;
+        const newQty = Math.max(1, current + delta);
+        return {
+          ...item,
+          quantityDisplay: newQty,
+        };
+      }
+      return item;
+    });
+
+    setFieldState("items", updatedItems);
+  };
+
+  const saveQuantityChange = async (item: ListItem) => {
+    const currentSum = item.quantity?.reduce((sum, x) => sum + x, 0) ?? 1;
+    const quantityDisplay = item.quantityDisplay ?? currentSum;
+
+    if (quantityDisplay !== currentSum) {
+      const updatedQty = [quantityDisplay];
+
+      try {
+        await updateDocument(AppwriteConfig.LISTS_COLLECTION_ID, item.id!, {
+          quantity: updatedQty,
+        });
+      } catch (err) {
+        console.warn("Failed to update quantity", err);
+      }
+    }
+  };
+
+  const handleRemoveItem = async (itemId: string) => {
+    const updatedItems = items.filter((item) => item.id !== itemId);
+
+    setFieldState("items", [...updatedItems]);
+
+    try {
+      await deleteDocument(AppwriteConfig.LISTS_COLLECTION_ID, itemId);
+    } catch (error) {
+      console.warn("Failed to delete item:", error);
+    }
+  };
+
   return {
     lists,
     actions: {
@@ -627,11 +743,9 @@ export const useListsController = () => {
       handleClearItems,
       handleInventoryCheck,
       getExpiryStatus,
-    },
-    listData: {
-      checkedItems,
-      uncheckedItems,
-      expiredItems,
+      handleQuantityChange,
+      saveQuantityChange,
+      handleRemoveItem,
     },
     getUpdatedQuantitiesAfterRemoval,
   };

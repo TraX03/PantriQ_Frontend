@@ -11,7 +11,8 @@ type Props = {
 };
 
 export default function RecipeContainer({ post }: Props) {
-  const { recipe, getNutritionEntry, getRecipeRatings } = useRecipeController();
+  const { recipe, getNutritionEntry, getRecipeRatings, handleIngredientPress } =
+    useRecipeController();
   const { currentUserId } = useReduxSelectors();
   const recipeData = post.postData as RecipePost;
 
@@ -37,6 +38,7 @@ export default function RecipeContainer({ post }: Props) {
       recipeData={recipeData}
       getNutritionEntry={getNutritionEntry}
       currentUserId={currentUserId}
+      handleIngredientPress={handleIngredientPress}
     />
   );
 }

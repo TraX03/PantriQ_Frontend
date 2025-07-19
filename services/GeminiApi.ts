@@ -173,3 +173,36 @@ Description: ${form.content}`;
     return [];
   }
 }
+
+export async function getIngredientSubstitutes(
+  ingredientName: string
+): Promise<string[]> {
+  const prompt = `
+Provide a list of suitable substitute ingredients for: "${ingredientName}"
+
+Rules:
+- Keep substitutes realistic and commonly available in households or supermarkets.
+- Consider substitutions that preserve similar texture, flavor, or cooking function.
+- Limit to 5–10 alternatives.
+- Output as a plain JSON array of ingredient names. No explanation or extra text.
+`;
+
+  try {
+    const raw = await callGeminiStructured({
+      prompt,
+      systemInstruction:
+        "You are a certified chef and expert in ingredient substitutions.",
+    });
+
+    const cleanedRaw = raw
+      .replace(/```json/g, "")
+      .replace(/```/g, "")
+      .trim();
+
+    const parsed = JSON.parse(cleanedRaw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (err) {
+    console.error(`Substitute lookup failed for "${ingredientName}"`, err);
+    return [];
+  }
+}

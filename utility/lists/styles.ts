@@ -25,8 +25,7 @@ export const styles = StyleSheet.create({
   description: {
     fontSize: 12,
     color: Colors.text.disabled,
-    marginBottom: 8,
-    marginTop: 4,
+    marginVertical: 4,
   },
   errorText: {
     color: Colors.brand.primary,
@@ -40,6 +39,7 @@ export const styles = StyleSheet.create({
     borderRadius: 5,
     height: 40,
     borderColor: Colors.text.placeholder,
+    marginVertical: 4,
   },
   adddText: {
     color: Colors.brand.primary,
