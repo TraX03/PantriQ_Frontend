@@ -115,4 +115,15 @@ export const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 20,
+  },
+  contentContainer: {
+    paddingBottom: 30,
+    backgroundColor: Colors.surface.background,
+    height: "100%",
+  },
 });

@@ -17,21 +17,30 @@ export type Post = {
   image: string;
   area?: string;
   author?: string;
+  authorId?: string;
   profilePic?: string;
   membersCount?: number;
-  recipesCount?: number;
+  postsCount?: number;
   description?: string;
   created_at: string;
   ingredients?: string[];
   category?: string[];
+  mealtime?: string[];
 };
 
 type PostCardProps = {
   post: Post;
   source?: string;
+  isFromMealPlan?: boolean;
+  communityId?: string;
 };
 
-const PostCard = ({ post, source }: PostCardProps) => {
+const PostCard = ({
+  post,
+  source,
+  isFromMealPlan,
+  communityId,
+}: PostCardProps) => {
   const { type, title, image, id } = post;
   const { interactionRecords } = useReduxSelectors();
   const status = getInteractionStatus(post.id, interactionRecords);
@@ -41,7 +50,7 @@ const PostCard = ({ post, source }: PostCardProps) => {
   );
 
   if (type === "community") {
-    const { membersCount, recipesCount } = post;
+    const { membersCount, postsCount } = post;
     return (
       <TouchableOpacity
         onPress={() =>
@@ -59,18 +68,11 @@ const PostCard = ({ post, source }: PostCardProps) => {
               className="w-full h-[150px] rounded-tl-xl rounded-tr-xl mb-2.5"
               resizeMode="cover"
             />
-            <Pressable
-              className="absolute top-3.5 right-3.5 border px-4 py-1.5 rounded-lg"
-              style={styles.joinButton}
-              onPress={() => {}}
-            >
-              <Text style={styles.joinButtonText}>Join</Text>
-            </Pressable>
           </View>
           <View className="px-4">
             <Text style={styles.communityName}>{title}</Text>
             <Text style={styles.communityText}>
-              {membersCount} members | {recipesCount} recipes
+              {membersCount} members | {postsCount} posts
             </Text>
           </View>
         </View>
@@ -84,7 +86,12 @@ const PostCard = ({ post, source }: PostCardProps) => {
       onPress={() =>
         router.push({
           pathname: Routes.PostDetail,
-          params: { id: id, source: source },
+          params: {
+            id: id,
+            source: source,
+            isFromMealPlan: isFromMealPlan ? "true" : "false",
+            communityId: communityId,
+          },
         })
       }
       className="mb-4"

@@ -1,4 +1,5 @@
 import { AppwriteConfig } from "@/constants/AppwriteConfig";
+import { Routes } from "@/constants/Routes";
 import { useFieldState } from "@/hooks/useFieldState";
 import {
   createDocument,
@@ -17,6 +18,7 @@ import {
   format,
   startOfDay,
 } from "date-fns";
+import { router } from "expo-router";
 import { ID, Permission, Query, Role } from "react-native-appwrite";
 
 export const availableMealtimes = [
@@ -73,6 +75,7 @@ export interface PlannerState {
   selectedMealtime: string | null;
   showRegenerateButton: boolean;
   showDeleteButton: boolean;
+  showAddOptionModal: boolean;
 }
 
 const today = startOfDay(new Date());
@@ -93,6 +96,7 @@ export const usePlannerController = () => {
     selectedMealtime: null,
     showRegenerateButton: false,
     showDeleteButton: false,
+    showAddOptionModal: false,
   });
 
   const { selectedDate, mealsByDate, setFieldState } = planner;
@@ -407,6 +411,99 @@ export const usePlannerController = () => {
     }
   };
 
+  const addRecipeToMealPlan = async (recipe: Meal["recipes"][0]) => {
+    try {
+      const user = await getCurrentUser();
+      const isoDate = selectedDate.toISOString().split("T")[0];
+
+      const [existingDoc] = await listDocuments(
+        AppwriteConfig.MEALPLAN_COLLECTION_ID,
+        [
+          Query.equal("user_id", user.$id),
+          Query.equal("date", isoDate),
+          Query.limit(1),
+        ]
+      );
+
+      let existingMeals: { mealtime: string; recipes: any[] }[] = [];
+      if (existingDoc?.meals && Array.isArray(existingDoc.meals)) {
+        existingMeals = existingDoc.meals.map((m: string) => JSON.parse(m));
+      }
+
+      const fallbackMealtime =
+        availableMealtimes.find((m) => m.id !== "all")?.id || "breakfast";
+
+      const updatedMeals = [...existingMeals];
+      const targetMealIndex = updatedMeals.findIndex(
+        (meal) => meal.mealtime === fallbackMealtime
+      );
+
+      if (targetMealIndex > -1) {
+        const meal = updatedMeals[targetMealIndex];
+        const exists = meal.recipes.some((r) =>
+          typeof r === "string" ? r === recipe.id : r.id === recipe.id
+        );
+
+        if (!exists) {
+          updatedMeals[targetMealIndex] = {
+            ...meal,
+            recipes: [...meal.recipes, recipe],
+          };
+        }
+      } else {
+        updatedMeals.push({
+          mealtime: fallbackMealtime,
+          recipes: [recipe],
+        });
+      }
+
+      const mealsPayload = updatedMeals
+        .filter((m) => m.recipes.length > 0)
+        .map((m) =>
+          JSON.stringify({
+            mealtime: m.mealtime,
+            recipes: m.recipes.map((r) => (typeof r === "string" ? r : r.id)),
+          })
+        );
+
+      const docPayload = {
+        meals: mealsPayload,
+        recommended_ids: Array.from(
+          new Set([...(existingDoc?.recommended_ids ?? []), recipe.id])
+        ),
+        recommended_ts: new Date().toISOString(),
+        session_data: existingDoc?.session_data ?? [],
+      };
+
+      if (existingDoc) {
+        await updateDocument(
+          AppwriteConfig.MEALPLAN_COLLECTION_ID,
+          existingDoc.$id,
+          docPayload
+        );
+      } else {
+        await createDocument(
+          AppwriteConfig.MEALPLAN_COLLECTION_ID,
+          {
+            ...docPayload,
+            user_id: user.$id,
+            date: isoDate,
+            created_at: new Date().toISOString(),
+          },
+          ID.unique(),
+          [
+            Permission.read(Role.user(user.$id)),
+            Permission.write(Role.user(user.$id)),
+          ]
+        );
+      }
+
+      router.replace(Routes.PlannerTab);
+    } catch (error) {
+      console.error("Failed to add recipe to meal plan:", error);
+    }
+  };
+
   return {
     date: { minDate, weekStart },
     planner,
@@ -418,6 +515,7 @@ export const usePlannerController = () => {
       addMealtime,
       deleteFromMealplan,
     },
+    addRecipeToMealPlan,
   };
 };
 

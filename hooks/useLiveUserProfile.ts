@@ -1,7 +1,7 @@
 import {
-    fetchUsers,
-    listenToUserCache,
-    UserInfo,
+  fetchUsers,
+  listenToUserCache,
+  UserInfo,
 } from "@/utility/userCacheUtils";
 import { useEffect, useState } from "react";
 

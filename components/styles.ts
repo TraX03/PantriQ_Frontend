@@ -22,15 +22,6 @@ export const styles = StyleSheet.create({
     ...baseTextStyle,
     paddingBottom: 8,
   },
-  joinButton: {
-    backgroundColor: Colors.brand.primaryLight,
-    borderColor: Colors.brand.onPrimary,
-  },
-  joinButtonText: {
-    ...baseTextStyle,
-    color: Colors.brand.onPrimary,
-    fontSize: 14,
-  },
   postTitle: {
     fontSize: 14,
     fontFamily: "RobotoMedium",

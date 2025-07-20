@@ -1,6 +1,6 @@
 import { Post } from "@/components/PostCard";
 import { AppwriteConfig } from "@/constants/AppwriteConfig";
-import { fetchAllDocuments } from "@/services/Appwrite";
+import { fetchAllDocuments, getDocumentById } from "@/services/Appwrite";
 import { fetchHomeFeedRecommendations } from "@/services/FastApi";
 import { getImageUrl } from "./imageUtils";
 import { fetchUsers } from "./userCacheUtils";
@@ -37,6 +37,7 @@ export const fetchPosts = async (
       title: doc.title,
       image: getImageUrl(doc.image?.[0]),
       author: author?.username || "Unknown",
+      authorId: doc.author_id,
       profilePic: author?.avatarUrl,
       area: doc.area,
       description: !doc.type ? doc.description : doc.content,
@@ -45,6 +46,7 @@ export const fetchPosts = async (
       ingredients: Array.isArray(doc.ingredients)
         ? doc.ingredients.map((ing: any) => ing.name).filter(Boolean)
         : [],
+      mealtime: doc.mealtime,
     };
   };
 
@@ -54,7 +56,7 @@ export const fetchPosts = async (
     title: doc.name,
     image: getImageUrl(doc.image),
     membersCount: doc.members_count,
-    recipesCount: doc.recipes_count,
+    postsCount: doc.posts_count,
     created_at: doc.$createdAt,
     description: doc.description,
   });
@@ -132,8 +134,28 @@ export const fetchHomeFeedPosts = async (userId: string): Promise<Post[]> => {
     const uniqueAuthorIds = Array.from(new Set(allAuthorIds));
     const usersMap = await fetchUsers(uniqueAuthorIds);
 
-    const allPosts: Post[] = allSections.flatMap((section) =>
-      section.post_ids.map((id: string, index: number) => {
+    const communityIds = recs.community?.post_ids ?? [];
+    const communityDocs = await Promise.all(
+      communityIds.map((id: string) =>
+        getDocumentById(AppwriteConfig.COMMUNITIES_COLLECTION_ID, id)
+      )
+    );
+
+    const allPosts: Post[] = allSections.flatMap((section) => {
+      if (section.type === "community") {
+        return communityDocs.map((doc: any) => ({
+          id: doc.$id,
+          type: "community",
+          title: doc.name,
+          image: getImageUrl(doc.image),
+          membersCount: doc.members_count,
+          postsCount: doc.posts_count,
+          created_at: doc.$createdAt,
+          description: doc.description,
+        }));
+      }
+
+      return section.post_ids.map((id: string, index: number) => {
         const authorId = section.author_ids[index];
         const authorInfo = usersMap.get(authorId);
 
@@ -144,9 +166,10 @@ export const fetchHomeFeedPosts = async (userId: string): Promise<Post[]> => {
           image: getImageUrl(section.images[index]),
           author: authorInfo?.username || "Unknown",
           profilePic: getImageUrl(authorInfo?.avatarUrl),
+          authorId,
         };
-      })
-    );
+      });
+    });
 
     return allPosts;
   } catch (err) {

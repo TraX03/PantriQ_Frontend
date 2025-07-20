@@ -61,6 +61,7 @@ export default function PlannerComponent({ planner, date, actions }: Props) {
     selectedMealtime,
     showRegenerateButton,
     showDeleteButton,
+    showAddOptionModal,
   } = planner;
   const {
     generateMeals,
@@ -127,6 +128,37 @@ export default function PlannerComponent({ planner, date, actions }: Props) {
             isDestructive: true,
             action: () =>
               selectedMealtime && deleteFromMealplan(selectedMealtime),
+          },
+        ]}
+      />
+
+      <ActionSheetModal
+        visible={showAddOptionModal}
+        onClose={() => setFieldState("showAddOptionModal", false)}
+        options={[
+          {
+            label: "From Your Posts",
+            action: () =>
+              router.push({
+                pathname: Routes.Listing,
+                params: { type: "created" },
+              }),
+          },
+          {
+            label: "From Likes/Bookmarks/Views",
+            action: () =>
+              router.push({
+                pathname: Routes.Listing,
+                params: { type: "interactions" },
+              }),
+          },
+          {
+            label: "Search Recipe",
+            action: () =>
+              router.push({
+                pathname: Routes.Search,
+                params: { isFromMealPlan: "true" },
+              }),
           },
         ]}
       />
@@ -360,7 +392,9 @@ export default function PlannerComponent({ planner, date, actions }: Props) {
                           ))}
 
                           <TouchableOpacity
-                            onPress={() => router.push(Routes.Search)}
+                            onPress={() =>
+                              setFieldState("showAddOptionModal", true)
+                            }
                             style={styles.addMealButton}
                           >
                             <IconSymbol

@@ -44,7 +44,10 @@ export interface CreateFormState {
 export const useCreateFormController = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { uploadFile } = useMediaHandler();
-  const { type } = useLocalSearchParams<{ type: string }>();
+  const { type, communityId } = useLocalSearchParams<{
+    type: string;
+    communityId: string;
+  }>();
 
   const create = useFieldState<CreateFormState>({
     title: "",
@@ -100,6 +103,7 @@ export const useCreateFormController = () => {
           content: create.content,
           type: create.postType,
           author_id: userId,
+          ...(communityId ? { community_id: communityId } : {}),
         },
         tips: {
           ...commonFields,
@@ -107,6 +111,7 @@ export const useCreateFormController = () => {
           content: create.content,
           type: create.postType,
           author_id: userId,
+          ...(communityId ? { community_id: communityId } : {}),
         },
         community: {
           ...commonFields,
@@ -137,6 +142,7 @@ export const useCreateFormController = () => {
           category: create.category.map((c) => c.name.toLowerCase()),
           area: create.area.toLowerCase(),
           mealtime: create.mealtime.map((mt) => mt.name),
+          ...(communityId ? { community_id: communityId } : {}),
         },
       };
 

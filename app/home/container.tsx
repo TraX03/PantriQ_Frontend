@@ -10,7 +10,7 @@ export default function HomeContainer() {
 
   useEffect(() => {
     onRefresh();
-  }, [onRefresh]);
+  }, [onRefresh, home.getFieldState("activeTab")]);
 
   return (
     <HomeComponent

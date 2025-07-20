@@ -11,6 +11,8 @@ interface MasonryListProps {
   refreshing?: boolean;
   header?: React.ReactNode;
   source?: string;
+  isFromMealPlan?: boolean;
+  communityId?: string;
 }
 
 const MasonryList = ({
@@ -20,6 +22,8 @@ const MasonryList = ({
   refreshing,
   header,
   source,
+  isFromMealPlan,
+  communityId,
 }: MasonryListProps) => {
   const leftColumn = posts.filter((_, index) => index % 2 === 0);
   const rightColumn = posts.filter((_, index) => index % 2 === 1);
@@ -28,6 +32,8 @@ const MasonryList = ({
       key={`${item.id}-${interactionVersion}`}
       post={item}
       source={source}
+      isFromMealPlan={isFromMealPlan}
+      communityId={communityId}
     />
   );
 

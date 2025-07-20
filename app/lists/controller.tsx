@@ -385,7 +385,7 @@ export const useListsController = () => {
           finalExpiries = Array(converted.length).fill(predicted);
         }
 
-        const item = await mergeOrCreateInventoryItem(
+        const item = await updateInventoryCollection(
           newItemDraft.itemName,
           converted,
           baseUnit,
@@ -452,7 +452,7 @@ export const useListsController = () => {
             rawUnits
           );
 
-          const item = await mergeOrCreateInventoryItem(
+          const item = await updateInventoryCollection(
             shoppingItem.name,
             converted,
             baseUnit,
@@ -510,7 +510,7 @@ export const useListsController = () => {
     );
   };
 
-  const mergeOrCreateInventoryItem = async (
+  const updateInventoryCollection = async (
     name: string,
     quantity: number[],
     unit: string,

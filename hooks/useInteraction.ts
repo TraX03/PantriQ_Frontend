@@ -14,7 +14,7 @@ import { useState } from "react";
 import Toast from "react-native-toast-message";
 import { useDispatch } from "react-redux";
 
-type InteractionType = "like" | "bookmark" | "follow";
+type InteractionType = "like" | "bookmark" | "follow" | "join";
 
 export type InteractionResult = {
   isLiked: boolean;
@@ -23,6 +23,8 @@ export type InteractionResult = {
   bookmarkDocId?: string;
   isFollowing: boolean;
   followDocId?: string;
+  isJoining: boolean;
+  joinDocId?: string;
 };
 
 export function useInteraction(
@@ -37,6 +39,8 @@ export function useInteraction(
     bookmarkDocId: initial?.bookmarkDocId,
     isFollowing: initial?.isFollowing ?? false,
     followDocId: initial?.followDocId,
+    isJoining: initial?.isJoining ?? false,
+    joinDocId: initial?.joinDocId,
   });
 
   const updateFollowCounts = async (
@@ -73,6 +77,33 @@ export function useInteraction(
       );
     } catch (err) {
       console.warn("Failed to update follow counts:", err);
+    }
+  };
+
+  const updateCommunityMemberCount = async (
+    communityId: string,
+    delta: 1 | -1
+  ) => {
+    try {
+      const communityDoc = await getDocumentById(
+        AppwriteConfig.COMMUNITIES_COLLECTION_ID,
+        communityId
+      );
+
+      const updatedCount = Math.max(
+        0,
+        (communityDoc.members_count ?? 0) + delta
+      );
+
+      await updateDocument(
+        AppwriteConfig.COMMUNITIES_COLLECTION_ID,
+        communityId,
+        {
+          members_count: updatedCount,
+        }
+      );
+    } catch (err) {
+      console.warn("Failed to update community member count:", err);
     }
   };
 
@@ -117,6 +148,16 @@ export function useInteraction(
               followDocId: docId,
             })),
         },
+        join: {
+          active: state.isJoining,
+          docId: state.joinDocId,
+          update: (active: boolean, docId?: string) =>
+            setState((prev) => ({
+              ...prev,
+              isJoining: active,
+              joinDocId: docId,
+            })),
+        },
       };
 
       const { active, docId, update } = interactionRecords[type];
@@ -127,7 +168,11 @@ export function useInteraction(
 
         if (type === "follow") {
           await updateFollowCounts(currentUser.$id, targetId, -1);
-        } else if ("toast" in interactionRecords[type]) {
+        } else if (type === "join") {
+          await updateCommunityMemberCount(targetId, -1);
+        }
+
+        if ("toast" in interactionRecords[type]) {
           Toast.show({
             type: "success",
             text1: (interactionRecords[type] as any).toast.removed,
@@ -137,6 +182,8 @@ export function useInteraction(
         const itemType =
           type === "follow"
             ? "user"
+            : type === "join"
+            ? "community"
             : (await getPostTypeById(targetId)) ?? "recipe";
 
         const newDoc = await createDocument(collection, {
@@ -151,7 +198,11 @@ export function useInteraction(
 
         if (type === "follow") {
           await updateFollowCounts(currentUser.$id, targetId, 1);
-        } else if ("toast" in interactionRecords[type]) {
+        } else if (type === "join") {
+          await updateCommunityMemberCount(targetId, 1);
+        }
+
+        if ("toast" in interactionRecords[type]) {
           Toast.show({
             type: "success",
             text1: (interactionRecords[type] as any).toast.added,
@@ -169,8 +220,10 @@ export function useInteraction(
     isLiked: state.isLiked,
     isBookmarked: state.isBookmarked,
     isFollowing: state.isFollowing,
+    isJoining: state.isJoining,
     toggleLike: () => toggleInteraction("like"),
     toggleBookmark: () => toggleInteraction("bookmark"),
     toggleFollow: () => toggleInteraction("follow"),
+    toggleJoin: () => toggleInteraction("join"),
   };
 }

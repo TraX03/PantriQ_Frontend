@@ -49,7 +49,7 @@ const menuOptions = [
   {
     title: "Community",
     icon: "person.2.fill",
-    action: () => console.log("Community coming soon"),
+    action: () => router.push(Routes.CommunityList),
   },
 ] as const;
 
@@ -151,20 +151,19 @@ export default function ProfileComponent({
           )}
 
           <View className="flex-row items-center gap-[12px]">
+            <TouchableOpacity
+              testID="refresh-button"
+              onPress={() => profileData.id && fetchPostsByUser(profileData.id)}
+            >
+              <IconSymbol
+                name="arrow.clockwise.circle"
+                size={32}
+                color={Colors.brand.onPrimary}
+              />
+            </TouchableOpacity>
+
             {isOwnProfile ? (
               <>
-                <TouchableOpacity
-                  testID="refresh-button"
-                  onPress={() =>
-                    profileData.id && fetchPostsByUser(profileData.id)
-                  }
-                >
-                  <IconSymbol
-                    name="arrow.clockwise.circle"
-                    size={32}
-                    color={Colors.brand.onPrimary}
-                  />
-                </TouchableOpacity>
                 <TouchableOpacity
                   testID="edit-button"
                   onPress={() => checkLogin(Routes.EditProfile)}

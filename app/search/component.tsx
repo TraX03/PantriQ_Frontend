@@ -6,21 +6,28 @@ import { Colors } from "@/constants/Colors";
 import { useFieldState } from "@/hooks/useFieldState";
 import { styles as profileStyles } from "@/utility/profile/styles";
 import { styles } from "@/utility/search/styles";
-import { Stack } from "expo-router";
-import { Text, TouchableOpacity, View } from "react-native";
-import { SearchState } from "./controller";
+import { router, Stack } from "expo-router";
+import { Pressable, Text, TouchableOpacity, View } from "react-native";
+import { availableMealtimes } from "../planner/controller";
+import { SearchMode, searchModeOptions, SearchState } from "./controller";
 import SearchResultContainer from "./searchResult/container";
 
 type Props = {
   search: ReturnType<typeof useFieldState<SearchState>>;
-  handleSearch: (term?: string) => void;
+  handleSearch: (
+    term?: string,
+    isMealtime?: boolean,
+    mode?: SearchMode
+  ) => Promise<void>;
   handleClear: () => void;
+  isFromMealPlan: boolean;
 };
 
 export default function SearchComponent({
   search,
   handleSearch,
   handleClear,
+  isFromMealPlan,
 }: Props) {
   const {
     allFilteredPosts,
@@ -31,11 +38,39 @@ export default function SearchComponent({
     expanded,
     postLoading,
     setFieldState,
+    searchMode,
   } = search;
 
   const displayedSearches = expanded
     ? recentSearches
     : recentSearches.slice(0, 7);
+
+  const searchTag = (
+    label: string,
+    onPress: () => void,
+    isSelected = false
+  ) => (
+    <Pressable
+      key={label}
+      onPress={onPress}
+      style={[
+        styles.itemContainer,
+        {
+          borderColor: isSelected ? "transparent" : Colors.text.primary,
+          backgroundColor: isSelected ? Colors.brand.primary : "transparent",
+        },
+      ]}
+    >
+      <Text
+        style={{
+          fontSize: 13,
+          color: isSelected ? Colors.brand.onPrimary : Colors.text.primary,
+        }}
+      >
+        {label}
+      </Text>
+    </Pressable>
+  );
 
   return (
     <>
@@ -54,16 +89,24 @@ export default function SearchComponent({
                 onSubmitEditing={() => handleSearch()}
               />
             }
+            onBackPress={() => {
+              if (hasSearched) {
+                setFieldState("hasSearched", false);
+              } else {
+                router.back();
+              }
+            }}
           />
           {hasSearched ? (
             <SearchResultContainer
               allFilteredPosts={allFilteredPosts}
               filteredUsers={filteredUsers}
               postLoading={postLoading}
+              isFromMealPlan={isFromMealPlan}
             />
           ) : (
             <View className="px-4 py-3">
-              <View className="flex-row items-center justify-between mb-4">
+              <View className="flex-row items-center justify-between mb-4 mt-3">
                 <Text style={styles.titleText}>Recent Searches</Text>
                 <TouchableOpacity testID="clear-button" onPress={handleClear}>
                   <IconSymbol
@@ -75,16 +118,22 @@ export default function SearchComponent({
               </View>
 
               <View className="flex-row flex-wrap gap-3">
-                {displayedSearches.map((item, index) => (
-                  <TouchableOpacity
-                    key={index}
-                    onPress={() => handleSearch(item)}
-                  >
-                    <View style={styles.itemContainer}>
-                      <Text style={styles.itemText}>{item}</Text>
-                    </View>
-                  </TouchableOpacity>
-                ))}
+                {displayedSearches.length === 0 ? (
+                  <Text style={{ color: Colors.feedback.unknown }}>
+                    No recent searches
+                  </Text>
+                ) : (
+                  displayedSearches.map((item, index) => (
+                    <TouchableOpacity
+                      key={index}
+                      onPress={() => handleSearch(item)}
+                    >
+                      <View style={styles.itemContainer}>
+                        <Text style={styles.itemText}>{item}</Text>
+                      </View>
+                    </TouchableOpacity>
+                  ))
+                )}
               </View>
 
               {recentSearches.length > 7 && (
@@ -100,8 +149,33 @@ export default function SearchComponent({
                 </TouchableOpacity>
               )}
 
-              <View className="flex-row items-center justify-between mb-4">
-                <Text style={styles.titleText}>Search by Meal Type</Text>
+              <View className="mt-6">
+                <Text style={styles.titleText}>Search Mode</Text>
+              </View>
+
+              <View className="flex-row flex-wrap gap-3 mt-3">
+                {searchModeOptions.map((mode) =>
+                  searchTag(
+                    mode.label,
+                    () => {
+                      setFieldState("searchMode", mode.id);
+                      handleSearch(undefined, false, mode.id);
+                    },
+                    searchMode === mode.id
+                  )
+                )}
+              </View>
+
+              <View className="mt-6">
+                <Text style={styles.titleText}>Search By Mealtime</Text>
+              </View>
+
+              <View className="flex-row flex-wrap gap-3 mt-3">
+                {availableMealtimes
+                  .filter((mt) => mt.id !== "all")
+                  .map((mt) =>
+                    searchTag(mt.label, () => handleSearch(mt.label, true))
+                  )}
               </View>
             </View>
           )}

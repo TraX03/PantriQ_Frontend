@@ -1,9 +1,11 @@
 import { Post } from "@/components/PostCard";
+import { AppwriteConfig } from "@/constants/AppwriteConfig";
 import { useFieldState } from "@/hooks/useFieldState";
-import { getCurrentUser } from "@/services/Appwrite";
+import { fetchAllDocuments, getCurrentUser } from "@/services/Appwrite";
 import { logHomeFeedSessionFeedback } from "@/services/FastApi";
 import { fetchHomeFeedPosts, fetchPosts } from "@/utility/fetchUtils";
 import { useCallback, useMemo } from "react";
+import { Query } from "react-native-appwrite";
 
 export interface HomeState {
   activeTab: "Follow" | "Explore";
@@ -53,11 +55,32 @@ export const useHomeController = () => {
         logHomeFeedSessionFeedback(user.$id);
       }
 
-      const posts = user
-        ? await fetchHomeFeedPosts(user.$id)
-        : await fetchPosts();
+      let allPosts: Post[] = [];
 
-      setFields({ posts, refreshing: false, hasLoadedOnce: true });
+      if (home.getFieldState("activeTab") === "Explore") {
+        allPosts = user
+          ? await fetchHomeFeedPosts(user.$id)
+          : await fetchPosts();
+      } else if (home.getFieldState("activeTab") === "Follow" && user) {
+        const followInteractions = await fetchAllDocuments(
+          AppwriteConfig.INTERACTIONS_COLLECTION_ID,
+          [Query.equal("user_id", user.$id), Query.equal("type", "follow")]
+        );
+
+        const followedUserIds = followInteractions.map((f: any) => f.item_id);
+
+        const allPostsUnfiltered = await fetchPosts(false, false);
+
+        allPosts = allPostsUnfiltered
+          .filter((post) => followedUserIds.includes(post.authorId))
+          .sort(
+            (a, b) =>
+              new Date(b.created_at).getTime() -
+              new Date(a.created_at).getTime()
+          );
+      }
+
+      setFields({ posts: allPosts, refreshing: false, hasLoadedOnce: true });
     } catch (error) {
       console.error("Failed to refresh posts:", error);
       setFieldState("refreshing", false);

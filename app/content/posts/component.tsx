@@ -1,3 +1,4 @@
+import { Meal } from "@/app/planner/controller";
 import ActionSheetModal from "@/components/ActionSheetModal";
 import BottomSheetModal from "@/components/BottomSheetModal";
 import ErrorScreen from "@/components/ErrorScreen";
@@ -29,16 +30,31 @@ import RatingModalContainer from "./recipe/ratingModal/container";
 
 type Props = {
   post: ReturnType<typeof useFieldState<PostState>>;
-  deletePost: () => void;
+  actions: {
+    getPost: (postId: string) => Promise<void>;
+    confirmDeletePost: () => void;
+  };
   postType: PostType;
   handleAuthorPress: (postAuthorId: string) => void;
+  isFromMealPlan?: boolean;
+  addRecipeToMealPlan: ((recipe: Meal["recipes"][0]) => void) | undefined;
+  communityId?: string;
+  assignRecipeToCommunity:
+    | ((recipeId: string, communityId: string) => Promise<void>)
+    | undefined;
+  currentUserId: string | undefined;
 };
 
 export default function PostComponent({
   post,
-  deletePost,
+  actions,
   postType,
   handleAuthorPress,
+  isFromMealPlan,
+  addRecipeToMealPlan,
+  communityId,
+  assignRecipeToCommunity,
+  currentUserId,
 }: Props) {
   const {
     postData,
@@ -112,6 +128,11 @@ export default function PostComponent({
           isBackgroundDark={isDark}
         />
         <View className="flex-row gap-4">
+          <IconButton
+            name="arrow.clockwise.circle"
+            onPress={() => actions.getPost(postData.id)}
+            isBackgroundDark={isDark}
+          />
           <IconButton
             name="arrow.up.left.and.arrow.down.right"
             onPress={() =>
@@ -188,7 +209,15 @@ export default function PostComponent({
           { label: "Edit Post" },
           { label: "Share Post" },
           { label: "Report Post" },
-          { label: "Delete Post", action: deletePost, isDestructive: true },
+          ...(postData.authorId === currentUserId
+            ? [
+                {
+                  label: "Delete Post",
+                  action: actions.confirmDeletePost,
+                  isDestructive: true,
+                },
+              ]
+            : []),
         ]}
       />
 
@@ -230,7 +259,12 @@ export default function PostComponent({
               styles.container,
               { backgroundColor: Colors.surface.background },
             ]}
-            contentContainerStyle={{ paddingBottom: 10 }}
+            contentContainerStyle={{
+              paddingBottom:
+                postType === "recipe" && (isFromMealPlan || communityId)
+                  ? 100
+                  : 10,
+            }}
           >
             {renderImages()}
 
@@ -256,6 +290,33 @@ export default function PostComponent({
 
             {renderSpecificContent()}
           </ScrollView>
+
+          {(isFromMealPlan || communityId) && (
+            <View style={styles.fixedContainer}>
+              <Pressable
+                onPress={() => {
+                  if (isFromMealPlan && addRecipeToMealPlan && recipeData) {
+                    addRecipeToMealPlan({
+                      id: recipeData.id,
+                      name: recipeData.title,
+                      image: recipeData.images[0],
+                    });
+                  } else if (
+                    communityId &&
+                    assignRecipeToCommunity &&
+                    recipeData
+                  ) {
+                    assignRecipeToCommunity(recipeData.id, communityId);
+                  }
+                }}
+                style={styles.mealPlanButton}
+              >
+                <Text style={styles.ratingButtonText}>
+                  {isFromMealPlan ? "Add to Meal Plan" : "Add to Community"}
+                </Text>
+              </Pressable>
+            </View>
+          )}
         </ScreenWrapper>
       </GestureHandlerRootView>
     </>

@@ -19,6 +19,7 @@ export type Props = {
   filteredUsers: User[];
   interactionVersion: number;
   postLoading: boolean;
+  isFromMealPlan: boolean;
 };
 
 export default function SearchResultComponent({
@@ -26,6 +27,7 @@ export default function SearchResultComponent({
   filteredUsers,
   interactionVersion,
   postLoading,
+  isFromMealPlan,
 }: Props) {
   const { filterActive, orderActive, activeTab, filteredPosts, setFieldState } =
     searchResult;
@@ -108,6 +110,7 @@ export default function SearchResultComponent({
             posts={filteredPosts}
             interactionVersion={interactionVersion}
             source={"searchResults"}
+            isFromMealPlan={isFromMealPlan}
           />
         )}
       </ScrollView>

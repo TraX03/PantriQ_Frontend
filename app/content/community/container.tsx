@@ -1,3 +1,4 @@
+import { useReduxSelectors } from "@/hooks/useReduxSelectors";
 import { setLoading } from "@/redux/slices/loadingSlice";
 import { AppDispatch } from "@/redux/store";
 import { useEffect } from "react";
@@ -11,12 +12,22 @@ type Props = {
 
 export default function CommunityContainer({ communityId }: Props) {
   const dispatch = useDispatch<AppDispatch>();
-  const { community, getCommunity } = useCommunityController();
+  const { interactionVersion, interactionRecords, currentUserId } =
+    useReduxSelectors();
+
+  const {
+    community,
+    getCommunity,
+    getCommunityContent,
+    handleCommunitySearch,
+    resetCommunitySearch,
+  } = useCommunityController();
 
   useEffect(() => {
     (async () => {
       try {
         await getCommunity(communityId);
+        await getCommunityContent(communityId);
       } catch (error) {
         console.error("Failed to load community:", error);
       } finally {
@@ -25,5 +36,15 @@ export default function CommunityContainer({ communityId }: Props) {
     })();
   }, [communityId]);
 
-  return <CommunityComponent community={community} />;
+  return (
+    <CommunityComponent
+      community={community}
+      interactionVersion={interactionVersion}
+      handleCommunitySearch={handleCommunitySearch}
+      resetCommunitySearch={resetCommunitySearch}
+      getCommunity={getCommunity}
+      interactionRecords={interactionRecords}
+      currentUserId={currentUserId}
+    />
+  );
 }

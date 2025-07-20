@@ -70,21 +70,19 @@ export const subscribeToUserUpdates = () => {
       if (!userId) return;
 
       const cached = userCache.get(userId);
-      const updatedInfo: Partial<UserInfo> = {};
 
-      if (user.username && user.username !== cached?.username) {
-        updatedInfo.username = user.username;
-      }
+      if (cached) {
+        const updatedInfo: UserInfo = {
+          username: user.username,
+          avatarUrl: getImageUrl(user.avatar),
+          followersCount: user.followers_count,
+          followingCount: user.following_count,
+          profileBg: user.profile_bg ? getImageUrl(user.profile_bg) : undefined,
+          bio: user.bio ?? "",
+          metadata: user.metadata ?? {},
+        };
 
-      if (user.avatar && getImageUrl(user.avatar) !== cached?.avatarUrl) {
-        updatedInfo.avatarUrl = getImageUrl(user.avatar);
-      }
-
-      if (Object.keys(updatedInfo).length > 0) {
-        setUserCache(userId, {
-          ...cached!,
-          ...updatedInfo,
-        });
+        setUserCache(userId, updatedInfo);
       }
     }
   );

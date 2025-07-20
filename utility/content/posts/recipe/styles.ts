@@ -75,11 +75,6 @@ export const styles = StyleSheet.create({
     borderRadius: 5,
     marginVertical: 20,
   },
-  ratingButtonText: {
-    color: Colors.brand.onPrimary,
-    fontSize: 15,
-    fontFamily: "RobotoMedium",
-  },
   subHeader: {
     fontFamily: "RobotoSemiBold",
     fontSize: 16,

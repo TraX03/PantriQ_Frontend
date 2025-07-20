@@ -8,6 +8,14 @@ import {
 } from "@/utility/searchStorageUtils";
 import Fuse from "fuse.js";
 
+export const searchModeOptions = [
+  { id: "default", label: "Default" },
+  { id: "ingredient", label: "Ingredient" },
+  { id: "area", label: "Region" },
+] as const;
+
+export type SearchMode = (typeof searchModeOptions)[number]["id"];
+
 export interface SearchState {
   posts: Post[];
   users: User[];
@@ -19,6 +27,7 @@ export interface SearchState {
   expanded: boolean;
   postLoading: boolean;
   isInitialized: boolean;
+  searchMode: SearchMode;
 }
 
 const useSearchController = () => {
@@ -33,6 +42,7 @@ const useSearchController = () => {
     expanded: false,
     postLoading: false,
     isInitialized: false,
+    searchMode: "default",
   });
 
   const { searchText, setFieldState, setFields } = search;
@@ -57,8 +67,12 @@ const useSearchController = () => {
     return { posts, users };
   };
 
-  const handleSearch = async (term?: string) => {
-    const query = (term ?? searchText).trim();
+  const handleSearch = async (
+    term?: string,
+    isMealtime = false,
+    mode: SearchMode = "default"
+  ) => {
+    const query = (term ?? searchText).trim().toLowerCase();
     if (!query) return;
 
     setFields({
@@ -76,26 +90,88 @@ const useSearchController = () => {
       users = result.users;
     }
 
-    await addRecentSearch(query);
-    const recent = await getRecentSearches();
-    setFieldState("recentSearches", recent);
+    if (!isMealtime) {
+      await addRecentSearch(query);
+      const recent = await getRecentSearches();
+      setFieldState("recentSearches", recent);
+    }
 
-    const postResults = new Fuse(posts, {
-      keys: ["title", "description", "area", "category", "ingredients"],
+    const recipePosts = posts.filter((post) => post.type === "recipe");
+    const otherPosts = posts.filter((post) => post.type !== "recipe");
+
+    let filteredRecipes: typeof posts = [];
+    if (isMealtime) {
+      filteredRecipes = recipePosts.filter((post) => {
+        const mealtimeRaw = post.mealtime as string | string[] | undefined;
+
+        const mealtimes: string[] = Array.isArray(mealtimeRaw)
+          ? mealtimeRaw.map((m) =>
+              typeof m === "string" ? m.toLowerCase() : ""
+            )
+          : typeof mealtimeRaw === "string"
+          ? [mealtimeRaw.toLowerCase()]
+          : [];
+
+        return (
+          mealtimes.includes(query.toLowerCase()) || mealtimes.includes("all")
+        );
+      });
+    } else if (mode === "area") {
+      filteredRecipes = recipePosts.filter((post) => {
+        const area = post.area?.toLowerCase?.() ?? "";
+        return area.includes(query.toLowerCase());
+      });
+    }
+
+    const fuzzyTargetPosts = isMealtime || mode === "area" ? otherPosts : posts;
+
+    const postKeys =
+      mode === "ingredient"
+        ? [
+            { name: "ingredients", weight: 1 },
+            { name: "title", weight: 0.5 },
+          ]
+        : [
+            { name: "title", weight: 0.58 },
+            { name: "ingredients", weight: 0.25 },
+            { name: "category", weight: 0.1 },
+            { name: "description", weight: 0.07 },
+          ];
+
+    const postFuse = new Fuse(fuzzyTargetPosts, {
+      includeScore: true,
       threshold: 0.3,
-    })
+      ignoreLocation: true,
+      keys: postKeys,
+    });
+
+    const postFuzzyResults = postFuse
       .search(query)
+      .sort((a, b) => (a.score ?? 1) - (b.score ?? 1))
       .map((res) => res.item);
 
-    const userResults = new Fuse(users, {
-      keys: ["name", "bio"],
+    const userFuse = new Fuse(users, {
+      includeScore: true,
       threshold: 0.3,
-    })
+      ignoreLocation: true,
+      keys: [
+        { name: "name", weight: 0.7 },
+        { name: "bio", weight: 0.3 },
+      ],
+    });
+
+    const userResults = userFuse
       .search(query)
+      .sort((a, b) => (a.score ?? 1) - (b.score ?? 1))
       .map((res) => res.item);
+
+    const allFilteredPosts =
+      isMealtime || mode === "area"
+        ? [...filteredRecipes, ...postFuzzyResults]
+        : postFuzzyResults;
 
     setFields({
-      allFilteredPosts: postResults,
+      allFilteredPosts,
       filteredUsers: userResults,
       postLoading: false,
     });

@@ -12,10 +12,12 @@ import CommunityContainer from "./community/container";
 import PostContainer from "./posts/container";
 
 export default function PostRouter() {
-  const { id, source } = useLocalSearchParams();
+  const { id, source, isFromMealPlan, communityId } = useLocalSearchParams();
   const { currentUserId } = useReduxSelectors();
   const dispatch = useDispatch<AppDispatch>();
   const [postType, setPostType] = useState<PostType | null>(null);
+
+  const fromMealPlan = isFromMealPlan === "true";
 
   useEffect(() => {
     if (typeof id !== "string") return;
@@ -52,7 +54,12 @@ export default function PostRouter() {
     <>
       <Stack.Screen options={{ headerShown: false }} />
       {["recipe", "tips", "discussion"].includes(postType) ? (
-        <PostContainer postId={id} postType={postType} />
+        <PostContainer
+          postId={id}
+          postType={postType}
+          isFromMealPlan={postType === "recipe" ? fromMealPlan : false}
+          communityId={communityId as string}
+        />
       ) : postType === "community" ? (
         <CommunityContainer communityId={id} />
       ) : (

@@ -30,7 +30,6 @@ const useSearchResultController = (allFilteredPosts: Post[]) => {
 
   const getFilteredPostsByTab = () => {
     if (!allFilteredPosts) return [];
-
     return allFilteredPosts.filter((post) => {
       switch (activeTab) {
         case "Recipes":

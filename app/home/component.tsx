@@ -35,42 +35,49 @@ export default function HomeComponent({
 }: Props) {
   const { activeTab, activeSuggestion, setFieldState } = home;
 
-  const renderSuggestionBar = () => (
-    <ScrollView
-      horizontal
-      showsHorizontalScrollIndicator={false}
-      style={styles.suggestContainer}
-    >
-      {suggestions.map((item) => {
-        const isActive = activeSuggestion === item;
-        return (
-          <Pressable
-            key={item}
-            onPress={() => setFieldState("activeSuggestion", item)}
-            className="px-5 py-1.5 mr-2.5 rounded-full"
-            style={{
-              backgroundColor: isActive
-                ? Colors.brand.primary
-                : Colors.surface.backgroundSoft,
-            }}
-          >
-            <Text
-              style={[
-                styles.suggestText,
-                {
-                  color: isActive
-                    ? Colors.brand.onPrimary
-                    : Colors.text.primary,
-                },
-              ]}
+  const renderSuggestionBar = () => {
+    const filteredSuggestions =
+      activeTab === "Follow"
+        ? suggestions.filter((s) => s !== "Communities")
+        : suggestions;
+
+    return (
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        style={styles.suggestContainer}
+      >
+        {filteredSuggestions.map((item) => {
+          const isActive = activeSuggestion === item;
+          return (
+            <Pressable
+              key={item}
+              onPress={() => setFieldState("activeSuggestion", item)}
+              className="px-5 py-1.5 mr-2.5 rounded-full"
+              style={{
+                backgroundColor: isActive
+                  ? Colors.brand.primary
+                  : Colors.surface.backgroundSoft,
+              }}
             >
-              {item}
-            </Text>
-          </Pressable>
-        );
-      })}
-    </ScrollView>
-  );
+              <Text
+                style={[
+                  styles.suggestText,
+                  {
+                    color: isActive
+                      ? Colors.brand.onPrimary
+                      : Colors.text.primary,
+                  },
+                ]}
+              >
+                {item}
+              </Text>
+            </Pressable>
+          );
+        })}
+      </ScrollView>
+    );
+  };
 
   return (
     <View style={styles.container}>
@@ -113,43 +120,42 @@ export default function HomeComponent({
         </View>
       </View>
 
-      {activeTab === "Explore" &&
-        (activeSuggestion === "Communities" ? (
-          <FlatList
-            data={filteredPosts}
-            keyExtractor={(item) => `${item.id}-${interactionVersion}`}
-            renderItem={({ item }) => (
-              <View className="p-2">
-                <PostCard post={item} />
-              </View>
-            )}
-            showsVerticalScrollIndicator={false}
-            refreshControl={
-              <RefreshControl
-                refreshing={!!refreshing}
-                onRefresh={onRefresh}
-                colors={[Colors.brand.primary]}
-                progressViewOffset={90}
-              />
-            }
-            ListHeaderComponent={renderSuggestionBar()}
-            ListEmptyComponent={
-              <View className="flex-row items-center justify-center mb-6 mt-6">
-                <View style={styles.divider} />
-                <Text style={styles.endText}>Nothing to show here</Text>
-                <View style={styles.divider} />
-              </View>
-            }
-          />
-        ) : (
-          <MasonryList
-            posts={filteredPosts}
-            interactionVersion={interactionVersion}
-            refreshing={refreshing}
-            onRefresh={onRefresh}
-            header={renderSuggestionBar()}
-          />
-        ))}
+      {activeSuggestion === "Communities" ? (
+        <FlatList
+          data={filteredPosts}
+          keyExtractor={(item) => `${item.id}-${interactionVersion}`}
+          renderItem={({ item }) => (
+            <View className="p-2">
+              <PostCard post={item} />
+            </View>
+          )}
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={!!refreshing}
+              onRefresh={onRefresh}
+              colors={[Colors.brand.primary]}
+              progressViewOffset={90}
+            />
+          }
+          ListHeaderComponent={renderSuggestionBar()}
+          ListEmptyComponent={
+            <View className="flex-row items-center justify-center mb-6 mt-6">
+              <View style={styles.divider} />
+              <Text style={styles.endText}>Nothing to show here</Text>
+              <View style={styles.divider} />
+            </View>
+          }
+        />
+      ) : (
+        <MasonryList
+          posts={filteredPosts}
+          interactionVersion={interactionVersion}
+          refreshing={refreshing}
+          onRefresh={onRefresh}
+          header={renderSuggestionBar()}
+        />
+      )}
     </View>
   );
 }

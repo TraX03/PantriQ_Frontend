@@ -111,4 +111,24 @@ export const styles = StyleSheet.create({
     fontSize: 10,
     color: Colors.text.disabled,
   },
+  mealPlanButton: {
+    backgroundColor: Colors.brand.primary,
+    height: "60%",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 10,
+    borderRadius: 5,
+    marginVertical: 20,
+  },
+  ratingButtonText: {
+    color: Colors.brand.onPrimary,
+    fontSize: 15,
+    fontFamily: "RobotoMedium",
+  },
+  fixedContainer: {
+    position: "absolute",
+    bottom: 50,
+    left: 20,
+    right: 20,
+  },
 });

@@ -301,7 +301,7 @@ export default function RecipeComponent({
           }
           style={styles.ratingButton}
         >
-          <Text style={styles.ratingButtonText}>
+          <Text style={postStyles.ratingButtonText}>
             {userReview ? "View Your Rating" : "Leave a Rating"}
           </Text>
         </Pressable>

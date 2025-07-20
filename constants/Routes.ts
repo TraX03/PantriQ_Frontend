@@ -7,6 +7,8 @@ export const Routes = {
   Search: "/search/container",
   Settings: "/profile/settings/container",
   History: "/profile/history/container",
+  CommunityList: "/profile/communityList/container",
+  Listing: "/planner/listing/container",
   EditProfile: "/profile/settings/editProfile/container",
   EditPreferencesForm: "/profile/settings/editPreferences/[key]",
   MealConfiguration: "/planner/mealConfig/container",
@@ -14,5 +16,6 @@ export const Routes = {
   Nutrition: "/content/posts/recipe/nutrition/container",
   Rating: "/content/posts/recipe/rating/container",
   ProfileTab: "/(tabs)/profile",
+  PlannerTab: "/(tabs)/planner",
   Home: "/",
 } as const;

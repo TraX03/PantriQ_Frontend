@@ -93,7 +93,7 @@ export default function TabLayout() {
         options={[
           {
             key: "recipe",
-            label: "Create new recipe",
+            label: "Create New Recipe",
             onPress: () => {
               setShowModal(false);
               router.push({
@@ -104,7 +104,7 @@ export default function TabLayout() {
           },
           {
             key: "tips",
-            label: "Create new post",
+            label: "Create New Post",
             onPress: () => {
               setShowModal(false);
               router.push({
@@ -115,7 +115,7 @@ export default function TabLayout() {
           },
           {
             key: "community",
-            label: "Create new community",
+            label: "Create New Community",
             onPress: () => {
               setShowModal(false);
               router.push({
