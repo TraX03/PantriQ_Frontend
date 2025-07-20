@@ -5,7 +5,7 @@ import ListingComponent from "./component";
 import useListingController from "./controller";
 
 export default function ListingContainer() {
-  const { type, communityId } = useLocalSearchParams();
+  const { type, communityId, mealtime } = useLocalSearchParams();
   const { currentUserId, interactionVersion } = useReduxSelectors();
   const {
     listing,
@@ -33,6 +33,7 @@ export default function ListingContainer() {
   return (
     <ListingComponent
       type={type as string}
+      mealtime={mealtime as string}
       communityId={communityId as string}
       listing={listing}
       interactionVersion={interactionVersion}

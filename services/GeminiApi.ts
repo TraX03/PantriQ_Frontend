@@ -1,4 +1,7 @@
-import { CreateFormState } from "@/app/create/createForm/controller";
+import {
+  CreateFormState,
+  Ingredient,
+} from "@/app/create/createForm/controller";
 import { ApiConfig } from "@/constants/ApiConfig";
 import { GoogleGenAI } from "@google/genai";
 
@@ -203,6 +206,112 @@ Rules:
     return Array.isArray(parsed) ? parsed : [];
   } catch (err) {
     console.error(`Substitute lookup failed for "${ingredientName}"`, err);
+    return [];
+  }
+}
+
+export async function adjustIngredientsByServing(
+  recipeTitle: string,
+  userServings: number,
+  ingredients: Ingredient[]
+): Promise<{ name: string; quantity: string }[]> {
+  const prompt = `
+You are a professional recipe scaler.
+
+Given the following recipe title and ingredients, first estimate how many people the recipe is intended to serve based on standard serving sizes. Then, adjust all ingredient quantities to serve ${userServings} people.
+
+Recipe Title: ${recipeTitle}
+
+Ingredients:
+${ingredients.map((i) => `- ${i.name}: ${i.quantity}`).join("\n")}
+
+Instructions:
+- Estimate the original serving size based on typical recipe norms.
+- Scale all quantities proportionally to match ${userServings} servings.
+- Use the exact ingredient names provided — do not reword or rename them.
+- Output a clean JSON array of adjusted ingredients like this:
+[
+  { "name": "ingredient", "quantity": "quantity with unit" }
+]
+- Leave quantities like "a pinch", "to taste", or "optional" unchanged.
+- Do NOT include explanation or comments. Return only the JSON.
+`;
+
+  try {
+    const raw = await callGeminiStructured({
+      prompt,
+      systemInstruction:
+        "You are a professional chef trained in recipe scaling and unit handling.",
+    });
+
+    const cleaned = raw
+      .replace(/```json/g, "")
+      .replace(/```/g, "")
+      .trim();
+    return JSON.parse(cleaned);
+  } catch (err) {
+    console.error("Failed to scale ingredients:", err);
+    return ingredients;
+  }
+}
+
+export async function finalizeShoppingList(
+  allRecipeIngredients: { name: string; quantity?: string }[],
+  userInventory: { name: string; quantity?: number[] }[],
+  userShoppingList: { name: string; quantity?: number[] }[]
+): Promise<{ name: string; quantity: number }[]> {
+  const prompt = `
+A user is cooking several recipes. Below are the total ingredients needed:
+${JSON.stringify(allRecipeIngredients)}
+
+Here's what the user already has in their kitchen:
+${JSON.stringify(userInventory)}
+
+Here's what's already in their shopping list:
+${JSON.stringify(userShoppingList)}
+
+Rules:
+- Compare ingredient names (case-insensitive).
+- For each ingredient, combine the quantities from the **inventory** and the **shopping list**.
+- Use rough human-level judgement to estimate quantity units (e.g. 1 tbsp ≈ 15g, 1 tsp ≈ 5g, 1 clove garlic ≈ 5g).
+- If the **combined amount** is enough to cover the recipe → skip it.
+- If it's still not enough → add the ingredient to the shopping list again.
+- If it's completely missing from both → add it.
+
+The output should be a clean JSON array:
+[
+  { "name": "ingredient name", "quantity": 1 }
+]
+
+Use quantity = 1 for everything — like a person buying 1 unit/packet.
+
+Only return valid JSON. Do not explain.
+`;
+
+  try {
+    const raw = await callGeminiStructured({
+      prompt,
+      systemInstruction:
+        "You're a kitchen assistant creating efficient shopping lists.",
+    });
+
+    const cleaned = raw
+      .replace(/```json/g, "")
+      .replace(/```/g, "")
+      .trim();
+    const parsed = JSON.parse(cleaned);
+    if (Array.isArray(parsed)) {
+      return parsed.filter(
+        (item) =>
+          typeof item.name === "string" &&
+          typeof item.quantity === "number" &&
+          item.quantity > 0
+      );
+    }
+
+    return [];
+  } catch (err) {
+    console.error("Gemini failed to generate shopping list:", err);
     return [];
   }
 }

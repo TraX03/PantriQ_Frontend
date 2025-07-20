@@ -27,7 +27,8 @@ interface BasePost {
   author: string;
   authorId: string;
   images: string[];
-  commentCount: number;
+  likesCount: number;
+  bookmarksCount: number;
   description: string;
   createdAt: string;
 }
@@ -111,7 +112,8 @@ export const usePostController = (
         author: usersMap.get(doc.author_id)?.username ?? "Unknown",
         authorId: doc.author_id,
         images: Array.isArray(doc.image) ? doc.image.map(getImageUrl) : [],
-        commentCount: doc.comments_count ?? 0,
+        likesCount: doc.likes_count ?? 0,
+        bookmarksCount: doc.bookmarks_count ?? 0,
         description: type === "recipe" ? doc.description : doc.content,
         createdAt: doc.$createdAt,
       };

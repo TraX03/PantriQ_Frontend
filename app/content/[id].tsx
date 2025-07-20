@@ -12,7 +12,8 @@ import CommunityContainer from "./community/container";
 import PostContainer from "./posts/container";
 
 export default function PostRouter() {
-  const { id, source, isFromMealPlan, communityId } = useLocalSearchParams();
+  const { id, source, isFromMealPlan, communityId, mealtime } =
+    useLocalSearchParams();
   const { currentUserId } = useReduxSelectors();
   const dispatch = useDispatch<AppDispatch>();
   const [postType, setPostType] = useState<PostType | null>(null);
@@ -58,6 +59,7 @@ export default function PostRouter() {
           postId={id}
           postType={postType}
           isFromMealPlan={postType === "recipe" ? fromMealPlan : false}
+          mealtime={mealtime as string}
           communityId={communityId as string}
         />
       ) : postType === "community" ? (

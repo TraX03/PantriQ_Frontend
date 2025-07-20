@@ -13,6 +13,7 @@ interface MasonryListProps {
   source?: string;
   isFromMealPlan?: boolean;
   communityId?: string;
+  mealtime?: string;
 }
 
 const MasonryList = ({
@@ -24,6 +25,7 @@ const MasonryList = ({
   source,
   isFromMealPlan,
   communityId,
+  mealtime,
 }: MasonryListProps) => {
   const leftColumn = posts.filter((_, index) => index % 2 === 0);
   const rightColumn = posts.filter((_, index) => index % 2 === 1);
@@ -34,6 +36,7 @@ const MasonryList = ({
       source={source}
       isFromMealPlan={isFromMealPlan}
       communityId={communityId}
+      mealtime={mealtime}
     />
   );
 

@@ -37,7 +37,10 @@ type Props = {
   postType: PostType;
   handleAuthorPress: (postAuthorId: string) => void;
   isFromMealPlan?: boolean;
-  addRecipeToMealPlan: ((recipe: Meal["recipes"][0]) => void) | undefined;
+  addRecipeToMealPlan:
+    | ((recipe: Meal["recipes"][0], mealtime: string) => Promise<void>)
+    | undefined;
+  mealtime?: string;
   communityId?: string;
   assignRecipeToCommunity:
     | ((recipeId: string, communityId: string) => Promise<void>)
@@ -55,6 +58,7 @@ export default function PostComponent({
   communityId,
   assignRecipeToCommunity,
   currentUserId,
+  mealtime,
 }: Props) {
   const {
     postData,
@@ -179,11 +183,7 @@ export default function PostComponent({
         </Pressable>
       </View>
       <Text style={styles.statsText}>
-        {recipeData
-          ? `${recipeData.rating?.toFixed(1)} Rating | ${
-              recipeData.commentCount
-            } Comment`
-          : `${postData.commentCount} Comment`}
+        {`${postData.likesCount} Likes | ${postData.bookmarksCount} Saves`}
       </Text>
     </View>
   );
@@ -296,11 +296,14 @@ export default function PostComponent({
               <Pressable
                 onPress={() => {
                   if (isFromMealPlan && addRecipeToMealPlan && recipeData) {
-                    addRecipeToMealPlan({
-                      id: recipeData.id,
-                      name: recipeData.title,
-                      image: recipeData.images[0],
-                    });
+                    addRecipeToMealPlan(
+                      {
+                        id: recipeData.id,
+                        name: recipeData.title,
+                        image: recipeData.images[0],
+                      },
+                      mealtime!
+                    );
                   } else if (
                     communityId &&
                     assignRecipeToCommunity &&

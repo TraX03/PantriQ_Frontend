@@ -82,17 +82,17 @@ export const useMealConfigController = () => {
     },
   });
 
-  const { setFieldState, meal_config, expandedSections } = config;
+  const { setFieldState, meal_config, expandedSections, servings } = config;
 
   const loadInitialConfig = async () => {
     try {
       const user = await getCurrentUser();
-
       const doc = await getDocumentById(
         AppwriteConfig.USERS_COLLECTION_ID,
         user.$id
       );
 
+      setFieldState("servings", doc.servings);
       const savedConfig = doc.meal_config;
 
       if (savedConfig) {
@@ -185,6 +185,7 @@ export const useMealConfigController = () => {
       const user = await getCurrentUser();
       await updateDocument(AppwriteConfig.USERS_COLLECTION_ID, user.$id, {
         meal_config: JSON.stringify(meal_config),
+        servings,
       });
       Toast.show({
         type: "success",

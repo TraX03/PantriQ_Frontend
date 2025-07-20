@@ -4,6 +4,7 @@ import { useFieldState } from "@/hooks/useFieldState";
 import {
   createDocument,
   getCurrentUser,
+  getDocumentById,
   listDocuments,
   updateDocument,
 } from "@/services/Appwrite";
@@ -19,7 +20,9 @@ import {
   startOfDay,
 } from "date-fns";
 import { router } from "expo-router";
+import { Alert } from "react-native";
 import { ID, Permission, Query, Role } from "react-native-appwrite";
+import Toast from "react-native-toast-message";
 
 export const availableMealtimes = [
   {
@@ -76,6 +79,7 @@ export interface PlannerState {
   showRegenerateButton: boolean;
   showDeleteButton: boolean;
   showAddOptionModal: boolean;
+  showAddButton: boolean;
 }
 
 const today = startOfDay(new Date());
@@ -97,6 +101,7 @@ export const usePlannerController = () => {
     showRegenerateButton: false,
     showDeleteButton: false,
     showAddOptionModal: false,
+    showAddButton: false,
   });
 
   const { selectedDate, mealsByDate, setFieldState } = planner;
@@ -411,7 +416,10 @@ export const usePlannerController = () => {
     }
   };
 
-  const addRecipeToMealPlan = async (recipe: Meal["recipes"][0]) => {
+  const addRecipeToMealPlan = async (
+    recipe: Meal["recipes"][0],
+    mealtime: string
+  ) => {
     try {
       const user = await getCurrentUser();
       const isoDate = selectedDate.toISOString().split("T")[0];
@@ -430,12 +438,9 @@ export const usePlannerController = () => {
         existingMeals = existingDoc.meals.map((m: string) => JSON.parse(m));
       }
 
-      const fallbackMealtime =
-        availableMealtimes.find((m) => m.id !== "all")?.id || "breakfast";
-
       const updatedMeals = [...existingMeals];
       const targetMealIndex = updatedMeals.findIndex(
-        (meal) => meal.mealtime === fallbackMealtime
+        (meal) => meal.mealtime === mealtime
       );
 
       if (targetMealIndex > -1) {
@@ -452,7 +457,7 @@ export const usePlannerController = () => {
         }
       } else {
         updatedMeals.push({
-          mealtime: fallbackMealtime,
+          mealtime,
           recipes: [recipe],
         });
       }
@@ -504,6 +509,86 @@ export const usePlannerController = () => {
     }
   };
 
+  const addMealToInventory = async (mealtime: string, recipeId?: string) => {
+    if (!mealtime) return;
+
+    try {
+      const user = await getCurrentUser();
+      const userDoc = await getDocumentById(
+        AppwriteConfig.USERS_COLLECTION_ID,
+        user.$id
+      );
+
+      const meals = getCachedMealsForDate(selectedDate);
+      const selected = meals.find((m) => m.mealtime === mealtime);
+      if (!selected) return;
+
+      let recipesToAdd;
+
+      if (recipeId) {
+        const recipe = selected.recipes.find((r) => r.id === recipeId);
+        if (!recipe) return;
+        recipesToAdd = [recipe];
+      } else {
+        recipesToAdd = selected.recipes;
+      }
+
+      const existingIds = userDoc.inventory_recipes || [];
+      const recipeIds = recipesToAdd.map((r) => r.id);
+      const duplicates = recipesToAdd.filter((r) => existingIds.includes(r.id));
+
+      if (duplicates.length > 0) {
+        const duplicateNames = duplicates.map((r) => `• ${r.name}`).join("\n");
+
+        Alert.alert(
+          "Recipes Already in Inventory",
+          `These recipes are already in your inventory:\n\n${duplicateNames}\n\nDo you want to add them again?`,
+          [
+            { text: "Cancel", style: "cancel" },
+            {
+              text: "Add Anyway",
+              style: "default",
+              onPress: async () => {
+                await addRecipesToInventory(user.$id, recipeIds);
+                Toast.show({
+                  type: "success",
+                  text1: recipeId
+                    ? "Recipe added to inventory."
+                    : "Mealtime added to inventory.",
+                });
+              },
+            },
+          ]
+        );
+      } else {
+        await addRecipesToInventory(user.$id, recipeIds);
+        Toast.show({
+          type: "success",
+          text1: recipeId
+            ? "Recipe added to inventory."
+            : "Mealtime added to inventory.",
+        });
+      }
+    } catch (e) {
+      console.error("Error adding meal to inventory:", e);
+    }
+  };
+
+  const addRecipesToInventory = async (userId: string, recipeIds: string[]) => {
+    const userDoc = await getDocumentById(
+      AppwriteConfig.USERS_COLLECTION_ID,
+      userId
+    );
+    if (!userDoc) return;
+
+    const currentInventory = userDoc.inventory_recipes || [];
+    const updated = Array.from(new Set([...currentInventory, ...recipeIds]));
+
+    await updateDocument(AppwriteConfig.USERS_COLLECTION_ID, userId, {
+      inventory_recipes: updated,
+    });
+  };
+
   return {
     date: { minDate, weekStart },
     planner,
@@ -514,6 +599,7 @@ export const usePlannerController = () => {
       getCachedMealsForDate,
       addMealtime,
       deleteFromMealplan,
+      addMealToInventory,
     },
     addRecipeToMealPlan,
   };

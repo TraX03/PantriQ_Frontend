@@ -1,9 +1,18 @@
+import { Ingredient } from "@/app/create/createForm/controller";
 import { AppwriteConfig } from "@/constants/AppwriteConfig";
 import { useFieldState } from "@/hooks/useFieldState";
-import { fetchAllDocuments } from "@/services/Appwrite";
-import { getIngredientSubstitutes } from "@/services/GeminiApi";
+import {
+  fetchAllDocuments,
+  getCurrentUser,
+  getDocumentById,
+} from "@/services/Appwrite";
+import {
+  adjustIngredientsByServing,
+  getIngredientSubstitutes,
+} from "@/services/GeminiApi";
 import { fetchUsers } from "@/utility/userCacheUtils";
 import { Query } from "react-native-appwrite";
+import { RecipePost } from "../controller";
 
 export type Review = {
   score: number;
@@ -25,6 +34,9 @@ export interface RecipeState {
   ingredientSubstitutes: string[];
   selectedIngredient: string;
   showLoading: boolean;
+  showCustomQty: boolean;
+  showServeLoading: boolean;
+  customIngredients: Ingredient[];
 }
 
 export const useRecipeController = () => {
@@ -37,6 +49,9 @@ export const useRecipeController = () => {
     ingredientSubstitutes: [],
     selectedIngredient: "",
     showLoading: false,
+    showCustomQty: false,
+    showServeLoading: false,
+    customIngredients: [],
   });
 
   const { setFieldState, setFields } = recipe;
@@ -119,11 +134,36 @@ export const useRecipeController = () => {
     }
   };
 
+  const getCustomServings = async (recipeData: RecipePost) => {
+    setFieldState("showServeLoading", true);
+
+    try {
+      const user = await getCurrentUser();
+      const userDoc = await getDocumentById(
+        AppwriteConfig.USERS_COLLECTION_ID,
+        user.$id
+      );
+
+      const adjustedIngredients = await adjustIngredientsByServing(
+        recipeData.title,
+        userDoc.servings,
+        recipeData.ingredients
+      );
+
+      setFieldState("customIngredients", adjustedIngredients);
+    } catch (err) {
+      console.error("Failed to get adjusted ingredients by servings:", err);
+    } finally {
+      setFieldState("showServeLoading", false);
+    }
+  };
+
   return {
     recipe,
     getNutritionEntry,
     getRecipeRatings,
     handleIngredientPress,
+    getCustomServings,
   };
 };
 

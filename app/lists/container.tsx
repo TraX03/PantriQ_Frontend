@@ -7,7 +7,7 @@ import useListsController from "./controller";
 
 export default function ListsContainer() {
   const { isLoggedIn } = useReduxSelectors();
-  const { lists, actions } = useListsController();
+  const { lists, actions, init } = useListsController();
   const { checkedItems, uncheckedItems, expiredItems } = useSplitInventoryItems(
     lists.items,
     lists.activeTab
@@ -19,12 +19,18 @@ export default function ListsContainer() {
 
   useEffect(() => {
     if (!isLoggedIn) return;
+    const runInit = async () => {
+      await init();
+    };
+    runInit();
+  }, [lists.activeTab]);
 
-    const fetchAndPrepare = async () => {
+  useEffect(() => {
+    if (!isLoggedIn) return;
+    const runLoadItems = async () => {
       await actions.loadItems();
     };
-
-    fetchAndPrepare();
+    runLoadItems();
   }, [isLoggedIn, lists.showInventoryModal, lists.currentStepIndex]);
 
   return (

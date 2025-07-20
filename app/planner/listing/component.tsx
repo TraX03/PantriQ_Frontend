@@ -25,6 +25,7 @@ type Props = {
   communityId?: string;
   handleListingSearch: (type: string, query: string) => void;
   resetSearchResults: (type: string) => void;
+  mealtime?: string;
 };
 
 export default function ListingComponent({
@@ -34,6 +35,7 @@ export default function ListingComponent({
   communityId,
   handleListingSearch,
   resetSearchResults,
+  mealtime,
 }: Props) {
   const title = type === "created" ? "Your Posts" : "Likes, Bookmarks & Views";
   const {
@@ -131,6 +133,7 @@ export default function ListingComponent({
                   interactionVersion={interactionVersion}
                   isFromMealPlan={!communityId}
                   communityId={communityId}
+                  mealtime={mealtime}
                 />
               </View>
             </>

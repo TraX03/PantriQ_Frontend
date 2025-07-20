@@ -6,9 +6,13 @@ import {
   deleteDocument,
   fetchAllDocuments,
   getCurrentUser,
+  getDocumentById,
   updateDocument,
 } from "@/services/Appwrite";
-import { predictExpiryDateTime } from "@/services/GeminiApi";
+import {
+  finalizeShoppingList,
+  predictExpiryDateTime,
+} from "@/services/GeminiApi";
 import { Alert } from "react-native";
 import { Query } from "react-native-appwrite";
 import { LIST_TABS } from "./component";
@@ -68,6 +72,7 @@ export interface ListsState {
   keyboardVisible: boolean;
   isEditing: boolean;
   showLoading: boolean;
+  showSyncLoading: boolean;
 }
 
 export const useListsController = () => {
@@ -86,9 +91,41 @@ export const useListsController = () => {
     keyboardVisible: false,
     isEditing: false,
     showLoading: false,
+    showSyncLoading: false,
   });
 
   const { setFieldState, activeTab, items, setFields } = lists;
+
+  const init = async () => {
+    try {
+      const user = await getCurrentUser();
+      const userDoc = await getDocumentById(
+        AppwriteConfig.USERS_COLLECTION_ID,
+        user.$id
+      );
+      const inventoryRecipes: string[] = userDoc.inventory_recipes ?? [];
+
+      if (inventoryRecipes.length > 0) {
+        Alert.alert(
+          "Sync Shopping List",
+          `You've added ${inventoryRecipes.length} meal${
+            inventoryRecipes.length > 1 ? "s" : ""
+          } to your lists. Would you like to sync your shopping list now?`,
+          [
+            { text: "Not now", style: "cancel" },
+            {
+              text: "Sync",
+              onPress: () => {
+                syncInventoryRecipesToShoppingList(inventoryRecipes);
+              },
+            },
+          ]
+        );
+      }
+    } catch (err) {
+      console.error("Failed to run init check:", err);
+    }
+  };
 
   const loadItems = async () => {
     try {
@@ -733,7 +770,99 @@ export const useListsController = () => {
     }
   };
 
+  const syncInventoryRecipesToShoppingList = async (
+    inventoryRecipes: string[]
+  ) => {
+    try {
+      const user = await getCurrentUser();
+      setFieldState("showSyncLoading", true);
+      const allIngredients: {
+        name: string;
+        quantity: string;
+      }[] = [];
+
+      for (const recipeId of inventoryRecipes) {
+        const recipeDoc = await getDocumentById(
+          AppwriteConfig.RECIPES_COLLECTION_ID,
+          recipeId
+        );
+
+        const ingredientsRaw: string[] = recipeDoc.ingredients ?? [];
+
+        const parsed = ingredientsRaw
+          .map((i) => {
+            try {
+              const ing = JSON.parse(i);
+              return {
+                name: ing.name?.toLowerCase()?.split(" or ")[0]?.trim() ?? "",
+                quantity: ing.quantity?.trim() ?? "",
+              };
+            } catch (err) {
+              console.warn("⚠️ Failed to parse ingredient:", i);
+              return null;
+            }
+          })
+          .filter(Boolean) as { name: string; quantity: string }[];
+
+        allIngredients.push(...parsed);
+      }
+
+      const inventoryResponse = await fetchAllDocuments(
+        AppwriteConfig.LISTS_COLLECTION_ID,
+        [Query.equal("user_id", user.$id), Query.equal("type", "inventory")]
+      );
+
+      const userInventory: {
+        name: string;
+        quantity?: number[];
+      }[] = inventoryResponse.map((doc) => ({
+        name: doc.name?.toLowerCase()?.trim() ?? "",
+        quantity: doc.quantity ?? [],
+      }));
+
+      const shoppingListResponse = await fetchAllDocuments(
+        AppwriteConfig.LISTS_COLLECTION_ID,
+        [Query.equal("user_id", user.$id), Query.equal("type", "shopping")]
+      );
+
+      const userShoppingList: {
+        name: string;
+        quantity?: number[];
+      }[] = shoppingListResponse.map((doc) => ({
+        name: doc.name?.toLowerCase()?.trim() ?? "",
+        quantity: doc.quantity ?? [],
+      }));
+
+      const finalShoppingItems = await finalizeShoppingList(
+        allIngredients,
+        userInventory,
+        userShoppingList
+      );
+
+      for (const item of finalShoppingItems) {
+        await createDocument(AppwriteConfig.LISTS_COLLECTION_ID, {
+          user_id: user.$id,
+          type: "shopping",
+          name: item.name,
+          created_at: new Date().toISOString(),
+          quantity: [item.quantity],
+        });
+      }
+
+      await updateDocument(AppwriteConfig.USERS_COLLECTION_ID, user.$id, {
+        inventory_recipes: [],
+      });
+
+      loadItems();
+    } catch (err) {
+      console.error("❌ Failed to sync recipes to shopping list:", err);
+    } finally {
+      setFieldState("showSyncLoading", false);
+    }
+  };
+
   return {
+    init,
     lists,
     actions: {
       addItemToList,

@@ -10,7 +10,14 @@ import { styles } from "@/utility/lists/styles";
 import { styles as onboardingStyles } from "@/utility/onboarding/styles";
 import { styles as plannerStyles } from "@/utility/planner/styles";
 import React from "react";
-import { Modal, Pressable, ScrollView, Text, View } from "react-native";
+import {
+  ActivityIndicator,
+  Modal,
+  Pressable,
+  ScrollView,
+  Text,
+  View,
+} from "react-native";
 import AmountModalContainer from "./amountModal/container";
 import { ListItem, ListsState } from "./controller";
 import InventoryModalContainer from "./inventoryModal/container";
@@ -53,6 +60,7 @@ export default function ListsComponent({ lists, actions, listData }: Props) {
     showAmountModal,
     keyboardVisible,
     isEditing,
+    showSyncLoading,
   } = lists;
 
   const {
@@ -332,7 +340,9 @@ export default function ListsComponent({ lists, actions, listData }: Props) {
           </View>
 
           <View className="px-4 mt-4">
-            {uncheckedItems.length === 0 ? (
+            {showSyncLoading && activeTab === "shopping" ? (
+              <ActivityIndicator size="large" color={Colors.brand.primary} />
+            ) : uncheckedItems.length === 0 ? (
               <Pressable
                 onPress={() =>
                   setFieldState(

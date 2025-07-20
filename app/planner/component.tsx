@@ -34,6 +34,7 @@ type DateInfo = {
 type Props = {
   planner: ReturnType<typeof useFieldState<PlannerState>>;
   date: DateInfo;
+  fetchMealsForDate: (date: Date) => Promise<void>;
   actions: {
     generateMeals: (
       mealtimes: string[],
@@ -44,10 +45,16 @@ type Props = {
     getCachedMealsForDate: (date: Date) => Meal[];
     addMealtime: (mealtime: string) => void;
     deleteFromMealplan: (mealtime: string, recipeId?: string) => Promise<void>;
+    addMealToInventory: (mealtime: string, recipeId?: string) => Promise<void>;
   };
 };
 
-export default function PlannerComponent({ planner, date, actions }: Props) {
+export default function PlannerComponent({
+  planner,
+  date,
+  actions,
+  fetchMealsForDate,
+}: Props) {
   const scrollRef = useRef<ScrollView>(null);
   const {
     selectedDate,
@@ -62,6 +69,7 @@ export default function PlannerComponent({ planner, date, actions }: Props) {
     showRegenerateButton,
     showDeleteButton,
     showAddOptionModal,
+    showAddButton,
   } = planner;
   const {
     generateMeals,
@@ -69,6 +77,7 @@ export default function PlannerComponent({ planner, date, actions }: Props) {
     getCachedMealsForDate,
     addMealtime,
     deleteFromMealplan,
+    addMealToInventory,
   } = actions;
   const { weekStart, minDate } = date;
 
@@ -101,10 +110,25 @@ export default function PlannerComponent({ planner, date, actions }: Props) {
         onClose={() => setFieldState("showSettingModal", false)}
         options={[
           {
+            label: "Add Dish to Lists",
+            action: () =>
+              setFields({
+                showRegenerateButton: false,
+                showDeleteButton: false,
+                showAddButton: true,
+              }),
+          },
+          {
+            label: "Add Whole Mealtime to Lists",
+            action: () =>
+              selectedMealtime && addMealToInventory(selectedMealtime),
+          },
+          {
             label: "Regenerate Dish",
             action: () =>
               setFields({
                 showDeleteButton: false,
+                showAddButton: false,
                 showRegenerateButton: true,
               }),
           },
@@ -120,6 +144,7 @@ export default function PlannerComponent({ planner, date, actions }: Props) {
             action: () =>
               setFields({
                 showRegenerateButton: false,
+                showAddButton: false,
                 showDeleteButton: true,
               }),
           },
@@ -141,7 +166,7 @@ export default function PlannerComponent({ planner, date, actions }: Props) {
             action: () =>
               router.push({
                 pathname: Routes.Listing,
-                params: { type: "created" },
+                params: { type: "created", mealtime: selectedMealtime },
               }),
           },
           {
@@ -149,7 +174,7 @@ export default function PlannerComponent({ planner, date, actions }: Props) {
             action: () =>
               router.push({
                 pathname: Routes.Listing,
-                params: { type: "interactions" },
+                params: { type: "interactions", mealtime: selectedMealtime },
               }),
           },
           {
@@ -157,7 +182,7 @@ export default function PlannerComponent({ planner, date, actions }: Props) {
             action: () =>
               router.push({
                 pathname: Routes.Search,
-                params: { isFromMealPlan: "true" },
+                params: { isFromMealPlan: "true", mealtime: selectedMealtime },
               }),
           },
         ]}
@@ -170,8 +195,10 @@ export default function PlannerComponent({ planner, date, actions }: Props) {
             <View className="flex-row items-center gap-2">
               <Pressable
                 onPress={() => {
-                  setFieldState("selectedDate", new Date());
+                  const today = new Date();
+                  setFieldState("selectedDate", today);
                   scrollRef.current?.scrollTo({ y: 0, animated: true });
+                  fetchMealsForDate(today);
                 }}
               >
                 <IconSymbol
@@ -360,20 +387,29 @@ export default function PlannerComponent({ planner, date, actions }: Props) {
                                 </Text>
                               </View>
 
-                              {(showRegenerateButton || showDeleteButton) &&
+                              {(showRegenerateButton ||
+                                showDeleteButton ||
+                                showAddButton) &&
                                 isSelectedMealtime && (
                                   <Pressable
                                     onPress={() => {
-                                      showDeleteButton
-                                        ? deleteFromMealplan(
-                                            meal.mealtime,
-                                            recipe.id
-                                          )
-                                        : generateMeals(
-                                            [meal.mealtime],
-                                            recipe.id,
-                                            true
-                                          );
+                                      if (showDeleteButton) {
+                                        deleteFromMealplan(
+                                          meal.mealtime,
+                                          recipe.id
+                                        );
+                                      } else if (showRegenerateButton) {
+                                        generateMeals(
+                                          [meal.mealtime],
+                                          recipe.id,
+                                          true
+                                        );
+                                      } else if (showAddButton) {
+                                        addMealToInventory(
+                                          meal.mealtime,
+                                          recipe.id
+                                        );
+                                      }
                                     }}
                                     style={styles.button}
                                   >
@@ -381,6 +417,8 @@ export default function PlannerComponent({ planner, date, actions }: Props) {
                                       name={
                                         showDeleteButton
                                           ? "trash"
+                                          : showAddButton
+                                          ? "plus"
                                           : "arrow.clockwise.circle"
                                       }
                                       color={Colors.brand.onPrimary}
@@ -392,9 +430,12 @@ export default function PlannerComponent({ planner, date, actions }: Props) {
                           ))}
 
                           <TouchableOpacity
-                            onPress={() =>
-                              setFieldState("showAddOptionModal", true)
-                            }
+                            onPress={() => {
+                              setFields({
+                                selectedMealtime: meal.mealtime,
+                                showAddOptionModal: true,
+                              });
+                            }}
                             style={styles.addMealButton}
                           >
                             <IconSymbol
@@ -429,10 +470,11 @@ export default function PlannerComponent({ planner, date, actions }: Props) {
           testID="planner-generate-button"
           disabled={generateLoading}
           onPress={() => {
-            if (showRegenerateButton || showDeleteButton) {
+            if (showRegenerateButton || showDeleteButton || showAddButton) {
               setFields({
                 showDeleteButton: false,
                 showRegenerateButton: false,
+                showAddButton: false,
               });
               return;
             }
@@ -459,7 +501,7 @@ export default function PlannerComponent({ planner, date, actions }: Props) {
               loop
               style={{ width: 120, height: 120 }}
             />
-          ) : showRegenerateButton || showDeleteButton ? (
+          ) : showRegenerateButton || showDeleteButton || showAddButton ? (
             <Text style={[styles.generateText, { fontSize: 15 }]}>Cancel</Text>
           ) : (
             <>

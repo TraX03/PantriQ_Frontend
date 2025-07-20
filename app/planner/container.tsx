@@ -47,6 +47,7 @@ export default function PlannerContainer() {
   return (
     <PlannerComponent
       planner={planner}
+      fetchMealsForDate={fetchMealsForDate}
       date={{ weekStart, minDate }}
       actions={actions}
     />

@@ -15,6 +15,7 @@ type Props = {
   postType: PostType;
   isFromMealPlan?: boolean;
   communityId?: string;
+  mealtime?: string;
 };
 
 export default function PostContainer({
@@ -22,6 +23,7 @@ export default function PostContainer({
   postType,
   isFromMealPlan,
   communityId,
+  mealtime,
 }: Props) {
   const dispatch = useDispatch<AppDispatch>();
   const { interactionRecords, currentUserId } = useReduxSelectors();
@@ -66,6 +68,7 @@ export default function PostContainer({
       isFromMealPlan={isFromMealPlan}
       addRecipeToMealPlan={addRecipeToMealPlan}
       communityId={communityId}
+      mealtime={mealtime}
       assignRecipeToCommunity={assignRecipeToCommunity}
     />
   );

@@ -37,6 +37,7 @@ type Props = {
   };
   currentUserId: string | undefined;
   handleIngredientPress: (ingredientName: string) => Promise<void>;
+  getCustomServings: (recipeData: RecipePost) => Promise<void>;
 };
 
 export default function RecipeComponent({
@@ -46,6 +47,7 @@ export default function RecipeComponent({
   getNutritionEntry,
   currentUserId,
   handleIngredientPress,
+  getCustomServings,
 }: Props) {
   const { postData } = post;
   const {
@@ -57,6 +59,9 @@ export default function RecipeComponent({
     selectedIngredient,
     showLoading,
     showSubstituteModal,
+    showCustomQty,
+    customIngredients,
+    showServeLoading,
   } = recipe;
 
   const nutrients = {
@@ -177,31 +182,77 @@ export default function RecipeComponent({
           { borderBottomLeftRadius: 25, borderBottomRightRadius: 25 },
         ]}
       >
-        <Text style={postStyles.sectionTitle}>Ingredients</Text>
+        <View className="flex-row justify-between mb-2 items-center">
+          <Text style={postStyles.sectionTitle}>Ingredients</Text>
+          <Pressable
+            onPress={() => {
+              setFieldState("showCustomQty", !showCustomQty);
+              if (!customIngredients || customIngredients.length === 0) {
+                getCustomServings(recipeData);
+              }
+            }}
+          >
+            <Text
+              className="text-base"
+              style={{
+                color: showCustomQty
+                  ? Colors.feedback.success
+                  : Colors.feedback.unknown,
+              }}
+            >
+              Custom Qty
+            </Text>
+          </Pressable>
+        </View>
 
         <View
           style={!expanded ? { maxHeight: 150, overflow: "hidden" } : undefined}
         >
-          {recipeData.ingredients.map(({ name, quantity, note }, index) => (
-            <View key={index} className="flex-col mb-4">
-              <View className="flex-row justify-between">
-                <TouchableOpacity onPress={() => handleIngredientPress(name)}>
-                  <View className="flex-row gap-2 items-center">
-                    <Text style={styles.ingredientName}>
-                      {capitalize(name)}
+          {showServeLoading ? (
+            <ActivityIndicator
+              size="large"
+              color={Colors.brand.primary}
+              className="my-4"
+            />
+          ) : (
+            (showCustomQty ? customIngredients : recipeData.ingredients).map(
+              ({ name, quantity, note }, index) => (
+                <View key={index} className="flex-col mb-4">
+                  <View className="flex-row justify-between">
+                    <TouchableOpacity
+                      onPress={() => handleIngredientPress(name)}
+                    >
+                      <View className="flex-row gap-2 items-center">
+                        <Text style={styles.ingredientName}>
+                          {capitalize(name)}
+                        </Text>
+                        <IconSymbol
+                          name="info.circle"
+                          color={Colors.brand.primary}
+                          size={15}
+                        />
+                      </View>
+                    </TouchableOpacity>
+                    <Text
+                      style={[
+                        styles.quantityName,
+                        {
+                          color: showCustomQty
+                            ? Colors.feedback.success
+                            : undefined,
+                        },
+                      ]}
+                    >
+                      {quantity}
                     </Text>
-                    <IconSymbol
-                      name="info.circle"
-                      color={Colors.brand.primary}
-                      size={15}
-                    />
                   </View>
-                </TouchableOpacity>
-                <Text style={styles.quantityName}>{quantity}</Text>
-              </View>
-              {note && <Text style={styles.noteText}>{capitalize(note)}</Text>}
-            </View>
-          ))}
+                  {note && (
+                    <Text style={styles.noteText}>{capitalize(note)}</Text>
+                  )}
+                </View>
+              )
+            )
+          )}
         </View>
 
         {recipeData.ingredients.length > 5 && (

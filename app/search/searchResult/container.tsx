@@ -10,6 +10,7 @@ interface Props {
   filteredUsers: User[];
   postLoading: boolean;
   isFromMealPlan: boolean;
+  mealtime?: string;
 }
 
 export default function SearchResultContainer({
@@ -17,6 +18,7 @@ export default function SearchResultContainer({
   filteredUsers,
   postLoading,
   isFromMealPlan,
+  mealtime,
 }: Props) {
   const { searchResult, getFilteredPostsByTab } =
     useSearchResultController(allFilteredPosts);
@@ -34,6 +36,7 @@ export default function SearchResultContainer({
       interactionVersion={interactionVersion}
       postLoading={postLoading}
       isFromMealPlan={isFromMealPlan}
+      mealtime={mealtime}
     />
   );
 }
