@@ -6,10 +6,11 @@ const selectAuth = (state: RootState) => state.auth;
 const selectInteraction = (state: RootState) => state.interaction;
 const selectProfile = (state: RootState) => state.profile;
 const selectLoading = (state: RootState) => state.loading;
+const selectMealplan = (state: RootState) => state.mealplan;
 
 const selectReduxData = createSelector(
-  [selectAuth, selectInteraction, selectProfile, selectLoading],
-  (auth, interaction, profile, loading) => ({
+  [selectAuth, selectInteraction, selectProfile, selectLoading, selectMealplan],
+  (auth, interaction, profile, loading, mealplan) => ({
     isLoggedIn: !!auth.user,
     user: auth.user,
     onboarded: auth.onboarded,
@@ -19,6 +20,7 @@ const selectReduxData = createSelector(
     currentUserProfile: profile.userData,
     refreshProfile: profile.refreshProfile,
     loading: loading.loading,
+    hasAddedInventory: mealplan.hasAddedInventory,
   })
 );
 

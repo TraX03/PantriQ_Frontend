@@ -11,13 +11,10 @@ if (__DEV__) {
 export default function HomeScreenRoute() {
   const router = useRouter();
   const { user, onboarded } = useReduxSelectors();
-
   useEffect(() => {
     if (user && onboarded === false) {
       router.replace(Routes.Onboarding);
     }
   }, [user, onboarded]);
-
   return <HomeContainer />;
-  // return <PostContainer postId={"6839590a00131f6c1021"} postType={"recipe"} />;
 }

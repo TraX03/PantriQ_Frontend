@@ -1,6 +1,8 @@
 import { AppwriteConfig } from "@/constants/AppwriteConfig";
 import { Routes } from "@/constants/Routes";
 import { useFieldState } from "@/hooks/useFieldState";
+import { setHasAddedInventory } from "@/redux/slices/mealplanSlice";
+import { AppDispatch } from "@/redux/store";
 import {
   createDocument,
   getCurrentUser,
@@ -12,6 +14,7 @@ import {
   fetchGeneratedMealPlan,
   logMealplanInventoryFeedback,
 } from "@/services/FastApi";
+import { startOfUTCDay } from "@/utility/dateUtils";
 import { getImageUrl } from "@/utility/imageUtils";
 import {
   addDays,
@@ -23,6 +26,7 @@ import { router } from "expo-router";
 import { Alert } from "react-native";
 import { ID, Permission, Query, Role } from "react-native-appwrite";
 import Toast from "react-native-toast-message";
+import { useDispatch } from "react-redux";
 
 export const availableMealtimes = [
   {
@@ -82,7 +86,8 @@ export interface PlannerState {
   showAddButton: boolean;
 }
 
-const today = startOfDay(new Date());
+const today = startOfUTCDay(new Date());
+console.warn(today);
 const minDate = addDays(today, -30);
 const clampDate = (date: Date) => (date < minDate ? minDate : date);
 const getWeekStart = (date: Date) =>
@@ -104,6 +109,7 @@ export const usePlannerController = () => {
     showAddButton: false,
   });
 
+  const dispatch = useDispatch<AppDispatch>();
   const { selectedDate, mealsByDate, setFieldState } = planner;
   const weekStart = getWeekStart(selectedDate);
   const dateKey = format(selectedDate, "yyyy-MM-dd");
@@ -587,6 +593,8 @@ export const usePlannerController = () => {
     await updateDocument(AppwriteConfig.USERS_COLLECTION_ID, userId, {
       inventory_recipes: updated,
     });
+
+    dispatch(setHasAddedInventory(true));
   };
 
   return {

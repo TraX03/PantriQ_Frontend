@@ -116,20 +116,21 @@ const useSearchController = () => {
           mealtimes.includes(query.toLowerCase()) || mealtimes.includes("all")
         );
       });
-    } else if (mode === "area") {
-      filteredRecipes = recipePosts.filter((post) => {
-        const area = post.area?.toLowerCase?.() ?? "";
-        return area.includes(query.toLowerCase());
-      });
     }
 
-    const fuzzyTargetPosts = isMealtime || mode === "area" ? otherPosts : posts;
+    const fuzzyTargetPosts = isMealtime ? otherPosts : posts;
 
     const postKeys =
       mode === "ingredient"
         ? [
             { name: "ingredients", weight: 1 },
             { name: "title", weight: 0.5 },
+          ]
+        : mode === "area"
+        ? [
+            { name: "area", weight: 1 },
+            { name: "title", weight: 0.3 },
+            { name: "description", weight: 0.1 },
           ]
         : [
             { name: "title", weight: 0.58 },
@@ -165,10 +166,9 @@ const useSearchController = () => {
       .sort((a, b) => (a.score ?? 1) - (b.score ?? 1))
       .map((res) => res.item);
 
-    const allFilteredPosts =
-      isMealtime || mode === "area"
-        ? [...filteredRecipes, ...postFuzzyResults]
-        : postFuzzyResults;
+    const allFilteredPosts = isMealtime
+      ? [...filteredRecipes, ...postFuzzyResults]
+      : postFuzzyResults;
 
     setFields({
       allFilteredPosts,

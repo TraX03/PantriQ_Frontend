@@ -13,6 +13,7 @@ import {
   finalizeShoppingList,
   predictExpiryDateTime,
 } from "@/services/GeminiApi";
+import { scheduleExpiryNotification } from "@/utility/notificationUtils";
 import { Alert } from "react-native";
 import { Query } from "react-native-appwrite";
 import { LIST_TABS } from "./component";
@@ -393,6 +394,7 @@ export const useListsController = () => {
 
   const handleMoveToInventory = async (newItemDraft?: NewItemDraft) => {
     setFieldState("showLoading", true);
+    const user = await getCurrentUser();
     const items = lists.items;
     const formDrafts = lists.formDrafts;
     const inventoryItems = items.filter((i) => i.type === "inventory");
@@ -429,6 +431,14 @@ export const useListsController = () => {
           finalExpiries,
           inventoryItems
         );
+
+        for (const expiry of finalExpiries) {
+          await scheduleExpiryNotification(
+            newItemDraft.itemName,
+            expiry,
+            user.$id
+          );
+        }
 
         updatedItems.push(item);
       } else {
@@ -496,6 +506,15 @@ export const useListsController = () => {
             finalExpiries,
             inventoryItems
           );
+
+          for (const expiry of finalExpiries) {
+            await scheduleExpiryNotification(
+              shoppingItem.name,
+              expiry,
+              user.$id
+            );
+          }
+
           updatedItems.push(item);
 
           if (remainingQ.length > 0) {

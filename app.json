@@ -23,7 +23,7 @@
       },
       "edgeToEdgeEnabled": true,
       "package": "com.anonymous.pantriQ",
-      "permissions": ["NOTIFICATIONS"]
+      "permissions": ["POST_NOTIFICATIONS"]
     },
     "web": {
       "bundler": "metro",
@@ -36,7 +36,15 @@
       "./plugins/withAbiFilters.js",
       "expo-font",
       "expo-web-browser",
-      "expo-notifications"
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/pantriQ-logo.png",
+          "color": "#ffffff",
+          "defaultChannel": "default",
+          "enableBackgroundRemoteNotifications": false
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,

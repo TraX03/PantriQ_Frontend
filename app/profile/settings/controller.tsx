@@ -1,10 +1,20 @@
 import { useAuthentication } from "@/hooks/useAuthentication";
+import * as Notifications from "expo-notifications";
 
 export const useSettingsController = () => {
   const { logout } = useAuthentication();
 
-  const handleLogout = () => {
-    // router.replace(Routes.Onboarding);
+  const handleLogout = async () => {
+    await Notifications.scheduleNotificationAsync({
+      content: {
+        title: "🚪 Logged Out",
+        body: "You have been logged out!",
+        sound: true,
+        data: { reason: "logout" },
+      },
+      trigger: null,
+    });
+
     logout();
   };
 

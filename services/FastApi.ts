@@ -1,5 +1,5 @@
 const FastApi_Config = {
-  BASE_URL: "https://recommendation-ai.onrender.com",
+  BASE_URL: "https://recommendation-ai-elrm.onrender.com",
 };
 
 const fetchFromApi = async (endpoint: string, data?: any): Promise<any> => {

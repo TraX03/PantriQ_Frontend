@@ -1,6 +1,7 @@
 import CustomToast from "@/components/CustomToast";
 import LoadingScreen from "@/components/LoadingScreen";
 import { useHydrateAppState } from "@/hooks/useHydrateAppState";
+import { usePushNotifications } from "@/hooks/usePushNotifications";
 import store from "@/redux/store";
 import { subscribeToUserUpdates } from "@/utility/userCacheUtils";
 import { useFonts } from "expo-font";
@@ -17,6 +18,7 @@ SplashScreen.preventAutoHideAsync();
 
 function RootContent() {
   useHydrateAppState();
+  usePushNotifications();
 
   useEffect(() => {
     const unsubscribe = subscribeToUserUpdates();
@@ -35,7 +37,7 @@ function RootContent() {
 }
 
 export default function RootLayout() {
-  const [loaded] = useFonts({
+  const [fontsLoaded] = useFonts({
     RobotoLight: require("../assets/fonts/Roboto-Light.ttf"),
     RobotoMedium: require("../assets/fonts/Roboto-Medium.ttf"),
     RobotoRegular: require("../assets/fonts/Roboto-Regular.ttf"),
@@ -48,21 +50,17 @@ export default function RootLayout() {
     AfacadMedium: require("../assets/fonts/Afacad-Medium.ttf"),
   });
 
+  useEffect(() => {
+    if (fontsLoaded) SplashScreen.hideAsync();
+  }, [fontsLoaded]);
+
+  if (!fontsLoaded) return null;
+
   const toastConfig = {
     info: (props: BaseToastProps) => <CustomToast {...props} />,
     success: (props: BaseToastProps) => <CustomToast {...props} />,
     error: (props: BaseToastProps) => <CustomToast {...props} />,
   };
-
-  useEffect(() => {
-    if (loaded) {
-      SplashScreen.hideAsync();
-    }
-  }, [loaded]);
-
-  if (!loaded) {
-    return null;
-  }
 
   return (
     <Provider store={store}>

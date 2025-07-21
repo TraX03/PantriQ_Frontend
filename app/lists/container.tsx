@@ -1,12 +1,16 @@
 import { useKeyboardVisibility } from "@/hooks/useKeyboardVisibility";
 import { useReduxSelectors } from "@/hooks/useReduxSelectors";
 import { useSplitInventoryItems } from "@/hooks/useSplitInventoryItems";
+import { setHasAddedInventory } from "@/redux/slices/mealplanSlice";
+import { AppDispatch } from "@/redux/store";
 import { useEffect } from "react";
+import { useDispatch } from "react-redux";
 import ListsComponent from "./component";
 import useListsController from "./controller";
 
 export default function ListsContainer() {
-  const { isLoggedIn } = useReduxSelectors();
+  const dispatch = useDispatch<AppDispatch>();
+  const { isLoggedIn, hasAddedInventory } = useReduxSelectors();
   const { lists, actions, init } = useListsController();
   const { checkedItems, uncheckedItems, expiredItems } = useSplitInventoryItems(
     lists.items,
@@ -21,9 +25,10 @@ export default function ListsContainer() {
     if (!isLoggedIn) return;
     const runInit = async () => {
       await init();
+      dispatch(setHasAddedInventory(false));
     };
     runInit();
-  }, [lists.activeTab]);
+  }, [hasAddedInventory]);
 
   useEffect(() => {
     if (!isLoggedIn) return;

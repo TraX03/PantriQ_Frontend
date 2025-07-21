@@ -2,6 +2,7 @@ import { configureStore } from "@reduxjs/toolkit";
 import authReducer from "./slices/authSlice";
 import interactionReducer from "./slices/interactionSlice";
 import loadingReducer from "./slices/loadingSlice";
+import mealplanReducer from "./slices/mealplanSlice";
 import profileReducer from "./slices/profileSlice";
 
 const store = configureStore({
@@ -10,6 +11,7 @@ const store = configureStore({
     loading: loadingReducer,
     profile: profileReducer,
     interaction: interactionReducer,
+    mealplan: mealplanReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
