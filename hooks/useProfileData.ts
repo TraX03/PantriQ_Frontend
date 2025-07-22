@@ -64,10 +64,15 @@ export function useProfileData() {
         avoidIngredients: userData.avoid_ingredients,
         diet: userData.region_pref,
         isOnboarded: userData.is_onboarded,
+        hasListsQueue:
+          userData.inventory_recipes && userData.inventory_recipes.length > 0,
       };
       dispatch(setProfileData(mappedProfileData));
 
-      return mappedProfileData.isOnboarded;
+      return {
+        isOnboarded: mappedProfileData.isOnboarded,
+        hasListsQueue: mappedProfileData.hasListsQueue,
+      };
     } catch (error) {
       console.warn("Failed to fetch user profile.", { error });
       dispatch(resetProfileData());

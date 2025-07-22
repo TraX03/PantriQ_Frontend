@@ -38,6 +38,7 @@ type Props = {
   currentUserId: string | undefined;
   handleIngredientPress: (ingredientName: string) => Promise<void>;
   getCustomServings: (recipeData: RecipePost) => Promise<void>;
+  checkLogin: (next: string | (() => void)) => void;
 };
 
 export default function RecipeComponent({
@@ -48,6 +49,7 @@ export default function RecipeComponent({
   currentUserId,
   handleIngredientPress,
   getCustomServings,
+  checkLogin,
 }: Props) {
   const { postData } = post;
   const {
@@ -218,34 +220,39 @@ export default function RecipeComponent({
             (showCustomQty ? customIngredients : recipeData.ingredients).map(
               ({ name, quantity, note }, index) => (
                 <View key={index} className="flex-col mb-4">
-                  <View className="flex-row justify-between">
-                    <TouchableOpacity
-                      onPress={() => handleIngredientPress(name)}
-                    >
-                      <View className="flex-row gap-2 items-center">
-                        <Text style={styles.ingredientName}>
-                          {capitalize(name)}
-                        </Text>
-                        <IconSymbol
-                          name="info.circle"
-                          color={Colors.brand.primary}
-                          size={15}
-                        />
-                      </View>
-                    </TouchableOpacity>
-                    <Text
-                      style={[
-                        styles.quantityName,
-                        {
-                          color: showCustomQty
-                            ? Colors.feedback.success
-                            : undefined,
-                        },
-                      ]}
-                    >
-                      {quantity}
-                    </Text>
+                  <View className="flex-row justify-between items-start">
+                    <View className="flex-1 pr-[30px]">
+                      <TouchableOpacity
+                        onPress={() => handleIngredientPress(name)}
+                      >
+                        <View className="flex-row flex-wrap gap-2 items-center">
+                          <Text style={styles.ingredientName}>
+                            {capitalize(name)}
+                          </Text>
+                          <IconSymbol
+                            name="info.circle"
+                            color={Colors.brand.primary}
+                            size={15}
+                          />
+                        </View>
+                      </TouchableOpacity>
+                    </View>
+                    <View style={{ width: "25%" }}>
+                      <Text
+                        style={[
+                          styles.quantityName,
+                          {
+                            color: showCustomQty
+                              ? Colors.feedback.success
+                              : undefined,
+                          },
+                        ]}
+                      >
+                        {quantity}
+                      </Text>
+                    </View>
                   </View>
+
                   {note && (
                     <Text style={styles.noteText}>{capitalize(note)}</Text>
                   )}
@@ -348,7 +355,9 @@ export default function RecipeComponent({
 
         <Pressable
           onPress={() =>
-            userReview ? undefined : post.setFieldState("showRatingModal", true)
+            checkLogin(() => {
+              if (!userReview) post.setFieldState("showRatingModal", true);
+            })
           }
           style={styles.ratingButton}
         >

@@ -12,7 +12,7 @@ import {
   Text,
   View,
 } from "react-native";
-import { SearchResultState, tabs } from "./controller";
+import { SearchResultState, Tab, tabs } from "./controller";
 
 export type Props = {
   searchResult: ReturnType<typeof useFieldState<SearchResultState>>;
@@ -20,7 +20,7 @@ export type Props = {
   interactionVersion: number;
   postLoading: boolean;
   isFromMealPlan: boolean;
-  mealtime?: string;
+  context?: string;
 };
 
 export default function SearchResultComponent({
@@ -29,16 +29,18 @@ export default function SearchResultComponent({
   interactionVersion,
   postLoading,
   isFromMealPlan,
-  mealtime,
+  context,
 }: Props) {
   const { filterActive, orderActive, activeTab, filteredPosts, setFieldState } =
     searchResult;
+
+  const filteredTabs: Tab[] = isFromMealPlan ? ["Recipes"] : tabs.slice();
 
   return (
     <>
       <View testID="search-result-container" style={styles.tabContainer}>
         <View style={styles.tabsWrapper}>
-          {tabs.map((tab, index) => (
+          {filteredTabs.map((tab, index) => (
             <View key={tab} style={styles.tabTextContainer}>
               <Pressable onPress={() => setFieldState("activeTab", tab)}>
                 <Text
@@ -55,7 +57,9 @@ export default function SearchResultComponent({
                   {tab}
                 </Text>
               </Pressable>
-              {index < tabs.length - 1 && <Text style={styles.divider}>|</Text>}
+              {index < filteredTabs.length - 1 && !isFromMealPlan && (
+                <Text style={styles.divider}>|</Text>
+              )}
             </View>
           ))}
         </View>
@@ -113,7 +117,7 @@ export default function SearchResultComponent({
             interactionVersion={interactionVersion}
             source={"searchResults"}
             isFromMealPlan={isFromMealPlan}
-            mealtime={mealtime}
+            context={context}
           />
         )}
       </ScrollView>

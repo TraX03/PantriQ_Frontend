@@ -332,8 +332,8 @@ export default function ProfileComponent({
             <MasonryList
               posts={sortedPosts.map((post) => ({
                 ...post,
-                author: post.author ? post.author : username,
-                profilePic: post.profilePic ? post.profilePic : avatarUrl,
+                author: (post as any).authorInfo?.username ?? username,
+                profilePic: (post as any).authorInfo?.avatarUrl ?? avatarUrl,
               }))}
               interactionVersion={interactionVersion}
               source={"profilePage"}

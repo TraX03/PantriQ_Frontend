@@ -33,7 +33,7 @@ type PostCardProps = {
   source?: string;
   isFromMealPlan?: boolean;
   communityId?: string;
-  mealtime?: string;
+  context?: string;
 };
 
 const PostCard = ({
@@ -41,7 +41,7 @@ const PostCard = ({
   source,
   isFromMealPlan,
   communityId,
-  mealtime,
+  context,
 }: PostCardProps) => {
   const { type, title, image, id } = post;
   const { interactionRecords } = useReduxSelectors();
@@ -93,7 +93,7 @@ const PostCard = ({
             source: source,
             isFromMealPlan: isFromMealPlan ? "true" : "false",
             communityId: communityId,
-            mealtime: mealtime,
+            context: context,
           },
         })
       }

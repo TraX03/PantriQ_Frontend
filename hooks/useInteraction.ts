@@ -13,6 +13,7 @@ import { refreshInteractionRecords } from "@/utility/interactionUtils";
 import { useState } from "react";
 import Toast from "react-native-toast-message";
 import { useDispatch } from "react-redux";
+import { useRequireLogin } from "./useRequireLogin";
 
 type InteractionType = "like" | "bookmark" | "follow" | "join";
 
@@ -32,6 +33,7 @@ export function useInteraction(
   initial?: Partial<InteractionResult>
 ) {
   const dispatch = useDispatch<AppDispatch>();
+  const { checkLogin } = useRequireLogin();
   const [state, setState] = useState<InteractionResult>({
     isLiked: initial?.isLiked ?? false,
     likeDocId: initial?.likeDocId,
@@ -251,9 +253,9 @@ export function useInteraction(
     isBookmarked: state.isBookmarked,
     isFollowing: state.isFollowing,
     isJoining: state.isJoining,
-    toggleLike: () => toggleInteraction("like"),
-    toggleBookmark: () => toggleInteraction("bookmark"),
-    toggleFollow: () => toggleInteraction("follow"),
-    toggleJoin: () => toggleInteraction("join"),
+    toggleLike: () => checkLogin(() => toggleInteraction("like")),
+    toggleBookmark: () => checkLogin(() => toggleInteraction("bookmark")),
+    toggleFollow: () => checkLogin(() => toggleInteraction("follow")),
+    toggleJoin: () => checkLogin(() => toggleInteraction("join")),
   };
 }

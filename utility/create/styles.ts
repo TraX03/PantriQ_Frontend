@@ -10,15 +10,12 @@ const BaseInputBox = {
 };
 
 export const styles = StyleSheet.create({
-  // Layout Containers
   headerContainer: {
     flex: 1,
     backgroundColor: Colors.brand.onPrimary,
     paddingTop: 65,
     paddingHorizontal: 16,
   },
-
-  // Text
   inputTitle: {
     fontFamily: "RobotoMedium",
     fontSize: 18,
@@ -41,8 +38,6 @@ export const styles = StyleSheet.create({
     fontFamily: "RobotoRegular",
     color: Colors.brand.onPrimary,
   },
-
-  // Button
   addImageButton: {
     width: 112,
     height: 112,
@@ -64,8 +59,6 @@ export const styles = StyleSheet.create({
     borderRadius: 10,
     marginBottom: 20,
   },
-
-  // Misc
   inputValue: {
     ...BaseInputBox,
     flex: 1,

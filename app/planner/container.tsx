@@ -1,6 +1,8 @@
 import { useReduxSelectors } from "@/hooks/useReduxSelectors";
+import { useRequireLogin } from "@/hooks/useRequireLogin";
 import { useIsFocused } from "@react-navigation/native";
 import { addDays, format, startOfDay } from "date-fns";
+import { useLocalSearchParams } from "expo-router";
 import { useEffect } from "react";
 import PlannerComponent from "./component";
 import usePlannerController from "./controller";
@@ -8,6 +10,8 @@ import usePlannerController from "./controller";
 export default function PlannerContainer() {
   const isFocused = useIsFocused();
   const { isLoggedIn } = useReduxSelectors();
+  const { checkLogin } = useRequireLogin();
+  const { targetDate } = useLocalSearchParams();
 
   const {
     date: { weekStart, minDate },
@@ -16,6 +20,15 @@ export default function PlannerContainer() {
     fetchMealsForDate,
     actions,
   } = usePlannerController();
+
+  useEffect(() => {
+    if (targetDate) {
+      const parsedDate = new Date(targetDate as string);
+      if (!isNaN(parsedDate.getTime())) {
+        setFieldState("selectedDate", parsedDate);
+      }
+    }
+  }, [targetDate]);
 
   useEffect(() => {
     const formatDate = (d: Date) => format(d, "yyyy-MM-dd");
@@ -47,6 +60,7 @@ export default function PlannerContainer() {
   return (
     <PlannerComponent
       planner={planner}
+      checkLogin={checkLogin}
       fetchMealsForDate={fetchMealsForDate}
       date={{ weekStart, minDate }}
       actions={actions}

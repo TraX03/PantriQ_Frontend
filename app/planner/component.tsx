@@ -5,11 +5,12 @@ import { Colors } from "@/constants/Colors";
 import { Routes } from "@/constants/Routes";
 import { useFieldState } from "@/hooks/useFieldState";
 import { capitalize } from "@/utility/capitalize";
+import { startOfUTCDay } from "@/utility/dateUtils";
 import { styles as homeStyles } from "@/utility/home/styles";
 import { getImageUrl } from "@/utility/imageUtils";
 import { styles } from "@/utility/planner/styles";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import { addDays, endOfWeek, format, isThisWeek, startOfDay } from "date-fns";
+import { addDays, endOfWeek, format, isThisWeek } from "date-fns";
 import { router } from "expo-router";
 import LottieView from "lottie-react-native";
 import React, { useRef } from "react";
@@ -35,6 +36,7 @@ type Props = {
   planner: ReturnType<typeof useFieldState<PlannerState>>;
   date: DateInfo;
   fetchMealsForDate: (date: Date) => Promise<void>;
+  checkLogin: (next: string | (() => void)) => void;
   actions: {
     generateMeals: (
       mealtimes: string[],
@@ -53,6 +55,7 @@ export default function PlannerComponent({
   planner,
   date,
   actions,
+  checkLogin,
   fetchMealsForDate,
 }: Props) {
   const scrollRef = useRef<ScrollView>(null);
@@ -166,7 +169,13 @@ export default function PlannerComponent({
             action: () =>
               router.push({
                 pathname: Routes.Listing,
-                params: { type: "created", mealtime: selectedMealtime },
+                params: {
+                  type: "created",
+                  context: JSON.stringify({
+                    mealtime: selectedMealtime,
+                    selectedDate,
+                  }),
+                },
               }),
           },
           {
@@ -174,7 +183,13 @@ export default function PlannerComponent({
             action: () =>
               router.push({
                 pathname: Routes.Listing,
-                params: { type: "interactions", mealtime: selectedMealtime },
+                params: {
+                  type: "interactions",
+                  context: JSON.stringify({
+                    mealtime: selectedMealtime,
+                    selectedDate,
+                  }),
+                },
               }),
           },
           {
@@ -182,7 +197,13 @@ export default function PlannerComponent({
             action: () =>
               router.push({
                 pathname: Routes.Search,
-                params: { isFromMealPlan: "true", mealtime: selectedMealtime },
+                params: {
+                  isFromMealPlan: "true",
+                  context: JSON.stringify({
+                    mealtime: selectedMealtime,
+                    selectedDate,
+                  }),
+                },
               }),
           },
         ]}
@@ -209,7 +230,7 @@ export default function PlannerComponent({
               <Pressable
                 testID="meal-config-button"
                 onPress={() => {
-                  router.push(Routes.MealConfiguration);
+                  checkLogin(() => router.push(Routes.MealConfiguration));
                 }}
               >
                 <IconSymbol
@@ -239,9 +260,10 @@ export default function PlannerComponent({
               display="default"
               minimumDate={minDate}
               onChange={(event, date) => {
+                setFieldState("showDatePicker", false);
+
                 if (event.type === "set") {
-                  setFieldState("showDatePicker", false);
-                  if (date) setFieldState("selectedDate", startOfDay(date));
+                  if (date) setFieldState("selectedDate", startOfUTCDay(date));
                 }
               }}
             />
@@ -280,7 +302,7 @@ export default function PlannerComponent({
                           text1: "Meal plan only retains the previous 30 days.",
                         });
                       } else {
-                        setFieldState("selectedDate", startOfDay(day));
+                        setFieldState("selectedDate", startOfUTCDay(day));
                       }
                     }}
                     className="px-4 py-1.5 mr-2.5 rounded-lg"
@@ -431,10 +453,12 @@ export default function PlannerComponent({
 
                           <TouchableOpacity
                             onPress={() => {
-                              setFields({
-                                selectedMealtime: meal.mealtime,
-                                showAddOptionModal: true,
-                              });
+                              checkLogin(() =>
+                                setFields({
+                                  selectedMealtime: meal.mealtime,
+                                  showAddOptionModal: true,
+                                })
+                              );
                             }}
                             style={styles.addMealButton}
                           >
@@ -451,7 +475,9 @@ export default function PlannerComponent({
                 })}
 
                 <TouchableOpacity
-                  onPress={() => setFieldState("showMealtimeModal", true)}
+                  onPress={() =>
+                    checkLogin(() => setFieldState("showMealtimeModal", true))
+                  }
                   style={styles.addContianer}
                 >
                   <Text style={styles.addText}>Add Mealtime</Text>
@@ -469,28 +495,30 @@ export default function PlannerComponent({
         <Pressable
           testID="planner-generate-button"
           disabled={generateLoading}
-          onPress={() => {
-            if (showRegenerateButton || showDeleteButton || showAddButton) {
-              setFields({
-                showDeleteButton: false,
-                showRegenerateButton: false,
-                showAddButton: false,
-              });
-              return;
-            }
+          onPress={() =>
+            checkLogin(() => {
+              if (showRegenerateButton || showDeleteButton || showAddButton) {
+                setFields({
+                  showDeleteButton: false,
+                  showRegenerateButton: false,
+                  showAddButton: false,
+                });
+                return;
+              }
 
-            const addedMeals = getCachedMealsForDate(selectedDate);
-            if (addedMeals.length === 0) {
-              Alert.alert(
-                "No Mealtime Added",
-                "Please add at least one mealtime before generating meals."
-              );
-              return;
-            }
+              const addedMeals = getCachedMealsForDate(selectedDate);
+              if (addedMeals.length === 0) {
+                Alert.alert(
+                  "No Mealtime Added",
+                  "Please add at least one mealtime before generating meals."
+                );
+                return;
+              }
 
-            const mealtimes = addedMeals.map((meal) => meal.mealtime);
-            generateMeals(mealtimes);
-          }}
+              const mealtimes = addedMeals.map((meal) => meal.mealtime);
+              generateMeals(mealtimes);
+            })
+          }
           style={styles.generateButton}
         >
           {generateLoading ? (

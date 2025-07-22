@@ -62,6 +62,27 @@ export const getPostTypeById = async (id: string): Promise<PostType | null> => {
   return null;
 };
 
+export const fetchDocumentsByIds = async (
+  collectionId: string,
+  ids: string[]
+) => {
+  if (ids.length === 0) return [];
+  const chunkSize = 100;
+  const chunks = [];
+
+  for (let i = 0; i < ids.length; i += chunkSize) {
+    const chunk = ids.slice(i, i + chunkSize);
+    const res = await databases.listDocuments(
+      AppwriteConfig.DATABASE_ID,
+      collectionId,
+      [Query.equal("$id", chunk)]
+    );
+    chunks.push(...res.documents);
+  }
+
+  return chunks;
+};
+
 export const fetchAllDocuments = async (
   collectionId: string,
   customQueries: string[] = []

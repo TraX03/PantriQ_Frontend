@@ -3,6 +3,7 @@ import InputBox from "@/components/InputBox";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { Colors } from "@/constants/Colors";
 import { useFieldState } from "@/hooks/useFieldState";
+import { capitalize } from "@/utility/capitalize";
 import { styles as createStyles } from "@/utility/create/styles";
 import { styles } from "@/utility/lists/styles";
 import DateTimePicker from "@react-native-community/datetimepicker";
@@ -93,6 +94,7 @@ export default function InventoryModalComponent({
   return showLoading ? (
     <View className="flex-1 justify-center items-center">
       <ActivityIndicator
+        testID="activity-indicator"
         size="large"
         color={Colors.brand.primary}
         style={{ marginVertical: 20 }}
@@ -104,7 +106,7 @@ export default function InventoryModalComponent({
         <View className="flex-row items-center">
           <Text className="text-[16px]">
             <Text style={{ fontFamily: "RobotoMedium" }}>Item: </Text>
-            {selectedItem.name}{" "}
+            {capitalize(selectedItem.name)}{" "}
           </Text>
           <Text style={styles.lightLabel}>(x{selectedItem.checkedCount})</Text>
         </View>

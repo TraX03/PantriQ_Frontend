@@ -29,10 +29,10 @@ const CommentItem = ({
   timeAgo: string;
   content: string;
 }) => (
-  <View className="flex-col my-4">
+  <View className="flex-col my-4 pb-4">
     <View className="flex-row items-center justify-between">
       <View className="flex-row items-center">
-        <View className="w-[30px] h-[30px] rounded-full mr-3 overflow-hidden">
+        <View className="w-[30px] h-[30px] rounded-full mr-3 overflow-hidden border border-gray-300">
           <Image
             source={{ uri: avatarUrl }}
             className="w-full h-full"
@@ -51,7 +51,9 @@ const CommentItem = ({
         <Text style={styles.timeAgoText}>{timeAgo}</Text>
       </View>
     </View>
-    <Text style={styles.commentText}>{content}</Text>
+    <View className="ml-1">
+      <Text style={styles.commentText}>{content}</Text>
+    </View>
   </View>
 );
 
@@ -83,12 +85,12 @@ export default function ForumComponent({
       <View className="flex-row mb-4 items-center gap-2">
         <Text style={styles.sectionTitle}>Comments</Text>
         <Text style={styles.countLabel}>
-          ({postData?.commentCount} comments)
+          ({postData?.commentsCount} comments)
         </Text>
       </View>
 
       <View className="flex-row items-center">
-        <View className="w-[30px] h-[30px] rounded-[20px] mr-2 overflow-hidden">
+        <View className="w-[30px] h-[30px] rounded-[20px] mr-2 overflow-hidden border border-gray-300">
           <Image
             source={{ uri: currentUserProfile.avatarUrl }}
             className="w-full h-full"

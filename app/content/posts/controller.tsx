@@ -31,6 +31,7 @@ interface BasePost {
   bookmarksCount: number;
   description: string;
   createdAt: string;
+  commentsCount: string;
 }
 
 export interface RecipePost extends BasePost {
@@ -116,6 +117,7 @@ export const usePostController = (
         bookmarksCount: doc.bookmarks_count ?? 0,
         description: type === "recipe" ? doc.description : doc.content,
         createdAt: doc.$createdAt,
+        commentsCount: doc.comments_count ?? 0,
       };
 
       const postData: PostData =

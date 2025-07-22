@@ -131,6 +131,7 @@ export const useListsController = () => {
   const loadItems = async () => {
     try {
       const user = await getCurrentUser();
+      setFieldState("showSyncLoading", true);
       const docs = await fetchAllDocuments(AppwriteConfig.LISTS_COLLECTION_ID, [
         Query.equal("user_id", user.$id),
       ]);
@@ -207,6 +208,8 @@ export const useListsController = () => {
       setFieldState("items", items);
     } catch (err) {
       console.error("Failed to load items from Appwrite:", err);
+    } finally {
+      setFieldState("showSyncLoading", false);
     }
   };
 
@@ -484,16 +487,47 @@ export const useListsController = () => {
             }
           });
 
-          let finalExpiries = draft.expiries?.filter(Boolean) ?? [];
-          if (finalExpiries.length === 0 || finalExpiries.every((e) => !e)) {
-            const predicted = await predictExpiryDateTime(shoppingItem.name);
-            finalExpiries = Array(movedQ.length).fill(predicted);
+          let rawQuantities: number[];
+          if (
+            Array.isArray(draft.quantity) &&
+            draft.quantity.some((q) => q > 0)
+          ) {
+            const firstValid = draft.quantity.find((q) => q > 0)!;
+            rawQuantities = draft.quantity.map((q) =>
+              typeof q === "number" && q > 0 ? q : firstValid
+            );
+          } else {
+            rawQuantities = movedQ;
           }
 
-          const rawQuantities = draft.quantity ?? movedQ;
-          const rawUnits =
-            draft.unit ??
-            Array(rawQuantities.length).fill(shoppingItem.unit ?? "");
+          let rawUnits: string[];
+          if (Array.isArray(draft.unit)) {
+            rawUnits =
+              draft.unit.length === rawQuantities.length
+                ? draft.unit
+                : Array(rawQuantities.length).fill(
+                    draft.unit[0] ?? shoppingItem.unit ?? ""
+                  );
+          } else {
+            rawUnits = Array(rawQuantities.length).fill(
+              shoppingItem.unit ?? ""
+            );
+          }
+
+          let finalExpiries = Array.isArray(draft.expiries)
+            ? draft.expiries.filter(Boolean)
+            : [];
+
+          if (finalExpiries.length === 0 || finalExpiries.every((e) => !e)) {
+            const predicted = await predictExpiryDateTime(shoppingItem.name);
+            finalExpiries = Array(rawQuantities.length).fill(predicted);
+          } else if (finalExpiries.length === 1 && rawQuantities.length > 1) {
+            finalExpiries = Array(rawQuantities.length).fill(finalExpiries[0]);
+          } else if (finalExpiries.length !== rawQuantities.length) {
+            const last = finalExpiries[finalExpiries.length - 1];
+            finalExpiries = Array(rawQuantities.length).fill(last);
+          }
+
           const { converted, baseUnit } = convertQuantities(
             rawQuantities,
             rawUnits
@@ -523,7 +557,6 @@ export const useListsController = () => {
               shoppingItem.id!,
               {
                 quantity: remainingQ,
-                expiries: remainingE,
                 checked: false,
                 checkedCount: 0,
               }
@@ -538,13 +571,9 @@ export const useListsController = () => {
       }
 
       setFields({
-        items: [
-          ...items.filter((i) => i.type !== "shopping" || !i.checked),
-          ...updatedItems,
-        ],
+        formDrafts: {},
         showInventoryModal: false,
         showLoading: false,
-        formDrafts: {},
       });
 
       loadItems();
@@ -763,14 +792,16 @@ export const useListsController = () => {
   const saveQuantityChange = async (item: ListItem) => {
     const currentSum = item.quantity?.reduce((sum, x) => sum + x, 0) ?? 1;
     const quantityDisplay = item.quantityDisplay ?? currentSum;
+    const checkedCount = item.checkedCount ?? 0;
 
-    if (quantityDisplay !== currentSum) {
-      const updatedQty = [quantityDisplay];
+    if (quantityDisplay + checkedCount !== currentSum) {
+      const updatedQty = [quantityDisplay + checkedCount];
 
       try {
         await updateDocument(AppwriteConfig.LISTS_COLLECTION_ID, item.id!, {
           quantity: updatedQty,
         });
+        await loadItems();
       } catch (err) {
         console.warn("Failed to update quantity", err);
       }
@@ -817,7 +848,7 @@ export const useListsController = () => {
                 quantity: ing.quantity?.trim() ?? "",
               };
             } catch (err) {
-              console.warn("⚠️ Failed to parse ingredient:", i);
+              console.warn("Failed to parse ingredient:", i);
               return null;
             }
           })
@@ -874,7 +905,7 @@ export const useListsController = () => {
 
       loadItems();
     } catch (err) {
-      console.error("❌ Failed to sync recipes to shopping list:", err);
+      console.error("Failed to sync recipes to shopping list:", err);
     } finally {
       setFieldState("showSyncLoading", false);
     }

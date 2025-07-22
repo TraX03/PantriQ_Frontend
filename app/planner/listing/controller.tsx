@@ -11,6 +11,9 @@ import { Query } from "react-native-appwrite";
 export const mainTabs = ["Likes", "Collections", "Viewed"] as const;
 export type MainTab = (typeof mainTabs)[number];
 
+export const subTabs = ["Recipes", "Tips", "Discussions"] as const;
+export type SubTab = (typeof subTabs)[number];
+
 export interface ListingState {
   posts: Post[];
   likedPosts: Post[];
@@ -19,6 +22,7 @@ export interface ListingState {
   activeTab: MainTab;
   showLoading: boolean;
   searchText: string;
+  activeSubTab: SubTab;
 }
 
 export const useListingController = () => {
@@ -30,9 +34,10 @@ export const useListingController = () => {
     activeTab: "Likes",
     showLoading: false,
     searchText: "",
+    activeSubTab: "Recipes",
   });
 
-  const { setFieldState, getFieldState } = listing;
+  const { setFieldState, getFieldState, activeSubTab, activeTab } = listing;
 
   const originalPostsRef = useRef<Post[]>([]);
   const originalLikedRef = useRef<Post[]>([]);
@@ -55,25 +60,32 @@ export const useListingController = () => {
     }));
   };
 
-  const fetchCreatedRecipe = async (userId: string) => {
+  const fetchCreatedContent = async (userId: string) => {
     if (!userId) return;
 
     try {
-      const recipeDocs = await fetchAllDocuments(
-        AppwriteConfig.RECIPES_COLLECTION_ID,
-        [Query.equal("author_id", userId)]
-      );
+      const [recipeDocs, postDocs] = await Promise.all([
+        fetchAllDocuments(AppwriteConfig.RECIPES_COLLECTION_ID, [
+          Query.equal("author_id", userId),
+        ]),
+        fetchAllDocuments(AppwriteConfig.POSTS_COLLECTION_ID, [
+          Query.equal("author_id", userId),
+        ]),
+      ]);
 
-      let posts: Post[] = recipeDocs.map((doc: any) => ({
+      const formatPost = (doc: any, typeOverride?: string): Post => ({
         id: doc.$id,
-        type: "recipe",
+        type: typeOverride ?? doc.type ?? "unknown",
         title: doc.title,
         image: getImageUrl(doc.image?.[0]),
         created_at: doc.created_at,
         author: doc.author_id,
-      }));
+      });
 
-      posts.sort(
+      const recipePosts = recipeDocs.map((doc) => formatPost(doc, "recipe"));
+      const contentPosts = postDocs.map((doc) => formatPost(doc));
+
+      let posts = [...recipePosts, ...contentPosts].sort(
         (a, b) =>
           new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
       );
@@ -83,11 +95,11 @@ export const useListingController = () => {
       originalPostsRef.current = posts;
       setFieldState("posts", posts);
     } catch (error) {
-      console.error("Failed to fetch created recipes:", error);
+      console.error("Failed to fetch created posts and recipes:", error);
     }
   };
 
-  const fetchInteractedRecipes = async (userId: string) => {
+  const fetchInteractedPosts = async (userId: string) => {
     if (!userId) return;
 
     try {
@@ -117,7 +129,7 @@ export const useListingController = () => {
 
       const formatPost = (doc: any, type?: "recipe"): Post => ({
         id: doc.$id,
-        type: type ?? doc.type ?? "discussion",
+        type: doc.type ?? type ?? "discussion",
         title: doc.title,
         image: getImageUrl(doc.image?.[0]),
         created_at: doc.created_at,
@@ -265,8 +277,8 @@ export const useListingController = () => {
 
   return {
     listing,
-    fetchCreatedRecipe,
-    fetchInteractedRecipes,
+    fetchCreatedContent,
+    fetchInteractedPosts,
     handleListingSearch,
     resetSearchResults,
   };

@@ -21,7 +21,7 @@ type Props = {
   ) => Promise<void>;
   handleClear: () => void;
   isFromMealPlan: boolean;
-  mealtime?: string;
+  context?: string;
 };
 
 export default function SearchComponent({
@@ -29,7 +29,7 @@ export default function SearchComponent({
   handleSearch,
   handleClear,
   isFromMealPlan,
-  mealtime,
+  context,
 }: Props) {
   const {
     allFilteredPosts,
@@ -105,7 +105,7 @@ export default function SearchComponent({
               filteredUsers={filteredUsers}
               postLoading={postLoading}
               isFromMealPlan={isFromMealPlan}
-              mealtime={mealtime}
+              context={context}
             />
           ) : (
             <View className="px-4 py-3">

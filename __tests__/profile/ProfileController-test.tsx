@@ -27,10 +27,18 @@ const mockMetadata = { profileBg: { isDark: true } };
 describe("useProfileController", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+
     (AppwriteService.fetchAllDocuments as jest.Mock)
       .mockResolvedValueOnce(mockRecipes)
       .mockResolvedValueOnce(mockPosts)
       .mockResolvedValueOnce(mockInteractions);
+
+    (AppwriteService.fetchDocumentsByIds as jest.Mock).mockImplementation(
+      (_collectionId, ids: string[]) => {
+        const all = [...mockRecipes, ...mockPosts];
+        return Promise.resolve(all.filter((doc) => ids.includes(doc.$id)));
+      }
+    );
 
     (userUtils.fetchUsers as jest.Mock).mockResolvedValue(mockAuthors);
     (imageUtils.getImageUrl as jest.Mock).mockImplementation(mockGetImageUrl);

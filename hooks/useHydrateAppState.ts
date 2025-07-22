@@ -1,6 +1,7 @@
 import { setOnboarded, setUser } from "@/redux/slices/authSlice";
 import { setInteractionRecords } from "@/redux/slices/interactionSlice";
 import { setLoading } from "@/redux/slices/loadingSlice";
+import { setHasAddedInventory } from "@/redux/slices/mealplanSlice";
 import { AppDispatch } from "@/redux/store";
 import { getCurrentUser } from "@/services/Appwrite";
 import { fetchInteractions } from "@/utility/interactionUtils";
@@ -21,8 +22,11 @@ export function useHydrateAppState() {
         dispatch(setUser(user));
 
         if (user) {
-          const onboarded = await fetchProfile();
-          dispatch(setOnboarded(onboarded ?? true));
+          const profile = await fetchProfile();
+          const isOnboarded = profile?.isOnboarded ?? true;
+          const hasListsQueue = profile?.hasListsQueue ?? false;
+          dispatch(setOnboarded(isOnboarded));
+          dispatch(setHasAddedInventory(hasListsQueue));
 
           const interactionRecords = await fetchInteractions();
           dispatch(setInteractionRecords(interactionRecords));

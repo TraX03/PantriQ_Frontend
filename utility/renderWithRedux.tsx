@@ -6,6 +6,7 @@ import { Provider as ReduxProvider } from "react-redux";
 import authReducer from "@/redux/slices/authSlice";
 import interactionReducer from "@/redux/slices/interactionSlice";
 import loadingReducer from "@/redux/slices/loadingSlice";
+import mealplanReducer from "@/redux/slices/mealplanSlice";
 import profileReducer from "@/redux/slices/profileSlice";
 
 const rootReducer = combineReducers({
@@ -13,6 +14,7 @@ const rootReducer = combineReducers({
   interaction: interactionReducer,
   loading: loadingReducer,
   profile: profileReducer,
+  mealplan: mealplanReducer,
 });
 
 export function renderWithRedux(

@@ -4,7 +4,12 @@ import { useFieldState } from "@/hooks/useFieldState";
 import { useMediaHandler } from "@/hooks/useMediaHandler";
 import { setLoading } from "@/redux/slices/loadingSlice";
 import { AppDispatch } from "@/redux/store";
-import { createDocument, getCurrentUser } from "@/services/Appwrite";
+import {
+  createDocument,
+  getCurrentUser,
+  getDocumentById,
+  updateDocument,
+} from "@/services/Appwrite";
 import { generateTagsWithGemini } from "@/services/GeminiApi";
 import { detectBackgroundDarkness, isValidUrl } from "@/utility/imageUtils";
 import * as ImagePicker from "expo-image-picker";
@@ -103,7 +108,7 @@ export const useCreateFormController = () => {
           content: create.content,
           type: create.postType,
           author_id: userId,
-          ...(communityId ? { community_id: communityId } : {}),
+          ...(communityId ? { community_id: [communityId] } : {}),
         },
         tips: {
           ...commonFields,
@@ -111,7 +116,7 @@ export const useCreateFormController = () => {
           content: create.content,
           type: create.postType,
           author_id: userId,
-          ...(communityId ? { community_id: communityId } : {}),
+          ...(communityId ? { community_id: [communityId] } : {}),
         },
         community: {
           ...commonFields,
@@ -142,7 +147,7 @@ export const useCreateFormController = () => {
           category: create.category.map((c) => c.name.toLowerCase()),
           area: create.area.toLowerCase(),
           mealtime: create.mealtime.map((mt) => mt.name),
-          ...(communityId ? { community_id: communityId } : {}),
+          ...(communityId ? { community_id: [communityId] } : {}),
         },
       };
 
@@ -159,6 +164,26 @@ export const useCreateFormController = () => {
         ID.unique(),
         [Permission.write(Role.user(userId))]
       );
+
+      if (communityId) {
+        try {
+          const community = await getDocumentById(
+            AppwriteConfig.COMMUNITIES_COLLECTION_ID,
+            communityId
+          );
+          const currentCount = community?.posts_count ?? 0;
+
+          await updateDocument(
+            AppwriteConfig.COMMUNITIES_COLLECTION_ID,
+            communityId,
+            {
+              posts_count: currentCount + 1,
+            }
+          );
+        } catch (err) {
+          console.warn("Failed to update community post count:", err);
+        }
+      }
 
       Toast.show({
         type: "success",

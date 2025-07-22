@@ -1,77 +1,130 @@
 import usePlannerController from "@/app/planner/controller";
+import { useFieldState } from "@/hooks/useFieldState";
+import * as AppwriteService from "@/services/Appwrite";
+import * as FastApiService from "@/services/FastApi";
 import { act, renderHook } from "@testing-library/react-native";
-import { addDays } from "date-fns";
+import { Alert } from "react-native";
 
-jest.mock("@/services/Appwrite", () => ({
-  getCurrentUser: jest.fn(() => Promise.resolve({ $id: "user-id" })),
-  listDocuments: jest.fn(() => []),
-  updateDocument: jest.fn(() => Promise.resolve()),
-  createDocument: jest.fn(() => Promise.resolve()),
+jest.mock("@/services/Appwrite");
+jest.mock("@/services/FastApi");
+jest.mock("@/hooks/useFieldState");
+jest.mock("react-redux", () => ({
+  useDispatch: jest.fn(),
+}));
+jest.mock("expo-router", () => ({
+  router: {
+    replace: jest.fn(),
+  },
+}));
+jest.mock("react-native-toast-message", () => ({
+  show: jest.fn(),
 }));
 
-jest.mock("@/services/FastApi", () => ({
-  fetchGeneratedMealPlan: jest.fn(() =>
-    Promise.resolve({
-      meals: [
-        {
-          mealtime: "breakfast",
-          recipes: [{ id: "123", title: "Pancakes", image: "image-url" }],
-          session: JSON.stringify([{ id: "123", mealtime: "breakfast" }]),
-        },
-      ],
-    })
-  ),
-  logMealplanInventoryFeedback: jest.fn(() => Promise.resolve()),
+jest.spyOn(Alert, "alert").mockImplementation(jest.fn());
+
+jest.mock("react-redux", () => ({
+  useDispatch: () => jest.fn(),
 }));
 
 describe("usePlannerController", () => {
-  it("adds a new mealtime to empty date", () => {
-    const { result } = renderHook(() => usePlannerController());
-    const planner = result.current.planner;
-    act(() => {
-      result.current.actions.addMealtime("breakfast");
+  const setFieldState = jest.fn();
+  const getFieldState = jest.fn().mockReturnValue({});
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    (useFieldState as jest.Mock).mockReturnValue({
+      getFieldState,
+      setFieldState,
+      selectedDate: new Date("2025-07-20"),
+      mealsByDate: {},
     });
-    const meals = result.current.actions.getCachedMealsForDate(
-      planner.getFieldState("selectedDate")
-    );
-    expect(meals).toHaveLength(1);
-    expect(meals[0].mealtime).toBe("breakfast");
   });
 
-  it("does not add duplicate mealtime", () => {
+  it("should initialize correctly", () => {
     const { result } = renderHook(() => usePlannerController());
-    const planner = result.current.planner;
-    act(() => {
-      result.current.actions.addMealtime("breakfast");
-      result.current.actions.addMealtime("breakfast");
-    });
-    const meals = result.current.actions.getCachedMealsForDate(
-      planner.getFieldState("selectedDate")
-    );
-    expect(meals).toHaveLength(1);
+    expect(result.current.date).toHaveProperty("minDate");
+    expect(result.current.date).toHaveProperty("weekStart");
+    expect(result.current.planner.setFieldState).toBe(setFieldState);
   });
 
-  it("shifts week correctly on next/prev", () => {
+  it("should handle week change", () => {
     const { result } = renderHook(() => usePlannerController());
-    const planner = result.current.planner;
-    const currentDate = planner.getFieldState("selectedDate");
     act(() => {
       result.current.actions.handleChangeWeek("next");
     });
-    const newDate = planner.getFieldState("selectedDate");
-    expect(newDate.getTime()).toBe(addDays(currentDate, 7).getTime());
+    expect(setFieldState).toHaveBeenCalledWith(
+      "selectedDate",
+      expect.any(Date)
+    );
   });
 
-  it("generates meals and updates mealsByDate", async () => {
+  it("should add mealtime to mealsByDate", () => {
+    getFieldState.mockReturnValueOnce([]);
     const { result } = renderHook(() => usePlannerController());
-    const planner = result.current.planner;
-    await act(async () => {
-      await result.current.actions.generateMeals(["breakfast"]);
+
+    act(() => {
+      result.current.actions.addMealtime("lunch");
     });
-    const meals = result.current.actions.getCachedMealsForDate(
-      planner.getFieldState("selectedDate")
+
+    expect(setFieldState).toHaveBeenCalledWith(
+      "mealsByDate",
+      expect.objectContaining({
+        "2025-07-20": expect.arrayContaining([
+          expect.objectContaining({ mealtime: "lunch" }),
+        ]),
+      })
     );
-    expect(meals).toHaveLength(1);
-    expect(meals[0].recipes[0].name).toBe("Pancakes");
+    expect(setFieldState).toHaveBeenCalledWith("showMealtimeModal", false);
+  });
+
+  it("should not add duplicate mealtime", () => {
+    getFieldState.mockReturnValueOnce({
+      "2025-07-20": [{ mealtime: "lunch", recipes: [] }],
+    });
+    const { result } = renderHook(() => usePlannerController());
+
+    act(() => {
+      result.current.actions.addMealtime("lunch");
+    });
+
+    expect(setFieldState).not.toHaveBeenCalledWith(
+      "mealsByDate",
+      expect.anything()
+    );
+  });
+
+  it("should generate meals and update state", async () => {
+    (AppwriteService.getCurrentUser as jest.Mock).mockResolvedValue({
+      $id: "user123",
+    });
+    (FastApiService.fetchGeneratedMealPlan as jest.Mock).mockResolvedValue({
+      meals: [
+        {
+          mealtime: "lunch",
+          recipes: [{ id: "r1", title: "Recipe 1", image: "img1" }],
+          session: JSON.stringify([{ id: "r1", mealtime: "lunch" }]),
+        },
+      ],
+    });
+    (AppwriteService.listDocuments as jest.Mock).mockResolvedValue([]);
+
+    const { result } = renderHook(() => usePlannerController());
+
+    await act(async () => {
+      await result.current.actions.generateMeals(["lunch"]);
+    });
+
+    expect(setFieldState).toHaveBeenCalledWith("generateLoading", true);
+    expect(setFieldState).toHaveBeenCalledWith(
+      "mealsByDate",
+      expect.objectContaining({
+        "2025-07-20": [
+          {
+            mealtime: "lunch",
+            recipes: [{ id: "r1", name: "Recipe 1", image: "img1" }],
+          },
+        ],
+      })
+    );
   });
 });

@@ -167,7 +167,18 @@ export default function CreateFormComponent({ create, controller }: Props) {
                 />
 
                 <Text style={styles.inputTitle}>
-                  {isCommunity || isRecipe ? "Description" : "Content"}
+                  {isCommunity || isRecipe ? (
+                    <>
+                      Description{" "}
+                      <Text
+                        style={{ color: Colors.feedback.unknown, fontSize: 12 }}
+                      >
+                        (optional)
+                      </Text>
+                    </>
+                  ) : (
+                    "Content"
+                  )}
                 </Text>
                 <InputBox
                   placeholder={

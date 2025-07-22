@@ -12,7 +12,6 @@ const mediumText = {
 };
 
 export const styles = StyleSheet.create({
-  // Text
   titleText: {
     ...baseTextStyle,
     marginTop: 16,
@@ -39,8 +38,6 @@ export const styles = StyleSheet.create({
   underlineText: {
     textDecorationLine: "underline",
   },
-
-  // Button
   buttonStyle: {
     alignItems: "center",
     paddingVertical: 12,
@@ -48,15 +45,11 @@ export const styles = StyleSheet.create({
     borderRadius: 12,
     backgroundColor: Colors.surface.buttonPrimary,
   },
-
-  // Divider
   dividerStyle: {
     width: 80,
     height: 1,
     backgroundColor: Colors.brand.onPrimary,
   },
-
-  //misc
   input: {
     flexDirection: "row",
     alignItems: "center",

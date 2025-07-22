@@ -1,5 +1,5 @@
 import { subTabs } from "@/app/profile/component";
-import { Post } from "@/components/PostCard";
+import { Post, PostType } from "@/components/PostCard";
 import { AppwriteConfig } from "@/constants/AppwriteConfig";
 import { Routes } from "@/constants/Routes";
 import { useFieldState } from "@/hooks/useFieldState";
@@ -8,6 +8,7 @@ import {
   getDocumentById,
   updateDocument,
 } from "@/services/Appwrite";
+import { capitalize } from "@/utility/capitalize";
 import { getImageUrl } from "@/utility/imageUtils";
 import { parseMetadata } from "@/utility/metadataUtils";
 import { router } from "expo-router";
@@ -76,6 +77,8 @@ export const useCommunityController = () => {
         },
         metadata: parseMetadata(doc.metadata),
       });
+
+      getCommunityContent(communityId);
     } catch (error) {
       console.error("Failed to fetch community:", error);
     }
@@ -87,10 +90,10 @@ export const useCommunityController = () => {
     try {
       const [recipes, posts] = await Promise.all([
         fetchAllDocuments(AppwriteConfig.RECIPES_COLLECTION_ID, [
-          Query.equal("community_id", communityId),
+          Query.contains("community_id", communityId),
         ]),
         fetchAllDocuments(AppwriteConfig.POSTS_COLLECTION_ID, [
-          Query.equal("community_id", communityId),
+          Query.contains("community_id", communityId),
         ]),
       ]);
 
@@ -164,8 +167,9 @@ export const useCommunityController = () => {
     }
   };
 
-  const assignRecipeToCommunity = async (
-    recipeId: string,
+  const assignToCommunity = async (
+    postId: string,
+    postType: PostType,
     communityId: string
   ) => {
     if (!communityId) {
@@ -173,24 +177,35 @@ export const useCommunityController = () => {
       return;
     }
 
-    try {
-      const recipe = await getDocumentById(
-        AppwriteConfig.RECIPES_COLLECTION_ID,
-        recipeId
-      );
+    const collectionMap = {
+      recipe: AppwriteConfig.RECIPES_COLLECTION_ID,
+      tips: AppwriteConfig.POSTS_COLLECTION_ID,
+      discussion: AppwriteConfig.POSTS_COLLECTION_ID,
+      community: "",
+    };
+    const collectionId = collectionMap[postType];
 
-      if (!recipe) {
-        console.warn("Recipe not found.");
+    try {
+      const doc = await getDocumentById(collectionId, postId);
+      if (!doc) return;
+
+      const existingCommunityIds: string[] = doc.community_id ?? [];
+
+      if (existingCommunityIds.includes(communityId)) {
+        Toast.show({
+          type: "info",
+          text1: "Already in this community",
+        });
         return;
       }
 
-      await updateDocument(AppwriteConfig.RECIPES_COLLECTION_ID, recipeId, {
-        community_id: communityId,
+      await updateDocument(collectionId, postId, {
+        community_id: [...existingCommunityIds, communityId],
       });
 
       Toast.show({
         type: "success",
-        text1: "Recipe Added to Community",
+        text1: `${capitalize(postType)} added to community`,
       });
 
       const community = await getDocumentById(
@@ -265,8 +280,7 @@ export const useCommunityController = () => {
   return {
     community,
     getCommunity,
-    getCommunityContent,
-    assignRecipeToCommunity,
+    assignToCommunity,
     handleCommunitySearch,
     resetCommunitySearch,
   };

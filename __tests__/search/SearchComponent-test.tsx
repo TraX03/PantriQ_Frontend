@@ -30,6 +30,7 @@ describe("SearchComponent", () => {
         search={baseState}
         handleSearch={jest.fn()}
         handleClear={jest.fn()}
+        isFromMealPlan={false}
       />
     );
     expect(getByText("Recent Searches")).toBeTruthy();
@@ -43,6 +44,7 @@ describe("SearchComponent", () => {
         search={{ ...baseState, setFieldState }}
         handleSearch={jest.fn()}
         handleClear={jest.fn()}
+        isFromMealPlan={false}
       />
     );
     fireEvent.press(getByText("Show More"));
@@ -56,6 +58,7 @@ describe("SearchComponent", () => {
         search={baseState}
         handleSearch={handleSearch}
         handleClear={jest.fn()}
+        isFromMealPlan={false}
       />
     );
     fireEvent.press(getByText("chicken"));
@@ -69,6 +72,7 @@ describe("SearchComponent", () => {
         search={baseState}
         handleSearch={jest.fn()}
         handleClear={handleClear}
+        isFromMealPlan={false}
       />
     );
     const button = getByTestId("clear-button");
@@ -83,6 +87,7 @@ describe("SearchComponent", () => {
         search={{ ...baseState, setFieldState }}
         handleSearch={jest.fn()}
         handleClear={jest.fn()}
+        isFromMealPlan={false}
       />
     );
     fireEvent.changeText(getByPlaceholderText("Search..."), "tofu");
@@ -96,6 +101,7 @@ describe("SearchComponent", () => {
         search={baseState}
         handleSearch={handleSearch}
         handleClear={jest.fn()}
+        isFromMealPlan={false}
       />
     );
     fireEvent(getByPlaceholderText("Search..."), "submitEditing");
@@ -108,6 +114,7 @@ describe("SearchComponent", () => {
         search={{ ...baseState, hasSearched: true }}
         handleSearch={jest.fn()}
         handleClear={jest.fn()}
+        isFromMealPlan={false}
       />
     );
 

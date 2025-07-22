@@ -40,17 +40,24 @@ type Props = {
     handleQuantityChange: (itemId: string, delta: number) => void;
     saveQuantityChange: (item: ListItem) => Promise<void>;
     handleRemoveItem: (itemId: string) => Promise<void>;
+    loadItems: () => Promise<void>;
   };
   listData: {
     checkedItems: ListItem[];
     uncheckedItems: ListItem[];
     expiredItems: ListItem[];
   };
+  checkLogin: (next: string | (() => void)) => void;
 };
 
 export const LIST_TABS = ["shopping", "inventory"] as const;
 
-export default function ListsComponent({ lists, actions, listData }: Props) {
+export default function ListsComponent({
+  lists,
+  actions,
+  listData,
+  checkLogin,
+}: Props) {
   const {
     activeTab,
     showAddModal,
@@ -73,6 +80,7 @@ export default function ListsComponent({ lists, actions, listData }: Props) {
     handleQuantityChange,
     saveQuantityChange,
     handleRemoveItem,
+    loadItems,
   } = actions;
 
   const { checkedItems, uncheckedItems, expiredItems } = listData;
@@ -139,7 +147,10 @@ export default function ListsComponent({ lists, actions, listData }: Props) {
                 onIncrement={() => handleQuantityChange(item.id!, 1)}
                 noMarginTop={true}
               />
-              <Pressable onPress={() => handleRemoveItem(item.id!)}>
+              <Pressable
+                testID={`trash-${item.id}`}
+                onPress={() => handleRemoveItem(item.id!)}
+              >
                 <IconSymbol
                   name="trash"
                   color={Colors.brand.primary}
@@ -257,6 +268,12 @@ export default function ListsComponent({ lists, actions, listData }: Props) {
           <View className="flex-row justify-between items-center w-full">
             <Text style={plannerStyles.headerTitle}>Lists</Text>
             <View className="flex-row items-center gap-1">
+              <Pressable onPress={() => loadItems()}>
+                <IconSymbol
+                  name="arrow.clockwise.circle"
+                  color={Colors.brand.primary}
+                />
+              </Pressable>
               <Pressable onPress={() => {}}>
                 <IconSymbol name="bell" color={Colors.brand.primary} />
               </Pressable>
@@ -314,17 +331,20 @@ export default function ListsComponent({ lists, actions, listData }: Props) {
                 </View>
                 {activeTab !== "inventory" && (
                   <Pressable
-                    onPress={async () => {
-                      if (isEditing) {
-                        setFieldState("isEditing", false);
+                    testID={isEditing ? "edit-mode-done" : "edit-mode-toggle"}
+                    onPress={() =>
+                      checkLogin(async () => {
+                        if (isEditing) {
+                          setFieldState("isEditing", false);
 
-                        for (const item of uncheckedItems) {
-                          await saveQuantityChange(item);
+                          for (const item of uncheckedItems) {
+                            await saveQuantityChange(item);
+                          }
+                        } else {
+                          setFieldState("isEditing", true);
                         }
-                      } else {
-                        setFieldState("isEditing", true);
-                      }
-                    }}
+                      })
+                    }
                   >
                     <IconSymbol
                       name={isEditing ? "arrow.down.doc" : "pencil.circle"}
@@ -339,69 +359,86 @@ export default function ListsComponent({ lists, actions, listData }: Props) {
             </View>
           </View>
 
-          <View className="px-4 mt-4">
-            {showSyncLoading && activeTab === "shopping" ? (
+          {showSyncLoading ? (
+            <View className="flex-1 justify-center items-center">
               <ActivityIndicator size="large" color={Colors.brand.primary} />
-            ) : uncheckedItems.length === 0 ? (
-              <Pressable
-                onPress={() =>
-                  setFieldState(
-                    activeTab === "inventory"
-                      ? "showInventoryModal"
-                      : "showAddModal",
-                    true
-                  )
-                }
-                style={styles.addItemButton}
-              >
-                <Text style={styles.addItemText}>+ Add Items</Text>
-              </Pressable>
-            ) : (
-              uncheckedItems.map((item) => renderListItem(item, false))
-            )}
-          </View>
-
-          {expiredItems.length > 0 && (
-            <ItemGroup
-              title="Expired Items"
-              items={expiredItems}
-              onClear={() => handleClearItems(expiredItems, true)}
-            />
-          )}
-
-          {checkedItems.length > 0 && (
-            <ItemGroup
-              title={
-                activeTab === "shopping" ? "Checked Items" : "Finished Items"
-              }
-              items={checkedItems}
-              onClear={
-                activeTab === "inventory"
-                  ? () => handleClearItems(checkedItems, false)
-                  : undefined
-              }
-              footer={
-                activeTab === "shopping" && (
+            </View>
+          ) : (
+            <>
+              <View className="px-4 mt-4">
+                {uncheckedItems.length === 0 ? (
                   <Pressable
-                    className="rounded-full w-full py-3 items-center justify-center mt-5"
-                    style={styles.addInventoryButton}
-                    onPress={() => setFieldState("showInventoryModal", true)}
+                    testID="add-items-button"
+                    onPress={() =>
+                      checkLogin(() => {
+                        setFieldState(
+                          activeTab === "inventory"
+                            ? "showInventoryModal"
+                            : "showAddModal",
+                          true
+                        );
+                      })
+                    }
+                    style={styles.addItemButton}
                   >
-                    <Text style={styles.addInventoryText}>
-                      Add to Inventory
-                    </Text>
+                    <Text style={styles.addItemText}>+ Add Items</Text>
                   </Pressable>
-                )
-              }
-            />
+                ) : (
+                  uncheckedItems.map((item) => renderListItem(item, false))
+                )}
+              </View>
+
+              {expiredItems.length > 0 && (
+                <ItemGroup
+                  title="Expired Items"
+                  items={expiredItems}
+                  onClear={() => handleClearItems(expiredItems, true)}
+                />
+              )}
+
+              {checkedItems.length > 0 && (
+                <ItemGroup
+                  title={
+                    activeTab === "shopping"
+                      ? "Checked Items"
+                      : "Finished Items"
+                  }
+                  items={checkedItems}
+                  onClear={
+                    activeTab === "inventory"
+                      ? () => handleClearItems(checkedItems, false)
+                      : undefined
+                  }
+                  footer={
+                    activeTab === "shopping" && (
+                      <Pressable
+                        className="rounded-full w-full py-3 items-center justify-center mt-5"
+                        style={styles.addInventoryButton}
+                        onPress={() =>
+                          setFieldState("showInventoryModal", true)
+                        }
+                      >
+                        <Text style={styles.addInventoryText}>
+                          Add to Inventory
+                        </Text>
+                      </Pressable>
+                    )
+                  }
+                />
+              )}
+            </>
           )}
         </ScrollView>
 
         <Pressable
           onPress={() =>
-            setFieldState(
-              activeTab === "inventory" ? "showInventoryModal" : "showAddModal",
-              true
+            checkLogin(() =>
+              setFieldState(
+                activeTab === "inventory"
+                  ? "showInventoryModal"
+                  : "showAddModal",
+                true
+              )
             )
           }
           style={plannerStyles.generateButton}

@@ -216,25 +216,24 @@ export async function adjustIngredientsByServing(
   ingredients: Ingredient[]
 ): Promise<{ name: string; quantity: string }[]> {
   const prompt = `
-You are a professional recipe scaler.
-
 Given the following recipe title and ingredients, first estimate how many people the recipe is intended to serve based on standard serving sizes. Then, adjust all ingredient quantities to serve ${userServings} people.
 
 Recipe Title: ${recipeTitle}
 
-Ingredients:
-${ingredients.map((i) => `- ${i.name}: ${i.quantity}`).join("\n")}
+Ingredients (as JSON):
+${JSON.stringify(ingredients, null, 2)}
 
 Instructions:
 - Estimate the original serving size based on typical recipe norms.
-- Scale all quantities proportionally to match ${userServings} servings.
-- Use the exact ingredient names provided — do not reword or rename them.
+- Scale all **quantities** proportionally to match ${userServings} servings.
+- **Do not alter the ingredient names or notes.** Keep both exactly as given.
 - Output a clean JSON array of adjusted ingredients like this:
 [
-  { "name": "ingredient", "quantity": "quantity with unit" }
+  { "name": "ingredient", "quantity": "quantity with unit", "note": "original note (if any)" }
 ]
+- If a note is not provided for an ingredient, return an empty string in the "note" field.
 - Leave quantities like "a pinch", "to taste", or "optional" unchanged.
-- Do NOT include explanation or comments. Return only the JSON.
+- Do NOT include any explanation or extra text. Return only the JSON.
 `;
 
   try {

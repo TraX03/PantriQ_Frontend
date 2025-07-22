@@ -5,12 +5,12 @@ import ListingComponent from "./component";
 import useListingController from "./controller";
 
 export default function ListingContainer() {
-  const { type, communityId, mealtime } = useLocalSearchParams();
+  const { type, communityId, context } = useLocalSearchParams();
   const { currentUserId, interactionVersion } = useReduxSelectors();
   const {
     listing,
-    fetchCreatedRecipe,
-    fetchInteractedRecipes,
+    fetchCreatedContent,
+    fetchInteractedPosts,
     handleListingSearch,
     resetSearchResults,
   } = useListingController();
@@ -20,9 +20,9 @@ export default function ListingContainer() {
       if (!currentUserId) return;
       listing.setFieldState("showLoading", true);
       if (type === "created") {
-        await fetchCreatedRecipe(currentUserId);
+        await fetchCreatedContent(currentUserId);
       } else if (type === "interactions") {
-        await fetchInteractedRecipes(currentUserId);
+        await fetchInteractedPosts(currentUserId);
       }
       listing.setFieldState("showLoading", false);
     }
@@ -33,7 +33,7 @@ export default function ListingContainer() {
   return (
     <ListingComponent
       type={type as string}
-      mealtime={mealtime as string}
+      context={context as string}
       communityId={communityId as string}
       listing={listing}
       interactionVersion={interactionVersion}

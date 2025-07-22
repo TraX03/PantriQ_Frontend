@@ -16,7 +16,7 @@ import {
   Text,
   View,
 } from "react-native";
-import { ListingState, mainTabs } from "./controller";
+import { ListingState, mainTabs, subTabs } from "./controller";
 
 type Props = {
   listing: ReturnType<typeof useFieldState<ListingState>>;
@@ -25,7 +25,7 @@ type Props = {
   communityId?: string;
   handleListingSearch: (type: string, query: string) => void;
   resetSearchResults: (type: string) => void;
-  mealtime?: string;
+  context?: string;
 };
 
 export default function ListingComponent({
@@ -35,7 +35,7 @@ export default function ListingComponent({
   communityId,
   handleListingSearch,
   resetSearchResults,
-  mealtime,
+  context,
 }: Props) {
   const title = type === "created" ? "Your Posts" : "Likes, Bookmarks & Views";
   const {
@@ -47,18 +47,52 @@ export default function ListingComponent({
     showLoading,
     viewedPosts,
     searchText,
+    activeSubTab,
   } = listing;
+
+  const sourceMap = {
+    Likes: likedPosts,
+    Collections: bookmarkPosts,
+    Viewed: viewedPosts,
+  } as const;
+
+  const typeMap = {
+    Recipes: "recipe",
+    Tips: "tips",
+    Discussions: "discussion",
+  } as const;
 
   const postsToDisplay =
     type === "created"
-      ? posts
-      : activeTab === "Likes"
-      ? likedPosts
-      : activeTab === "Collections"
-      ? bookmarkPosts
-      : activeTab === "Viewed"
-      ? viewedPosts
+      ? posts.filter((post) => post.type === typeMap[activeSubTab])
+      : activeTab in sourceMap
+      ? sourceMap[activeTab].filter(
+          (post) => post.type === typeMap[activeSubTab]
+        )
       : [];
+
+  const renderTabs = (
+    tabs: readonly string[],
+    active: string,
+    fieldKey: keyof ListingState
+  ) => (
+    <View style={profileStyles.tabHeader}>
+      {tabs.map((tab) => (
+        <Pressable key={tab} onPress={() => setFieldState(fieldKey, tab)}>
+          <Text
+            style={{
+              fontSize: 17,
+              color:
+                active === tab ? Colors.brand.primary : Colors.text.disabled,
+              fontFamily: active === tab ? "RobotoBold" : "RobotoRegular",
+            }}
+          >
+            {tab}
+          </Text>
+        </Pressable>
+      ))}
+    </View>
+  );
 
   return (
     <>
@@ -97,30 +131,36 @@ export default function ListingComponent({
             </View>
           ) : (
             <>
-              {type !== "created" && (
-                <View style={profileStyles.tabHeader}>
-                  {mainTabs.map((tab) => (
+              {type === "created"
+                ? renderTabs(subTabs, activeSubTab, "activeSubTab")
+                : renderTabs(mainTabs, activeTab, "activeTab")}
+
+              {type != "created" && !context && (
+                <View style={profileStyles.subTabHeader}>
+                  {subTabs.map((sub) => (
                     <Pressable
-                      key={tab}
+                      key={sub}
                       onPress={() =>
                         setFieldState(
-                          "activeTab",
-                          tab as ListingState["activeTab"]
+                          "activeSubTab",
+                          sub as ListingState["activeSubTab"]
                         )
                       }
                     >
                       <Text
                         style={{
-                          fontSize: 17,
+                          fontSize: 15,
                           color:
-                            activeTab === tab
+                            activeSubTab === sub
                               ? Colors.brand.primary
                               : Colors.text.disabled,
                           fontFamily:
-                            activeTab === tab ? "RobotoBold" : "RobotoRegular",
+                            activeSubTab === sub
+                              ? "RobotoBold"
+                              : "RobotoRegular",
                         }}
                       >
-                        {tab}
+                        {sub}
                       </Text>
                     </Pressable>
                   ))}
@@ -133,7 +173,7 @@ export default function ListingComponent({
                   interactionVersion={interactionVersion}
                   isFromMealPlan={!communityId}
                   communityId={communityId}
-                  mealtime={mealtime}
+                  context={context}
                 />
               </View>
             </>

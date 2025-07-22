@@ -2,7 +2,6 @@ import { Colors } from "@/constants/Colors";
 import { StyleSheet } from "react-native";
 
 export const styles = StyleSheet.create({
-  // Layout Containers
   container: {
     flex: 1,
     backgroundColor: Colors.surface.background,
@@ -44,8 +43,6 @@ export const styles = StyleSheet.create({
     alignItems: "center",
     marginTop: 30,
   },
-
-  // Text Styles
   headerTitle: {
     fontSize: 18,
     marginLeft: 14,
@@ -90,8 +87,6 @@ export const styles = StyleSheet.create({
     fontSize: 13,
     fontFamily: "RobotoRegular",
   },
-
-  // Buttons
   loginButton: {
     borderRadius: 9999,
     paddingHorizontal: 24,
@@ -104,8 +99,6 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 25,
     paddingVertical: 5,
   },
-
-  // Misc Components
   avatar: {
     width: "100%",
     height: "100%",

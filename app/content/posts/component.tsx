@@ -13,6 +13,7 @@ import { useFieldState } from "@/hooks/useFieldState";
 import { useInteraction } from "@/hooks/useInteraction";
 import { styles } from "@/utility/content/posts/styles";
 import { router } from "expo-router";
+import { useMemo } from "react";
 import {
   Dimensions,
   FlatList,
@@ -38,12 +39,20 @@ type Props = {
   handleAuthorPress: (postAuthorId: string) => void;
   isFromMealPlan?: boolean;
   addRecipeToMealPlan:
-    | ((recipe: Meal["recipes"][0], mealtime: string) => Promise<void>)
+    | ((
+        recipe: Meal["recipes"][0],
+        mealtime: string,
+        targetDate: Date
+      ) => Promise<void>)
     | undefined;
-  mealtime?: string;
+  context?: string;
   communityId?: string;
-  assignRecipeToCommunity:
-    | ((recipeId: string, communityId: string) => Promise<void>)
+  assignToCommunity:
+    | ((
+        postId: string,
+        postType: PostType,
+        communityId: string
+      ) => Promise<void>)
     | undefined;
   currentUserId: string | undefined;
 };
@@ -56,9 +65,9 @@ export default function PostComponent({
   isFromMealPlan,
   addRecipeToMealPlan,
   communityId,
-  assignRecipeToCommunity,
+  assignToCommunity,
   currentUserId,
-  mealtime,
+  context,
 }: Props) {
   const {
     postData,
@@ -83,6 +92,17 @@ export default function PostComponent({
   const { width } = Dimensions.get("window");
   const isDark = metadata.images?.[imageIndex]?.isDark ?? false;
   const recipeData = postType === "recipe" ? (postData as RecipePost) : null;
+
+  const parsedContext = useMemo(() => {
+    try {
+      return context ? JSON.parse(context as string) : {};
+    } catch {
+      return {};
+    }
+  }, [context]);
+
+  const mealtime = parsedContext.mealtime as string;
+  const selectedDate = parsedContext.selectedDate;
 
   const handleImageScroll = (e: any) => {
     const newIndex = Math.round(e.nativeEvent.contentOffset.x / width);
@@ -206,7 +226,13 @@ export default function PostComponent({
         visible={showModal}
         onClose={() => setFieldState("showModal", false)}
         options={[
-          { label: "Edit Post" },
+          ...(postData.authorId === currentUserId
+            ? [
+                {
+                  label: "Edit Post",
+                },
+              ]
+            : []),
           { label: "Share Post" },
           { label: "Report Post" },
           ...(postData.authorId === currentUserId
@@ -302,14 +328,11 @@ export default function PostComponent({
                         name: recipeData.title,
                         image: recipeData.images[0],
                       },
-                      mealtime!
+                      mealtime,
+                      selectedDate
                     );
-                  } else if (
-                    communityId &&
-                    assignRecipeToCommunity &&
-                    recipeData
-                  ) {
-                    assignRecipeToCommunity(recipeData.id, communityId);
+                  } else if (communityId && assignToCommunity && postData) {
+                    assignToCommunity(postData.id, postType, communityId);
                   }
                 }}
                 style={styles.mealPlanButton}

@@ -5,6 +5,8 @@ export const useSettingsController = () => {
   const { logout } = useAuthentication();
 
   const handleLogout = async () => {
+    logout();
+
     await Notifications.scheduleNotificationAsync({
       content: {
         title: "🚪 Logged Out",
@@ -14,8 +16,6 @@ export const useSettingsController = () => {
       },
       trigger: null,
     });
-
-    logout();
   };
 
   return {

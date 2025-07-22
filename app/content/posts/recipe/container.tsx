@@ -1,5 +1,6 @@
 import { useFieldState } from "@/hooks/useFieldState";
 import { useReduxSelectors } from "@/hooks/useReduxSelectors";
+import { useRequireLogin } from "@/hooks/useRequireLogin";
 import { getCachedNutrition } from "@/utility/nutritionCacheUtils";
 import { useEffect } from "react";
 import { PostState, RecipePost } from "../controller";
@@ -19,6 +20,7 @@ export default function RecipeContainer({ post }: Props) {
     getCustomServings,
   } = useRecipeController();
   const { currentUserId } = useReduxSelectors();
+  const { checkLogin } = useRequireLogin();
   const recipeData = post.postData as RecipePost;
 
   useEffect(() => {
@@ -45,6 +47,7 @@ export default function RecipeContainer({ post }: Props) {
       currentUserId={currentUserId}
       handleIngredientPress={handleIngredientPress}
       getCustomServings={getCustomServings}
+      checkLogin={checkLogin}
     />
   );
 }

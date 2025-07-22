@@ -2,7 +2,6 @@ import { Colors } from "@/constants/Colors";
 import { StyleSheet } from "react-native";
 
 export const styles = StyleSheet.create({
-  // Containers
   container: {
     flex: 1,
     backgroundColor: Colors.brand.onPrimary,
@@ -53,8 +52,6 @@ export const styles = StyleSheet.create({
     alignSelf: "center",
     marginVertical: 25,
   },
-
-  // Modals & Panels
   instructionModal: {
     height: "85%",
     width: "100%",
@@ -63,8 +60,6 @@ export const styles = StyleSheet.create({
     paddingBottom: 90,
     marginBottom: -25,
   },
-
-  // Text styles
   modalHeader: {
     fontSize: 20,
     fontFamily: "RobotoSemiBold",

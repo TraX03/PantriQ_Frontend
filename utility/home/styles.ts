@@ -2,7 +2,6 @@ import { Colors } from "@/constants/Colors";
 import { StyleSheet } from "react-native";
 
 export const styles = StyleSheet.create({
-  // Layout
   container: {
     flex: 1,
     backgroundColor: Colors.surface.background,
@@ -24,8 +23,6 @@ export const styles = StyleSheet.create({
     backgroundColor: Colors.brand.onPrimary,
     zIndex: 9,
   },
-
-  // Text
   tabText: {
     fontSize: 23,
     fontFamily: "RobotoMedium",

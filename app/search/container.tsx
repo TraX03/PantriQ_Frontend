@@ -5,7 +5,7 @@ import useSearchController from "./controller";
 
 export default function SearchContainer() {
   const { search, handleSearch, handleClear, init } = useSearchController();
-  const { isFromMealPlan, mealtime } = useLocalSearchParams();
+  const { isFromMealPlan, context } = useLocalSearchParams();
   const fromMealPlan = isFromMealPlan === "true";
 
   useEffect(() => {
@@ -18,7 +18,7 @@ export default function SearchContainer() {
       handleSearch={handleSearch}
       handleClear={handleClear}
       isFromMealPlan={fromMealPlan}
-      mealtime={mealtime as string}
+      context={context as string}
     />
   );
 }

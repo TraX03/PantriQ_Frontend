@@ -2,7 +2,7 @@ import { Post } from "@/components/PostCard";
 import { AppwriteConfig } from "@/constants/AppwriteConfig";
 import { useFieldState } from "@/hooks/useFieldState";
 import { ProfileData } from "@/redux/slices/profileSlice";
-import { fetchAllDocuments } from "@/services/Appwrite";
+import { fetchAllDocuments, fetchDocumentsByIds } from "@/services/Appwrite";
 import { getImageUrl } from "@/utility/imageUtils";
 import { parseMetadata } from "@/utility/metadataUtils";
 import { fetchUsers } from "@/utility/userCacheUtils";
@@ -45,9 +45,13 @@ export const useProfileController = () => {
     setFieldState("postLoading", true);
 
     try {
-      const [recipesRes, postsRes] = await Promise.all([
-        fetchAllDocuments(AppwriteConfig.RECIPES_COLLECTION_ID),
-        fetchAllDocuments(AppwriteConfig.POSTS_COLLECTION_ID),
+      const [recipesDocs, postsDocs] = await Promise.all([
+        fetchAllDocuments(AppwriteConfig.RECIPES_COLLECTION_ID, [
+          Query.equal("author_id", userId),
+        ]),
+        fetchAllDocuments(AppwriteConfig.POSTS_COLLECTION_ID, [
+          Query.equal("author_id", userId),
+        ]),
       ]);
 
       const formatPost = (doc: any, type?: string) => ({
@@ -57,12 +61,9 @@ export const useProfileController = () => {
         ...(type && { type }),
       });
 
-      const allRecipes = recipesRes.map((doc) => formatPost(doc, "recipe"));
-      const allPosts = postsRes.map((doc) => formatPost(doc));
-
       const userPosts = [
-        ...allRecipes.filter((doc) => doc.author_id === userId),
-        ...allPosts.filter((doc) => doc.author_id === userId),
+        ...recipesDocs.map((doc) => formatPost(doc, "recipe")),
+        ...postsDocs.map((doc) => formatPost(doc)),
       ];
 
       setFields({
@@ -84,16 +85,29 @@ export const useProfileController = () => {
           .map((i) => i.item_id)
       );
 
-      const postMap = new Map(
-        [...allRecipes, ...allPosts].map((post) => [post.id, post])
+      const interactionIds = Array.from(
+        new Set([...likedIds, ...bookmarkedIds])
       );
 
-      const likedPosts = [...likedIds]
-        .map((id) => postMap.get(id))
-        .filter(Boolean);
-      const bookmarkedPosts = [...bookmarkedIds]
-        .map((id) => postMap.get(id))
-        .filter(Boolean);
+      const [likedRecipeDocs, likedPostDocs] = await Promise.all([
+        fetchDocumentsByIds(
+          AppwriteConfig.RECIPES_COLLECTION_ID,
+          interactionIds
+        ),
+        fetchDocumentsByIds(AppwriteConfig.POSTS_COLLECTION_ID, interactionIds),
+      ]);
+
+      const allInteractedPosts = [
+        ...likedRecipeDocs.map((doc) => formatPost(doc, "recipe")),
+        ...likedPostDocs.map((doc) => formatPost(doc)),
+      ];
+
+      const likedPosts = allInteractedPosts.filter((post) =>
+        likedIds.has(post.id)
+      );
+      const bookmarkedPosts = allInteractedPosts.filter((post) =>
+        bookmarkedIds.has(post.id)
+      );
 
       const authorIds = new Set<string>();
       [...likedPosts, ...bookmarkedPosts].forEach((p) => {

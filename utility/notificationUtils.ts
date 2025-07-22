@@ -58,7 +58,7 @@ export async function scheduleExpiryNotification(
         });
       }
     } catch (err) {
-      console.warn(`❌ Failed to schedule notification:`, err);
+      console.warn(`Failed to schedule notification:`, err);
     }
   }
 

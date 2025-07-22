@@ -35,6 +35,7 @@ export const styles = StyleSheet.create({
     color: Colors.text.disabled,
     fontSize: 14,
     fontFamily: "RobotoRegular",
+    textAlign: "right",
   },
   noteText: {
     color: Colors.brand.primaryDark,

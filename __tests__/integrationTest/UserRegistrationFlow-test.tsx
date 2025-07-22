@@ -32,17 +32,22 @@ jest.mock("@/services/Appwrite", () => ({
   createDocument: jest.fn(),
   updateDocument: jest.fn(),
 }));
-jest.mock("expo-router", () => ({
-  router: {
+jest.mock("expo-router", () => {
+  const routerMock = {
     push: jest.fn(),
     replace: jest.fn(),
     back: jest.fn(),
     prefetch: jest.fn(),
-  },
-  Stack: {
-    Screen: () => null,
-  },
-}));
+  };
+
+  return {
+    useRouter: () => routerMock,
+    router: routerMock,
+    Stack: {
+      Screen: () => null,
+    },
+  };
+});
 
 const mockProfileState: any = {
   activeTab: "Posts",

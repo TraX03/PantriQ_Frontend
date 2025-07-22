@@ -16,12 +16,7 @@ import {
 } from "@/services/FastApi";
 import { startOfUTCDay } from "@/utility/dateUtils";
 import { getImageUrl } from "@/utility/imageUtils";
-import {
-  addDays,
-  differenceInCalendarDays,
-  format,
-  startOfDay,
-} from "date-fns";
+import { addDays, differenceInCalendarDays, format } from "date-fns";
 import { router } from "expo-router";
 import { Alert } from "react-native";
 import { ID, Permission, Query, Role } from "react-native-appwrite";
@@ -87,11 +82,10 @@ export interface PlannerState {
 }
 
 const today = startOfUTCDay(new Date());
-console.warn(today);
 const minDate = addDays(today, -30);
 const clampDate = (date: Date) => (date < minDate ? minDate : date);
 const getWeekStart = (date: Date) =>
-  startOfDay(addDays(date, -((date.getDay() + 6) % 7)));
+  startOfUTCDay(addDays(date, -((date.getDay() + 6) % 7)));
 
 export const usePlannerController = () => {
   const planner = useFieldState<PlannerState>({
@@ -349,6 +343,35 @@ export const usePlannerController = () => {
       const user = await getCurrentUser();
       const iso = selectedDate.toISOString().split("T")[0];
       const key = format(selectedDate, "yyyy-MM-dd");
+      const currentMeals = mealsByDate[key] || [];
+
+      const updatedLocalMeals = recipeId
+        ? currentMeals
+            .map((m) =>
+              m.mealtime !== mealtime
+                ? m
+                : { ...m, recipes: m.recipes.filter((r) => r.id !== recipeId) }
+            )
+            .filter((m) => m.recipes.length)
+        : currentMeals.filter((m) => m.mealtime !== mealtime);
+
+      const newMealsByDate = { ...mealsByDate };
+      if (updatedLocalMeals.length === 0) {
+        delete newMealsByDate[key];
+      } else {
+        newMealsByDate[key] = updatedLocalMeals;
+      }
+
+      const mealStillExists = updatedLocalMeals.some((m) =>
+        recipeId
+          ? m.recipes.some((r) => r.id === recipeId)
+          : m.mealtime === mealtime
+      );
+
+      if (!mealStillExists) {
+        setFieldState("mealsByDate", newMealsByDate);
+        return;
+      }
 
       const [doc] = await listDocuments(AppwriteConfig.MEALPLAN_COLLECTION_ID, [
         Query.equal("user_id", user.$id),
@@ -424,12 +447,12 @@ export const usePlannerController = () => {
 
   const addRecipeToMealPlan = async (
     recipe: Meal["recipes"][0],
-    mealtime: string
+    mealtime: string,
+    targetDate: Date
   ) => {
     try {
       const user = await getCurrentUser();
-      const isoDate = selectedDate.toISOString().split("T")[0];
-
+      const isoDate = format(targetDate, "yyyy-MM-dd");
       const [existingDoc] = await listDocuments(
         AppwriteConfig.MEALPLAN_COLLECTION_ID,
         [
@@ -509,7 +532,10 @@ export const usePlannerController = () => {
         );
       }
 
-      router.replace(Routes.PlannerTab);
+      router.replace({
+        pathname: Routes.PlannerTab,
+        params: { targetDate: new Date(targetDate).toISOString() },
+      });
     } catch (error) {
       console.error("Failed to add recipe to meal plan:", error);
     }
@@ -547,8 +573,8 @@ export const usePlannerController = () => {
         const duplicateNames = duplicates.map((r) => `• ${r.name}`).join("\n");
 
         Alert.alert(
-          "Recipes Already in Inventory",
-          `These recipes are already in your inventory:\n\n${duplicateNames}\n\nDo you want to add them again?`,
+          "Recipes Already in Queue",
+          `The following recipes are already in your adding queue:\n\n${duplicateNames}\n\nDo you want to add them again?`,
           [
             { text: "Cancel", style: "cancel" },
             {

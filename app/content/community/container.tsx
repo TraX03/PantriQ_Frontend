@@ -18,7 +18,6 @@ export default function CommunityContainer({ communityId }: Props) {
   const {
     community,
     getCommunity,
-    getCommunityContent,
     handleCommunitySearch,
     resetCommunitySearch,
   } = useCommunityController();
@@ -27,7 +26,6 @@ export default function CommunityContainer({ communityId }: Props) {
     (async () => {
       try {
         await getCommunity(communityId);
-        await getCommunityContent(communityId);
       } catch (error) {
         console.error("Failed to load community:", error);
       } finally {

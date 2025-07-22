@@ -37,6 +37,8 @@ jest.mock("expo-router", () => ({
 jest.mock("react-native-toast-message", () => ({ show: jest.fn() }));
 jest.spyOn(Alert, "alert").mockImplementation(jest.fn());
 
+const mockCheckLogin = jest.fn((fn) => fn());
+
 const defaultMealConfig = {
   lunch: {
     staples: "none",
@@ -162,6 +164,8 @@ describe("Full Meal Planning Flow", () => {
           minDate: new Date("2025-06-16T00:00:00Z"),
           weekStart: new Date("2025-07-14T00:00:00Z"),
         }}
+        fetchMealsForDate={jest.fn()}
+        checkLogin={mockCheckLogin}
         actions={{
           generateMeals: mockGenerateMeals,
           handleChangeWeek: jest.fn(),
@@ -175,6 +179,7 @@ describe("Full Meal Planning Flow", () => {
           ]),
           addMealtime: jest.fn(),
           deleteFromMealplan: jest.fn(),
+          addMealToInventory: jest.fn(),
         }}
       />
     );
