@@ -274,9 +274,6 @@ export default function ListsComponent({
                   color={Colors.brand.primary}
                 />
               </Pressable>
-              <Pressable onPress={() => {}}>
-                <IconSymbol name="bell" color={Colors.brand.primary} />
-              </Pressable>
               <Pressable>
                 <IconSymbol name="ellipsis" color={Colors.brand.primary} />
               </Pressable>

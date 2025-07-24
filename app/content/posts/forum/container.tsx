@@ -1,5 +1,6 @@
 import { useFieldState } from "@/hooks/useFieldState";
 import { useReduxSelectors } from "@/hooks/useReduxSelectors";
+import { useRequireLogin } from "@/hooks/useRequireLogin";
 import { useEffect } from "react";
 import { PostState } from "../controller";
 import ForumComponent from "./component";
@@ -11,6 +12,7 @@ type Props = {
 
 export default function ForumContainer({ post }: Props) {
   const { currentUserProfile, currentUserId } = useReduxSelectors();
+  const { checkLogin } = useRequireLogin();
   const { forum, getUpdatedText, handleSubmit, getComments } =
     useForumController(post.postData?.id, currentUserId);
 
@@ -25,6 +27,7 @@ export default function ForumContainer({ post }: Props) {
       getUpdatedText={getUpdatedText}
       currentUserProfile={currentUserProfile}
       handleSubmit={handleSubmit}
+      checkLogin={checkLogin}
     />
   );
 }

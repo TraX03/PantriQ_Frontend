@@ -45,7 +45,7 @@ const useSearchController = () => {
     searchMode: "default",
   });
 
-  const { searchText, setFieldState, setFields } = search;
+  const { searchText, setFieldState, setFields, getFieldState } = search;
 
   const init = async () => {
     const recent = await getRecentSearches();
@@ -67,11 +67,8 @@ const useSearchController = () => {
     return { posts, users };
   };
 
-  const handleSearch = async (
-    term?: string,
-    isMealtime = false,
-    mode: SearchMode = "default"
-  ) => {
+  const handleSearch = async (term?: string, isMealtime = false) => {
+    const mode = getFieldState("searchMode");
     const query = (term ?? searchText).trim().toLowerCase();
     if (!query) return;
 

@@ -16,6 +16,7 @@ type Props = {
   getUpdatedText: (createdAt: Date) => string;
   currentUserProfile: ProfileData;
   handleSubmit: () => Promise<void>;
+  checkLogin: (next: string | (() => void)) => void;
 };
 
 const CommentItem = ({
@@ -63,6 +64,7 @@ export default function ForumComponent({
   getUpdatedText,
   currentUserProfile,
   handleSubmit,
+  checkLogin,
 }: Props) {
   const { postData } = post;
   const { comment, comments, setFieldState } = forum;
@@ -104,7 +106,7 @@ export default function ForumComponent({
           containerStyle={styles.commentBar}
           inputStyle={{ paddingLeft: 15 }}
         />
-        <Pressable onPress={handleSubmit}>
+        <Pressable onPress={() => checkLogin(handleSubmit)}>
           <IconSymbol
             name="paperplane.fill"
             color={Colors.brand.primary}

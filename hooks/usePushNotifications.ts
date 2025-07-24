@@ -1,15 +1,8 @@
-import { AppwriteConfig } from "@/constants/AppwriteConfig";
 import { Colors } from "@/constants/Colors";
-import {
-  createDocument,
-  listDocuments,
-  updateDocument,
-} from "@/services/Appwrite";
 import * as Device from "expo-device";
 import * as Notifications from "expo-notifications";
 import { useEffect } from "react";
 import { Platform } from "react-native";
-import { Query } from "react-native-appwrite";
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -26,47 +19,14 @@ export function usePushNotifications() {
 
     const notificationListener = Notifications.addNotificationReceivedListener(
       async (notification) => {
-        const { itemName, expiryDate, triggerDate, userId } =
+        const { itemName, expiryDate, triggerDate } =
           notification.request.content.data;
 
         if (!itemName || !expiryDate || !triggerDate) return;
 
-        const existing = await listDocuments(
-          AppwriteConfig.NOTIFICATIONS_COLLECTION_ID,
-          [
-            Query.equal("user_id", userId as string),
-            Query.equal("item_name", itemName as string),
-            Query.equal("expiry_date", expiryDate as string),
-          ]
+        console.log(
+          `Received expiry notification: ${itemName} expiring on ${expiryDate}, triggered at ${triggerDate}`
         );
-
-        const description = `${itemName} expired soon (${triggerDate})`;
-
-        if (existing.length > 0) {
-          const doc = existing[0];
-          const triggers = Array.isArray(doc.trigger_date)
-            ? doc.trigger_date
-            : [];
-
-          if (!triggers.includes(triggerDate)) {
-            triggers.push(triggerDate);
-            await updateDocument(
-              AppwriteConfig.NOTIFICATIONS_COLLECTION_ID,
-              doc.$id,
-              {
-                trigger_date: triggers,
-              }
-            );
-          }
-        } else {
-          await createDocument(AppwriteConfig.NOTIFICATIONS_COLLECTION_ID, {
-            user_id: userId,
-            item_name: itemName,
-            expiry_date: expiryDate,
-            trigger_date: [triggerDate],
-            description,
-          });
-        }
       }
     );
 

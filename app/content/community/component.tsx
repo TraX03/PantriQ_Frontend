@@ -33,6 +33,7 @@ type Props = {
   interactionRecords: Record<string, any>;
   getCommunity: (communityId: string) => Promise<void>;
   currentUserId: string | undefined;
+  checkLogin: (next: string | (() => void)) => void;
 };
 
 export default function CommunityComponent({
@@ -43,6 +44,7 @@ export default function CommunityComponent({
   interactionRecords,
   getCommunity,
   currentUserId,
+  checkLogin,
 }: Props) {
   const {
     communityData,
@@ -231,7 +233,9 @@ export default function CommunityComponent({
 
         <Pressable
           style={styles.generateButton}
-          onPress={() => setFieldState("showAddOptionModal", true)}
+          onPress={() =>
+            checkLogin(() => setFieldState("showAddOptionModal", true))
+          }
         >
           <IconSymbol name="plus" color={Colors.brand.onPrimary} size={22} />
         </Pressable>

@@ -1,4 +1,5 @@
 import { useReduxSelectors } from "@/hooks/useReduxSelectors";
+import { useRequireLogin } from "@/hooks/useRequireLogin";
 import { setLoading } from "@/redux/slices/loadingSlice";
 import { AppDispatch } from "@/redux/store";
 import { useEffect } from "react";
@@ -14,6 +15,7 @@ export default function CommunityContainer({ communityId }: Props) {
   const dispatch = useDispatch<AppDispatch>();
   const { interactionVersion, interactionRecords, currentUserId } =
     useReduxSelectors();
+  const { checkLogin } = useRequireLogin();
 
   const {
     community,
@@ -43,6 +45,7 @@ export default function CommunityContainer({ communityId }: Props) {
       getCommunity={getCommunity}
       interactionRecords={interactionRecords}
       currentUserId={currentUserId}
+      checkLogin={checkLogin}
     />
   );
 }

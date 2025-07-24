@@ -9,16 +9,12 @@ import { styles } from "@/utility/search/styles";
 import { router, Stack } from "expo-router";
 import { Pressable, Text, TouchableOpacity, View } from "react-native";
 import { availableMealtimes } from "../planner/controller";
-import { SearchMode, searchModeOptions, SearchState } from "./controller";
+import { searchModeOptions, SearchState } from "./controller";
 import SearchResultContainer from "./searchResult/container";
 
 type Props = {
   search: ReturnType<typeof useFieldState<SearchState>>;
-  handleSearch: (
-    term?: string,
-    isMealtime?: boolean,
-    mode?: SearchMode
-  ) => Promise<void>;
+  handleSearch: (term?: string, isMealtime?: boolean) => Promise<void>;
   handleClear: () => void;
   isFromMealPlan: boolean;
   context?: string;
@@ -160,10 +156,7 @@ export default function SearchComponent({
                 {searchModeOptions.map((mode) =>
                   searchTag(
                     mode.label,
-                    () => {
-                      setFieldState("searchMode", mode.id);
-                      handleSearch(undefined, false, mode.id);
-                    },
+                    () => setFieldState("searchMode", mode.id),
                     searchMode === mode.id
                   )
                 )}

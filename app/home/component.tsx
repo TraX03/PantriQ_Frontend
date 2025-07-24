@@ -114,9 +114,6 @@ export default function HomeComponent({
           >
             <IconSymbol name="magnifyingglass" color={Colors.brand.primary} />
           </Pressable>
-          <Pressable>
-            <IconSymbol name="bell" color={Colors.brand.primary} />
-          </Pressable>
         </View>
       </View>
 
