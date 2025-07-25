@@ -223,7 +223,8 @@ export const useCommunityController = () => {
         }
       );
 
-      router.replace({
+      router.replace(Routes.Home);
+      router.push({
         pathname: Routes.PostDetail,
         params: { id: communityId },
       });

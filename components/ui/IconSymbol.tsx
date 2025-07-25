@@ -58,14 +58,6 @@ const MAPPING = {
     name: "circle-edit-outline",
     type: "MaterialCommunityIcons",
   },
-  "line.horizontal.3.decrease": {
-    name: ["filter-outline", "filter-check"],
-    type: "MaterialCommunityIcons",
-  },
-  "list.bullet.indent": {
-    name: "sort",
-    type: "MaterialCommunityIcons",
-  },
   "chevron.down": {
     name: "chevron-down",
     type: "Ionicons",

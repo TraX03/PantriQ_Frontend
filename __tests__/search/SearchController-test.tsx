@@ -11,6 +11,7 @@ jest.mock("@/utility/searchStorageUtils");
 describe("useSearchController", () => {
   const mockSetFieldState = jest.fn();
   const mockSetFields = jest.fn();
+  const mockGetFieldState = jest.fn();
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -22,6 +23,7 @@ describe("useSearchController", () => {
       isInitialized: false,
       setFieldState: mockSetFieldState,
       setFields: mockSetFields,
+      getFieldState: mockGetFieldState,
     });
 
     (fetchUtils.fetchPosts as jest.Mock).mockResolvedValue([

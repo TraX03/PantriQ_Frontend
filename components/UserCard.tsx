@@ -1,6 +1,8 @@
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { Colors } from "@/constants/Colors";
 import { Routes } from "@/constants/Routes";
+import { usePreventDoubleTap } from "@/hooks/usePreventDoubleTap";
+import { useReduxSelectors } from "@/hooks/useReduxSelectors";
 import { User } from "@/utility/fetchUtils";
 import { styles as profileStyles } from "@/utility/profile/styles";
 import { router } from "expo-router";
@@ -12,15 +14,21 @@ type UserCardProps = {
 };
 
 export default function UserCard({ user }: UserCardProps) {
+  const { currentUserId } = useReduxSelectors();
+  const handleUserPress = usePreventDoubleTap(() => {
+    if (!user?.id) return;
+
+    router.push(
+      user.id === currentUserId
+        ? Routes.ProfileTab
+        : { pathname: Routes.UserDetail, params: { id: user.id } }
+    );
+  });
+
   return (
     <TouchableOpacity
       style={styles.userCardContainer}
-      onPress={() =>
-        router.push({
-          pathname: Routes.UserDetail,
-          params: { id: user.id },
-        })
-      }
+      onPress={handleUserPress}
     >
       <View className="flex-row items-center flex-1">
         <View

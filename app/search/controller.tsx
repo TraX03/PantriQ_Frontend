@@ -12,9 +12,11 @@ export const searchModeOptions = [
   { id: "default", label: "Default" },
   { id: "ingredient", label: "Ingredient" },
   { id: "area", label: "Region" },
+  { id: "diet", label: "Diet" },
 ] as const;
 
 export type SearchMode = (typeof searchModeOptions)[number]["id"];
+export type SearchContext = "mealtime" | "area";
 
 export interface SearchState {
   posts: Post[];
@@ -67,7 +69,7 @@ const useSearchController = () => {
     return { posts, users };
   };
 
-  const handleSearch = async (term?: string, isMealtime = false) => {
+  const handleSearch = async (term?: string, context?: SearchContext) => {
     const mode = getFieldState("searchMode");
     const query = (term ?? searchText).trim().toLowerCase();
     if (!query) return;
@@ -87,7 +89,7 @@ const useSearchController = () => {
       users = result.users;
     }
 
-    if (!isMealtime) {
+    if (!context) {
       await addRecentSearch(query);
       const recent = await getRecentSearches();
       setFieldState("recentSearches", recent);
@@ -97,25 +99,24 @@ const useSearchController = () => {
     const otherPosts = posts.filter((post) => post.type !== "recipe");
 
     let filteredRecipes: typeof posts = [];
-    if (isMealtime) {
+    if (context) {
       filteredRecipes = recipePosts.filter((post) => {
-        const mealtimeRaw = post.mealtime as string | string[] | undefined;
+        const rawValue = post[context] as string | string[] | undefined;
 
-        const mealtimes: string[] = Array.isArray(mealtimeRaw)
-          ? mealtimeRaw.map((m) =>
-              typeof m === "string" ? m.toLowerCase() : ""
-            )
-          : typeof mealtimeRaw === "string"
-          ? [mealtimeRaw.toLowerCase()]
+        const values: string[] = Array.isArray(rawValue)
+          ? rawValue.map((v) => (typeof v === "string" ? v.toLowerCase() : ""))
+          : typeof rawValue === "string"
+          ? [rawValue.toLowerCase()]
           : [];
 
         return (
-          mealtimes.includes(query.toLowerCase()) || mealtimes.includes("all")
+          values.includes(query.toLowerCase()) ||
+          (context === "mealtime" && values.includes("all"))
         );
       });
     }
 
-    const fuzzyTargetPosts = isMealtime ? otherPosts : posts;
+    const fuzzyTargetPosts = context ? otherPosts : posts;
 
     const postKeys =
       mode === "ingredient"
@@ -129,6 +130,12 @@ const useSearchController = () => {
             { name: "title", weight: 0.3 },
             { name: "description", weight: 0.1 },
           ]
+        : mode === "diet"
+        ? [
+            { name: "tags", weight: 1 },
+            { name: "category", weight: 0.6 },
+            { name: "title", weight: 0.3 },
+          ]
         : [
             { name: "title", weight: 0.58 },
             { name: "ingredients", weight: 0.25 },
@@ -138,7 +145,7 @@ const useSearchController = () => {
 
     const postFuse = new Fuse(fuzzyTargetPosts, {
       includeScore: true,
-      threshold: 0.3,
+      threshold: 0.25,
       ignoreLocation: true,
       keys: postKeys,
     });
@@ -163,14 +170,87 @@ const useSearchController = () => {
       .sort((a, b) => (a.score ?? 1) - (b.score ?? 1))
       .map((res) => res.item);
 
-    const allFilteredPosts = isMealtime
+    const allFilteredPosts = context
       ? [...filteredRecipes, ...postFuzzyResults]
       : postFuzzyResults;
 
+    const finalFilteredPosts = dietaryFilter(query, allFilteredPosts);
+
     setFields({
-      allFilteredPosts,
+      allFilteredPosts: finalFilteredPosts,
       filteredUsers: userResults,
       postLoading: false,
+    });
+  };
+
+  const dietaryFilter = (query: string, posts: typeof search.posts) => {
+    const lowerQuery = query.toLowerCase();
+
+    const baseMeatBlacklist = [
+      "chicken",
+      "beef",
+      "pork",
+      "lamb",
+      "fish",
+      "shrimp",
+      "bacon",
+      "ham",
+      "mutton",
+      "duck",
+      "turkey",
+      "anchovy",
+      "sardine",
+      "venison",
+      "ragu",
+      "prawn",
+    ];
+
+    const dairyAndAnimalProducts = [
+      "milk",
+      "cheese",
+      "butter",
+      "yogurt",
+      "egg",
+      "honey",
+      "cream",
+      "mayonnaise",
+      "ghee",
+      "whey",
+      "casein",
+      "lard",
+      "gelatin",
+    ];
+
+    const blacklistMap: Record<string, string[]> = {
+      halal: ["pork", "pig", "bacon", "ham", "pig leg", "pig shoulder"],
+      vegetarian: [...baseMeatBlacklist],
+      vegan: [...baseMeatBlacklist, ...dairyAndAnimalProducts],
+    };
+
+    const getDiet = () => {
+      if (lowerQuery.includes("vegan")) return "vegan";
+      if (lowerQuery.includes("vegetarian")) return "vegetarian";
+      if (lowerQuery.includes("halal")) return "halal";
+      return null;
+    };
+
+    const diet = getDiet();
+    if (!diet) return posts;
+
+    const blacklist = blacklistMap[diet];
+
+    return posts.filter((post) => {
+      const ingredientNames = (post.ingredients ?? []).map((i) =>
+        typeof i === "string" ? i.toLowerCase() : ""
+      );
+      const title = (post.title ?? "").toLowerCase();
+      const description = (post.description ?? "").toLowerCase();
+
+      const combinedFields = [...ingredientNames, title, description];
+
+      return !combinedFields.some((field) =>
+        blacklist.some((term) => field.includes(term))
+      );
     });
   };
 

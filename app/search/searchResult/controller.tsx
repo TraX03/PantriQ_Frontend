@@ -12,16 +12,12 @@ export const tabs = [
 export type Tab = (typeof tabs)[number];
 
 export interface SearchResultState {
-  filterActive: boolean;
-  orderActive: boolean;
   activeTab: Tab;
   filteredPosts: Post[];
 }
 
 const useSearchResultController = (allFilteredPosts: Post[]) => {
   const searchResult = useFieldState<SearchResultState>({
-    filterActive: false,
-    orderActive: false,
     activeTab: tabs[0],
     filteredPosts: [],
   });

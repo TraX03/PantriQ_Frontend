@@ -126,4 +126,15 @@ export const styles = StyleSheet.create({
     left: 20,
     right: 20,
   },
+  replyToText: {
+    color: Colors.feedback.unknown,
+    fontSize: 12,
+    marginRight: 15,
+  },
+  replyButton: {
+    color: Colors.brand.primary,
+    fontFamily: "Afacad",
+    textAlign: "right",
+    fontSize: 15,
+  },
 });

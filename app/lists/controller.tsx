@@ -10,12 +10,14 @@ import {
   updateDocument,
 } from "@/services/Appwrite";
 import {
+  adjustIngredientsByServing,
   finalizeShoppingList,
   predictExpiryDateTime,
 } from "@/services/GeminiApi";
 import { scheduleExpiryNotification } from "@/utility/notificationUtils";
 import { Alert } from "react-native";
 import { Query } from "react-native-appwrite";
+import { Ingredient } from "../create/createForm/controller";
 import { LIST_TABS } from "./component";
 import { NewItemDraft } from "./inventoryModal/controller";
 
@@ -164,44 +166,17 @@ export const useListsController = () => {
         );
         const displayQty = Math.max(0, totalValidQty - checkedCount);
 
-        let display = displayQty;
-        let expired = totalExpiredQty;
-        let unit = originalUnit;
-
-        if (doc.type === "inventory" && UNIT_CONVERSIONS[unit]) {
-          const { to, factor } = UNIT_CONVERSIONS[unit];
-          display *= factor;
-          expired *= factor;
-          unit = to;
-
-          const reverse = Object.entries(UNIT_CONVERSIONS).find(
-            ([fromUnit, config]) => config.to === unit && config.factor > 1
-          );
-
-          if (reverse) {
-            const [fromUnit, { factor: reverseFactor }] = reverse;
-            const reversedDisplay = display / reverseFactor;
-            const reversedExpired = expired / reverseFactor;
-
-            if (reversedDisplay >= 1) {
-              display = parseFloat(reversedDisplay.toFixed(2));
-              expired = parseFloat(reversedExpired.toFixed(2));
-              unit = fromUnit;
-            }
-          }
-        }
-
         return {
           id: doc.$id,
           type: doc.type,
           name: doc.name,
           quantity,
-          unit,
+          unit: originalUnit,
           checked: !!doc.checked,
           checkedCount,
           expiries,
-          quantityDisplay: display,
-          expiredQuantity: expired,
+          quantityDisplay: displayQty,
+          expiredQuantity: totalExpiredQty,
         };
       });
 
@@ -826,6 +801,13 @@ export const useListsController = () => {
     try {
       const user = await getCurrentUser();
       setFieldState("showSyncLoading", true);
+
+      const userDoc = await getDocumentById(
+        AppwriteConfig.USERS_COLLECTION_ID,
+        user.$id
+      );
+      const userServing = userDoc.servings ?? 1;
+
       const allIngredients: {
         name: string;
         quantity: string;
@@ -838,23 +820,29 @@ export const useListsController = () => {
         );
 
         const ingredientsRaw: string[] = recipeDoc.ingredients ?? [];
-
-        const parsed = ingredientsRaw
+        const parsedIngredients: Ingredient[] = ingredientsRaw
           .map((i) => {
             try {
-              const ing = JSON.parse(i);
-              return {
-                name: ing.name?.toLowerCase()?.split(" or ")[0]?.trim() ?? "",
-                quantity: ing.quantity?.trim() ?? "",
-              };
+              return JSON.parse(i);
             } catch (err) {
               console.warn("Failed to parse ingredient:", i);
               return null;
             }
           })
-          .filter(Boolean) as { name: string; quantity: string }[];
+          .filter(Boolean) as Ingredient[];
 
-        allIngredients.push(...parsed);
+        const adjustedIngredients = await adjustIngredientsByServing(
+          recipeDoc.title ?? "Untitled Recipe",
+          userServing,
+          parsedIngredients
+        );
+
+        allIngredients.push(
+          ...adjustedIngredients.map((ing) => ({
+            name: ing.name?.toLowerCase()?.split(" or ")[0]?.trim() ?? "",
+            quantity: ing.quantity?.trim() ?? "",
+          }))
+        );
       }
 
       const inventoryResponse = await fetchAllDocuments(

@@ -25,6 +25,7 @@ jest.mock(
 );
 
 const mockDeletePost = jest.fn();
+const mockGetPost = jest.fn();
 const mockHandleAuthorPress = jest.fn();
 
 const completePostData: PostData = {
@@ -33,9 +34,11 @@ const completePostData: PostData = {
   author: "John Doe",
   authorId: "author1",
   images: ["https://example.com/image1.jpg", "https://example.com/image2.jpg"],
-  commentCount: 5,
+  commentsCount: 5,
   description: "This is a test description",
   createdAt: "2023-07-15T12:00:00Z",
+  likesCount: 10,
+  bookmarksCount: 3,
 };
 
 const useFieldStateMock = {
@@ -61,9 +64,15 @@ describe("PostComponent", () => {
     const { getByText } = render(
       <PostComponent
         post={{ ...useFieldStateMock }}
-        deletePost={mockDeletePost}
+        actions={{
+          getPost: mockGetPost,
+          confirmDeletePost: mockDeletePost,
+        }}
         postType="tips"
         handleAuthorPress={mockHandleAuthorPress}
+        addRecipeToMealPlan={undefined}
+        assignToCommunity={undefined}
+        currentUserId="user123"
       />
     );
 
@@ -75,9 +84,15 @@ describe("PostComponent", () => {
     const { getByText } = render(
       <PostComponent
         post={{ ...useFieldStateMock }}
-        deletePost={mockDeletePost}
+        actions={{
+          getPost: mockGetPost,
+          confirmDeletePost: mockDeletePost,
+        }}
         postType="tips"
         handleAuthorPress={mockHandleAuthorPress}
+        addRecipeToMealPlan={undefined}
+        assignToCommunity={undefined}
+        currentUserId="user123"
       />
     );
 
@@ -106,9 +121,15 @@ describe("PostComponent", () => {
     } = render(
       <PostComponent
         post={{ ...useFieldStateMock }}
-        deletePost={mockDeletePost}
+        actions={{
+          getPost: mockGetPost,
+          confirmDeletePost: mockDeletePost,
+        }}
         postType="tips"
         handleAuthorPress={mockHandleAuthorPress}
+        addRecipeToMealPlan={undefined}
+        assignToCommunity={undefined}
+        currentUserId="user123"
       />
     );
   });
@@ -117,9 +138,15 @@ describe("PostComponent", () => {
     const { getByText } = render(
       <PostComponent
         post={{ ...useFieldStateMock, postData: null }}
-        deletePost={mockDeletePost}
+        actions={{
+          getPost: mockGetPost,
+          confirmDeletePost: mockDeletePost,
+        }}
         postType="tips"
         handleAuthorPress={mockHandleAuthorPress}
+        addRecipeToMealPlan={undefined}
+        assignToCommunity={undefined}
+        currentUserId="user123"
       />
     );
 

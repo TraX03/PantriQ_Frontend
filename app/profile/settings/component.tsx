@@ -3,6 +3,7 @@ import HeaderBar from "@/components/HeaderBar";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { Colors } from "@/constants/Colors";
 import { Routes } from "@/constants/Routes";
+import { usePreventDoubleTap } from "@/hooks/usePreventDoubleTap";
 import { ProfileData } from "@/redux/slices/profileSlice";
 import { styles } from "@/utility/profile/settings/styles";
 import { styles as profileStyles } from "@/utility/profile/styles";
@@ -30,6 +31,26 @@ export default function SettingsComponent({ profileData, onLogout }: Props) {
   }
 
   const { avatarUrl, username } = profileData;
+  const goToCuisine = usePreventDoubleTap(() =>
+    router.push({
+      pathname: Routes.EditPreferencesForm,
+      params: { key: "cuisine" },
+    })
+  );
+
+  const goToAvoidIngredients = usePreventDoubleTap(() =>
+    router.push({
+      pathname: Routes.EditPreferencesForm,
+      params: { key: "avoidIngredients" },
+    })
+  );
+
+  const goToDiet = usePreventDoubleTap(() =>
+    router.push({
+      pathname: Routes.EditPreferencesForm,
+      params: { key: "diet" },
+    })
+  );
 
   const PreferenceItem = ({
     label,
@@ -109,37 +130,12 @@ export default function SettingsComponent({ profileData, onLogout }: Props) {
           Preferences
         </Text>
 
-        <PreferenceItem
-          label="Cuisine"
-          isTop
-          onPress={() =>
-            router.push({
-              pathname: Routes.EditPreferencesForm,
-              params: { key: "cuisine" },
-            })
-          }
-        />
-
+        <PreferenceItem label="Cuisine" isTop onPress={goToCuisine} />
         <PreferenceItem
           label="Avoided Ingredients"
-          onPress={() =>
-            router.push({
-              pathname: Routes.EditPreferencesForm,
-              params: { key: "avoidIngredients" },
-            })
-          }
+          onPress={goToAvoidIngredients}
         />
-
-        <PreferenceItem
-          label="Diet"
-          isBottom
-          onPress={() =>
-            router.push({
-              pathname: Routes.EditPreferencesForm,
-              params: { key: "diet" },
-            })
-          }
-        />
+        <PreferenceItem label="Diet" isBottom onPress={goToDiet} />
 
         <Pressable
           onPress={onLogout}

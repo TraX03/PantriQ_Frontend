@@ -1,5 +1,4 @@
 import MasonryList from "@/components/MasonryList";
-import { IconSymbol } from "@/components/ui/IconSymbol";
 import UserCard from "@/components/UserCard";
 import { Colors } from "@/constants/Colors";
 import { useFieldState } from "@/hooks/useFieldState";
@@ -31,8 +30,7 @@ export default function SearchResultComponent({
   isFromMealPlan,
   context,
 }: Props) {
-  const { filterActive, orderActive, activeTab, filteredPosts, setFieldState } =
-    searchResult;
+  const { activeTab, filteredPosts, setFieldState } = searchResult;
 
   const filteredTabs: Tab[] = isFromMealPlan ? ["Recipes"] : tabs.slice();
 
@@ -62,26 +60,6 @@ export default function SearchResultComponent({
               )}
             </View>
           ))}
-        </View>
-
-        <View className="flex-row gap-[2px]">
-          <Pressable
-            onPress={() => setFieldState("filterActive", !filterActive)}
-          >
-            <IconSymbol
-              name="line.horizontal.3.decrease"
-              size={22}
-              color={filterActive ? Colors.brand.primary : Colors.text.primary}
-              selectedIcon={filterActive ? 1 : 0}
-            />
-          </Pressable>
-          <Pressable onPress={() => setFieldState("orderActive", !orderActive)}>
-            <IconSymbol
-              name="list.bullet.indent"
-              size={22}
-              color={orderActive ? Colors.brand.primary : Colors.text.primary}
-            />
-          </Pressable>
         </View>
       </View>
 

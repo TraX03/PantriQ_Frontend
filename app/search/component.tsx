@@ -8,13 +8,14 @@ import { styles as profileStyles } from "@/utility/profile/styles";
 import { styles } from "@/utility/search/styles";
 import { router, Stack } from "expo-router";
 import { Pressable, Text, TouchableOpacity, View } from "react-native";
+import { pages } from "../onboarding/component";
 import { availableMealtimes } from "../planner/controller";
-import { searchModeOptions, SearchState } from "./controller";
+import { SearchContext, searchModeOptions, SearchState } from "./controller";
 import SearchResultContainer from "./searchResult/container";
 
 type Props = {
   search: ReturnType<typeof useFieldState<SearchState>>;
-  handleSearch: (term?: string, isMealtime?: boolean) => Promise<void>;
+  handleSearch: (term?: string, context?: SearchContext) => Promise<void>;
   handleClear: () => void;
   isFromMealPlan: boolean;
   context?: string;
@@ -42,6 +43,8 @@ export default function SearchComponent({
   const displayedSearches = expanded
     ? recentSearches
     : recentSearches.slice(0, 7);
+
+  const cuisinePage = pages.find((p) => p.keyName === "cuisine");
 
   const searchTag = (
     label: string,
@@ -140,7 +143,7 @@ export default function SearchComponent({
                   onPress={() => {
                     setFieldState("expanded", !expanded);
                   }}
-                  className="mt-2 mb-4"
+                  className="mt-2 mb-2"
                 >
                   <Text style={styles.expandText}>
                     {expanded ? "Show Less" : "Show More"}
@@ -170,8 +173,20 @@ export default function SearchComponent({
                 {availableMealtimes
                   .filter((mt) => mt.id !== "all")
                   .map((mt) =>
-                    searchTag(mt.label, () => handleSearch(mt.label, true))
+                    searchTag(mt.label, () =>
+                      handleSearch(mt.label, "mealtime")
+                    )
                   )}
+              </View>
+
+              <View className="mt-6">
+                <Text style={styles.titleText}>Search By Cuisine</Text>
+              </View>
+
+              <View className="flex-row flex-wrap gap-3 mt-3">
+                {cuisinePage?.suggestions?.map((label) =>
+                  searchTag(label, () => handleSearch(label, "area"))
+                )}
               </View>
             </View>
           )}

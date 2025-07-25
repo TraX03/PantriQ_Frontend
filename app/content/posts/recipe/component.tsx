@@ -7,6 +7,7 @@ import { IconSymbol } from "@/components/ui/IconSymbol";
 import { Colors } from "@/constants/Colors";
 import { Routes } from "@/constants/Routes";
 import { useFieldState } from "@/hooks/useFieldState";
+import { usePreventDoubleTap } from "@/hooks/usePreventDoubleTap";
 import { capitalize, titleCase } from "@/utility/capitalize";
 import { styles } from "@/utility/content/posts/recipe/styles";
 import { styles as postStyles } from "@/utility/content/posts/styles";
@@ -79,6 +80,17 @@ export default function RecipeComponent({
   };
 
   const userReview = recipe.reviews?.find((r) => r.userId === currentUserId);
+
+  const handleNavigateToRating = usePreventDoubleTap(() => {
+    router.push({
+      pathname: Routes.Rating,
+      params: {
+        recipeId: recipeData.id,
+        ratingCount: recipeData.ratingCount,
+        rating: recipeData.rating,
+      },
+    });
+  });
 
   return (
     <>
@@ -317,18 +329,7 @@ export default function RecipeComponent({
           </View>
 
           {recipe.reviews && recipe.reviews.length > 0 && (
-            <Pressable
-              onPress={() =>
-                router.push({
-                  pathname: Routes.Rating,
-                  params: {
-                    recipeId: recipeData.id,
-                    ratingCount: recipeData.ratingCount,
-                    rating: recipeData.rating,
-                  },
-                })
-              }
-            >
+            <Pressable onPress={handleNavigateToRating}>
               <IconSymbol name="chevron.right" color={Colors.brand.primary} />
             </Pressable>
           )}

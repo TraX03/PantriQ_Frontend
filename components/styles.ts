@@ -9,7 +9,7 @@ const baseTextStyle = {
 
 export const styles = StyleSheet.create({
   container: {
-    borderRadius: 12,
+    borderRadius: 10,
     paddingBottom: 14,
     backgroundColor: Colors.brand.onPrimary,
   },

@@ -4,6 +4,7 @@ import { IconSymbol } from "@/components/ui/IconSymbol";
 import { Colors } from "@/constants/Colors";
 import { Routes } from "@/constants/Routes";
 import { useFieldState } from "@/hooks/useFieldState";
+import { usePreventDoubleTap } from "@/hooks/usePreventDoubleTap";
 import { capitalize } from "@/utility/capitalize";
 import { startOfUTCDay } from "@/utility/dateUtils";
 import { styles as homeStyles } from "@/utility/home/styles";
@@ -91,6 +92,45 @@ export default function PlannerComponent({
         "MMM d"
       )}`;
 
+  const handleFromPosts = usePreventDoubleTap(() =>
+    router.push({
+      pathname: Routes.Listing,
+      params: {
+        type: "created",
+        context: JSON.stringify({
+          mealtime: selectedMealtime,
+          selectedDate,
+        }),
+      },
+    })
+  );
+
+  const handleFromInteractions = usePreventDoubleTap(() =>
+    router.push({
+      pathname: Routes.Listing,
+      params: {
+        type: "interactions",
+        context: JSON.stringify({
+          mealtime: selectedMealtime,
+          selectedDate,
+        }),
+      },
+    })
+  );
+
+  const handleFromSearch = usePreventDoubleTap(() =>
+    router.push({
+      pathname: Routes.Search,
+      params: {
+        isFromMealPlan: "true",
+        context: JSON.stringify({
+          mealtime: selectedMealtime,
+          selectedDate,
+        }),
+      },
+    })
+  );
+
   return (
     <>
       <BottomSheetModal
@@ -166,45 +206,15 @@ export default function PlannerComponent({
         options={[
           {
             label: "From Your Posts",
-            action: () =>
-              router.push({
-                pathname: Routes.Listing,
-                params: {
-                  type: "created",
-                  context: JSON.stringify({
-                    mealtime: selectedMealtime,
-                    selectedDate,
-                  }),
-                },
-              }),
+            action: handleFromPosts,
           },
           {
             label: "From Likes/Bookmarks/Views",
-            action: () =>
-              router.push({
-                pathname: Routes.Listing,
-                params: {
-                  type: "interactions",
-                  context: JSON.stringify({
-                    mealtime: selectedMealtime,
-                    selectedDate,
-                  }),
-                },
-              }),
+            action: handleFromInteractions,
           },
           {
             label: "Search Recipe",
-            action: () =>
-              router.push({
-                pathname: Routes.Search,
-                params: {
-                  isFromMealPlan: "true",
-                  context: JSON.stringify({
-                    mealtime: selectedMealtime,
-                    selectedDate,
-                  }),
-                },
-              }),
+            action: handleFromSearch,
           },
         ]}
       />
@@ -229,9 +239,9 @@ export default function PlannerComponent({
               </Pressable>
               <Pressable
                 testID="meal-config-button"
-                onPress={() => {
+                onPress={usePreventDoubleTap(() => {
                   checkLogin(() => router.push(Routes.MealConfiguration));
-                }}
+                })}
               >
                 <IconSymbol
                   name="ellipsis.circle"

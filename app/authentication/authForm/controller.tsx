@@ -107,9 +107,10 @@ export const useAuthController = (mode: AuthMode) => {
         await login(email, password);
       }
 
-      const isOnboarded = await fetchProfile();
+      const profile = await fetchProfile();
+
       const destination =
-        isOnboarded === false
+        profile?.isOnboarded === false
           ? Routes.Onboarding
           : typeof redirect === "string"
           ? redirect

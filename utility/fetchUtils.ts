@@ -30,6 +30,19 @@ export const fetchPosts = async (
 
   const mapPost = (doc: any, usersMap: Map<string, any>): Post => {
     const author = usersMap.get(doc.author_id);
+    const ingredients = Array.isArray(doc.ingredients)
+      ? doc.ingredients
+          .map((ing: any) => {
+            try {
+              const parsed = typeof ing === "string" ? JSON.parse(ing) : ing;
+              return parsed?.name;
+            } catch (err) {
+              console.warn("❌ Failed to parse ingredient:", ing, err);
+              return null;
+            }
+          })
+          .filter(Boolean)
+      : [];
 
     return {
       id: doc.$id,
@@ -43,10 +56,9 @@ export const fetchPosts = async (
       description: !doc.type ? doc.description : doc.content,
       created_at: doc.$createdAt,
       category: doc.category,
-      ingredients: Array.isArray(doc.ingredients)
-        ? doc.ingredients.map((ing: any) => ing.name).filter(Boolean)
-        : [],
+      ingredients,
       mealtime: doc.mealtime,
+      tags: doc.tags,
     };
   };
 

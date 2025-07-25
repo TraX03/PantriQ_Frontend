@@ -1,8 +1,9 @@
 import { RecipePost } from "@/app/content/posts/controller";
+import { ApiConfig } from "@/constants/ApiConfig";
 
 const SpoonacularConfig = {
   BASE_URL: "https://api.spoonacular.com/recipes/",
-  API_KEY: "563397ab406d4ea1b7ebefe5e892fc1c",
+  API_KEY: ApiConfig.SPOONACULAR,
 };
 
 export const analyzeRecipe = async (recipe: RecipePost) => {

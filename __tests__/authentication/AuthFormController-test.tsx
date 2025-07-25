@@ -86,7 +86,7 @@ describe("useAuthController (signUp mode)", () => {
   });
 
   it("should sign up successfully and redirect to onboarding", async () => {
-    mockFetchProfile.mockResolvedValue(false);
+    mockFetchProfile.mockResolvedValue({ isOnboarded: false });
 
     const { result } = renderHook(() => useAuthController("signUp"));
 

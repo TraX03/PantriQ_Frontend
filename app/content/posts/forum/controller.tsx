@@ -10,7 +10,7 @@ import { getImageUrl } from "@/utility/imageUtils";
 import { format, formatDistanceToNow, isToday, isYesterday } from "date-fns";
 import { Query } from "react-native-appwrite";
 
-interface Comment {
+export interface Comment {
   id: string;
   content: string;
   timeAgo: string;
@@ -18,17 +18,21 @@ interface Comment {
     username: string;
     avatarUrl: string;
   };
+  parentId?: string;
 }
 
 export interface ForumState {
   comment: string;
   comments: Comment[];
+  replyTo?: Comment | null;
+  expandedComments?: Record<string, boolean>;
 }
 
 export const useForumController = (postId?: string, currentUserId?: string) => {
   const forum = useFieldState<ForumState>({
     comment: "",
     comments: [],
+    expandedComments: {},
   });
   const { comment, setFieldState } = forum;
 
@@ -44,10 +48,13 @@ export const useForumController = (postId?: string, currentUserId?: string) => {
     if (!comment.trim()) return;
 
     try {
+      const parentId = forum.replyTo?.id;
+
       await createDocument(AppwriteConfig.COMMENTS_COLLECTION_ID, {
         post_id: postId,
         author_id: currentUserId,
         content: comment.trim(),
+        parent_id: parentId ?? null,
         created_at: new Date().toISOString(),
       });
 
@@ -61,6 +68,7 @@ export const useForumController = (postId?: string, currentUserId?: string) => {
       });
 
       setFieldState("comment", "");
+      setFieldState("replyTo", null);
       getComments();
     } catch (error) {
       console.error("Failed to submit comment", error);
@@ -94,6 +102,7 @@ export const useForumController = (postId?: string, currentUserId?: string) => {
       const formatted = res.map((c) => ({
         id: c.$id,
         content: c.content,
+        parentId: c.parent_id ?? null,
         timeAgo: formatDistanceToNow(new Date(c.created_at), {
           addSuffix: true,
         }),
@@ -106,7 +115,14 @@ export const useForumController = (postId?: string, currentUserId?: string) => {
     }
   };
 
-  return { forum, getUpdatedText, handleSubmit, getComments };
+  const toggleReplies = (parentId: string) => {
+    setFieldState("expandedComments", {
+      ...forum.getFieldState("expandedComments"),
+      [parentId]: !forum.getFieldState("expandedComments")?.[parentId],
+    });
+  };
+
+  return { forum, getUpdatedText, handleSubmit, getComments, toggleReplies };
 };
 
 export default useForumController;

@@ -318,14 +318,6 @@ export default function ListsComponent({
             <View className="flex-row justify-between mt-6">
               <Text className="text-[14px]">{uncheckedItems.length} items</Text>
               <View className="flex-row gap-2 items-center">
-                <View className="flex-row gap-1">
-                  <Text style={styles.filterText}>Name</Text>
-                  <IconSymbol
-                    name="chevron.down"
-                    color={Colors.text.disabled}
-                    size={20}
-                  />
-                </View>
                 {activeTab !== "inventory" && (
                   <Pressable
                     testID={isEditing ? "edit-mode-done" : "edit-mode-toggle"}

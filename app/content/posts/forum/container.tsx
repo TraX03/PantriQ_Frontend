@@ -13,7 +13,7 @@ type Props = {
 export default function ForumContainer({ post }: Props) {
   const { currentUserProfile, currentUserId } = useReduxSelectors();
   const { checkLogin } = useRequireLogin();
-  const { forum, getUpdatedText, handleSubmit, getComments } =
+  const { forum, getUpdatedText, handleSubmit, getComments, toggleReplies } =
     useForumController(post.postData?.id, currentUserId);
 
   useEffect(() => {
@@ -28,6 +28,7 @@ export default function ForumContainer({ post }: Props) {
       currentUserProfile={currentUserProfile}
       handleSubmit={handleSubmit}
       checkLogin={checkLogin}
+      toggleReplies={toggleReplies}
     />
   );
 }

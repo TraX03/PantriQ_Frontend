@@ -19,12 +19,10 @@ export async function scheduleExpiryNotification(
 
     const now = new Date();
     let triggerDate = targetDate;
-    let isFallback = false;
 
     if (triggerDate <= now) {
       if (daysBefore === 1) {
-        triggerDate = new Date(now.getTime() + 60 * 1000);
-        isFallback = true;
+        triggerDate = new Date(now.getTime() + 10 * 1000);
       } else {
         console.log(`Skipped ${daysBefore}d notification: already past`);
         return;

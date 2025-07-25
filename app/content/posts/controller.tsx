@@ -31,7 +31,7 @@ interface BasePost {
   bookmarksCount: number;
   description: string;
   createdAt: string;
-  commentsCount: string;
+  commentsCount: number;
 }
 
 export interface RecipePost extends BasePost {

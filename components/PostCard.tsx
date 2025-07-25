@@ -1,6 +1,7 @@
 import { Colors } from "@/constants/Colors";
 import { Routes } from "@/constants/Routes";
 import { useInteraction } from "@/hooks/useInteraction";
+import { usePreventDoubleTap } from "@/hooks/usePreventDoubleTap";
 import { useReduxSelectors } from "@/hooks/useReduxSelectors";
 import { getInteractionStatus } from "@/utility/interactionUtils";
 import { router } from "expo-router";
@@ -26,6 +27,7 @@ export type Post = {
   ingredients?: string[];
   category?: string[];
   mealtime?: string[];
+  tags?: string[];
 };
 
 type PostCardProps = {
@@ -51,18 +53,30 @@ const PostCard = ({
     status
   );
 
+  const handleCommunityPress = usePreventDoubleTap(() => {
+    router.push({
+      pathname: Routes.PostDetail,
+      params: { id: id, source: source },
+    });
+  });
+
+  const handlePostPress = usePreventDoubleTap(() => {
+    router.push({
+      pathname: Routes.PostDetail,
+      params: {
+        id: id,
+        source: source,
+        isFromMealPlan: isFromMealPlan ? "true" : "false",
+        communityId: communityId,
+        context: context,
+      },
+    });
+  });
+
   if (type === "community") {
     const { membersCount, postsCount } = post;
     return (
-      <TouchableOpacity
-        onPress={() =>
-          router.push({
-            pathname: Routes.PostDetail,
-            params: { id: id, source: source },
-          })
-        }
-        className="mb-4"
-      >
+      <TouchableOpacity onPress={handleCommunityPress} className="mb-2.5">
         <View style={styles.container}>
           <View className="relative">
             <Image
@@ -84,21 +98,7 @@ const PostCard = ({
 
   const { author, profilePic } = post;
   return (
-    <TouchableOpacity
-      onPress={() =>
-        router.push({
-          pathname: Routes.PostDetail,
-          params: {
-            id: id,
-            source: source,
-            isFromMealPlan: isFromMealPlan ? "true" : "false",
-            communityId: communityId,
-            context: context,
-          },
-        })
-      }
-      className="mb-4"
-    >
+    <TouchableOpacity onPress={handlePostPress} className="mb-1.5">
       <View style={styles.container}>
         <Image
           source={{ uri: image }}

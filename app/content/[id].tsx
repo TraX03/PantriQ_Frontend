@@ -5,7 +5,7 @@ import { setLoading } from "@/redux/slices/loadingSlice";
 import { AppDispatch } from "@/redux/store";
 import { getPostTypeById } from "@/services/Appwrite";
 import { logUserView } from "@/services/FastApi";
-import { Stack, useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import CommunityContainer from "./community/container";
@@ -53,7 +53,6 @@ export default function PostRouter() {
 
   return (
     <>
-      <Stack.Screen options={{ headerShown: false }} />
       {["recipe", "tips", "discussion"].includes(postType) ? (
         <PostContainer
           postId={id}

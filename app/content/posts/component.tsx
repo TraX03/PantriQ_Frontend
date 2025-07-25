@@ -11,6 +11,7 @@ import { IconSymbol } from "@/components/ui/IconSymbol";
 import { Colors } from "@/constants/Colors";
 import { useFieldState } from "@/hooks/useFieldState";
 import { useInteraction } from "@/hooks/useInteraction";
+import { usePreventDoubleTap } from "@/hooks/usePreventDoubleTap";
 import { styles } from "@/utility/content/posts/styles";
 import { router } from "expo-router";
 import { useMemo } from "react";
@@ -18,6 +19,7 @@ import {
   Dimensions,
   FlatList,
   Image,
+  KeyboardAvoidingView,
   Pressable,
   ScrollView,
   Text,
@@ -83,6 +85,26 @@ export default function PostComponent({
   } = post;
 
   if (!postData) return <ErrorScreen message="Post not found or invalid." />;
+
+  const onAuthorPress = usePreventDoubleTap(() =>
+    handleAuthorPress(postData.authorId)
+  );
+
+  const handleAdd = usePreventDoubleTap(() => {
+    if (isFromMealPlan && addRecipeToMealPlan && recipeData) {
+      addRecipeToMealPlan(
+        {
+          id: recipeData.id,
+          name: recipeData.title,
+          image: recipeData.images[0],
+        },
+        mealtime,
+        selectedDate
+      );
+    } else if (communityId && assignToCommunity && postData) {
+      assignToCommunity(postData.id, postType, communityId);
+    }
+  });
 
   const { isLiked, isBookmarked, toggleLike, toggleBookmark } = useInteraction(
     postData.id,
@@ -177,10 +199,7 @@ export default function PostComponent({
   const renderAuthor = () => (
     <Text style={styles.authorText}>
       by{" "}
-      <Text
-        style={styles.authorName}
-        onPress={() => handleAuthorPress(postData.authorId)}
-      >
+      <Text style={styles.authorName} onPress={onAuthorPress}>
         {postData.author}
       </Text>
     </Text>
@@ -279,64 +298,52 @@ export default function PostComponent({
 
       <GestureHandlerRootView>
         <ScreenWrapper>
-          <ScrollView
-            showsVerticalScrollIndicator={false}
-            style={[
-              styles.container,
-              { backgroundColor: Colors.surface.background },
-            ]}
-            contentContainerStyle={{
-              paddingBottom:
-                postType === "recipe" && (isFromMealPlan || communityId)
-                  ? 100
-                  : 10,
-            }}
+          <KeyboardAvoidingView
+            behavior="height"
+            style={!keyboardVisible && { flexGrow: 1 }}
           >
-            {renderImages()}
+            <ScrollView
+              showsVerticalScrollIndicator={false}
+              style={[
+                styles.container,
+                { backgroundColor: Colors.surface.background },
+              ]}
+              contentContainerStyle={{
+                paddingBottom:
+                  postType === "recipe" && (isFromMealPlan || communityId)
+                    ? 100
+                    : 10,
+              }}
+            >
+              {renderImages()}
 
-            <View style={styles.contentContainer}>
-              {postType !== "recipe" && (
-                <Text style={styles.recipeTitle}>{postData.title}</Text>
-              )}
+              <View style={styles.contentContainer}>
+                {postType !== "recipe" && (
+                  <Text style={styles.recipeTitle}>{postData.title}</Text>
+                )}
 
-              <View
-                className={`flex-row justify-between ${
-                  postType === "recipe" ? "items-end" : "items-center"
-                }`}
-              >
-                <View className="flex-1 pr-3">
-                  {postType === "recipe" && (
-                    <Text style={styles.recipeTitle}>{postData.title}</Text>
-                  )}
-                  {renderAuthor()}
+                <View
+                  className={`flex-row justify-between ${
+                    postType === "recipe" ? "items-end" : "items-center"
+                  }`}
+                >
+                  <View className="flex-1 pr-3">
+                    {postType === "recipe" && (
+                      <Text style={styles.recipeTitle}>{postData.title}</Text>
+                    )}
+                    {renderAuthor()}
+                  </View>
+                  {renderStats()}
                 </View>
-                {renderStats()}
               </View>
-            </View>
 
-            {renderSpecificContent()}
-          </ScrollView>
+              {renderSpecificContent()}
+            </ScrollView>
+          </KeyboardAvoidingView>
 
           {(isFromMealPlan || communityId) && (
             <View style={styles.fixedContainer}>
-              <Pressable
-                onPress={() => {
-                  if (isFromMealPlan && addRecipeToMealPlan && recipeData) {
-                    addRecipeToMealPlan(
-                      {
-                        id: recipeData.id,
-                        name: recipeData.title,
-                        image: recipeData.images[0],
-                      },
-                      mealtime,
-                      selectedDate
-                    );
-                  } else if (communityId && assignToCommunity && postData) {
-                    assignToCommunity(postData.id, postType, communityId);
-                  }
-                }}
-                style={styles.mealPlanButton}
-              >
+              <Pressable onPress={handleAdd} style={styles.mealPlanButton}>
                 <Text style={styles.ratingButtonText}>
                   {isFromMealPlan ? "Add to Meal Plan" : "Add to Community"}
                 </Text>

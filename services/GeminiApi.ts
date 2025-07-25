@@ -186,7 +186,7 @@ Provide a list of suitable substitute ingredients for: "${ingredientName}"
 Rules:
 - Keep substitutes realistic and commonly available in households or supermarkets.
 - Consider substitutions that preserve similar texture, flavor, or cooking function.
-- Limit to 5–10 alternatives.
+- Limit to 2–8 alternatives.
 - Output as a plain JSON array of ingredient names. No explanation or extra text.
 `;
 

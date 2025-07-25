@@ -4,6 +4,7 @@ import { IconSymbol } from "@/components/ui/IconSymbol";
 import { Colors } from "@/constants/Colors";
 import { Routes } from "@/constants/Routes";
 import { useFieldState } from "@/hooks/useFieldState";
+import { usePreventDoubleTap } from "@/hooks/usePreventDoubleTap";
 import { router } from "expo-router";
 import React from "react";
 import {
@@ -45,6 +46,13 @@ export default function AuthFormComponent({
   const { width, height } = Dimensions.get("window");
   const statusBarHeight = StatusBar.currentHeight || 0;
   const isSignIn = mode === "signIn";
+
+  const onSwitchAuthMode = usePreventDoubleTap(() => {
+    router.replace({
+      pathname: Routes.AuthForm,
+      params: { mode: isSignIn ? "signUp" : "signIn" },
+    });
+  });
 
   return (
     <>
@@ -147,14 +155,7 @@ export default function AuthFormComponent({
           </View>
 
           <View className="items-center mb-10">
-            <TouchableOpacity
-              onPress={() =>
-                router.replace({
-                  pathname: Routes.AuthForm,
-                  params: { mode: isSignIn ? "signUp" : "signIn" },
-                })
-              }
-            >
+            <TouchableOpacity onPress={onSwitchAuthMode}>
               <Text style={styles.dividerText}>
                 {isSignIn ? (
                   <>

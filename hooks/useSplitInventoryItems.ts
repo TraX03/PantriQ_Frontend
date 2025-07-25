@@ -8,42 +8,50 @@ export function useSplitInventoryItems(items: ListItem[], activeTab: ListType) {
     if (!Array.isArray(item.quantity)) return [item];
 
     const { quantity, expiries = [], checkedCount = 0 } = item;
-    const used: number[] = [],
-      usedExp: string[] = [];
-    const remaining: number[] = [],
-      remainingExp: string[] = [];
-    const expired: number[] = [],
-      expiredExp: string[] = [];
 
     let toSplit = checkedCount;
+    const checked: number[] = [],
+      checkedExp: string[] = [];
+    const unchecked: number[] = [],
+      uncheckedExp: string[] = [];
 
     quantity.forEach((qty, i) => {
       const expiry = expiries[i];
-      const isExpired = expiry && new Date(expiry) < new Date();
-
-      if (activeTab !== "shopping" && isExpired) {
-        expired.push(qty);
-        if (expiry) expiredExp.push(expiry);
-        return;
-      }
-
       if (toSplit > 0) {
         if (qty > toSplit) {
-          used.push(toSplit);
-          remaining.push(qty - toSplit);
+          checked.push(toSplit);
+          unchecked.push(qty - toSplit);
           if (expiry) {
-            usedExp.push(expiry);
-            remainingExp.push(expiry);
+            checkedExp.push(expiry);
+            uncheckedExp.push(expiry);
           }
           toSplit = 0;
         } else {
-          used.push(qty);
-          if (expiry) usedExp.push(expiry);
+          checked.push(qty);
+          if (expiry) checkedExp.push(expiry);
           toSplit -= qty;
         }
       } else {
-        remaining.push(qty);
-        if (expiry) remainingExp.push(expiry);
+        unchecked.push(qty);
+        if (expiry) uncheckedExp.push(expiry);
+      }
+    });
+
+    const fresh: number[] = [],
+      freshExp: string[] = [];
+    const expired: number[] = [],
+      expiredExp: string[] = [];
+
+    unchecked.forEach((qty, i) => {
+      const expiry = uncheckedExp[i];
+      const isExpired =
+        activeTab !== "shopping" && expiry && new Date(expiry) < new Date();
+      if (isExpired) {
+        expired.push(qty);
+        if (expiry) expiredExp.push(expiry);
+      } else {
+        fresh.push(qty);
+        if (expiry) freshExp.push(expiry);
       }
     });
 
@@ -55,7 +63,7 @@ export function useSplitInventoryItems(items: ListItem[], activeTab: ListType) {
       ...item,
       quantity: q,
       expiries: e,
-      quantityDisplay: item.quantityDisplay ?? q.reduce((sum, x) => sum + x, 0),
+      quantityDisplay: q.reduce((sum, x) => sum + x, 0),
       checked,
     });
 
@@ -63,8 +71,8 @@ export function useSplitInventoryItems(items: ListItem[], activeTab: ListType) {
       expiredItems.push(createItem(expired, expiredExp, false));
 
     return [
-      ...(remaining.length ? [createItem(remaining, remainingExp, false)] : []),
-      ...(used.length ? [createItem(used, usedExp, true)] : []),
+      ...(fresh.length ? [createItem(fresh, freshExp, false)] : []),
+      ...(checked.length ? [createItem(checked, checkedExp, true)] : []),
     ];
   });
 

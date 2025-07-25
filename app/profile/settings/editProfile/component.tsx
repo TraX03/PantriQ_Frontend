@@ -4,6 +4,7 @@ import IconButton from "@/components/IconButton";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { Colors } from "@/constants/Colors";
 import { Routes } from "@/constants/Routes";
+import { usePreventDoubleTap } from "@/hooks/usePreventDoubleTap";
 import { ProfileData } from "@/redux/slices/profileSlice";
 import { getOverlayStyle } from "@/utility/imageUtils";
 import { styles } from "@/utility/profile/settings/styles";
@@ -40,6 +41,17 @@ export default function EditProfileComponent({
       <ErrorScreen message="Something went wrong while loading your profile data. Please refresh or try again later." />
     );
   }
+
+  const handleEdit = usePreventDoubleTap(() =>
+    router.push({
+      pathname: Routes.EditFieldForm,
+      params: {
+        key: "username",
+        size: 20,
+        data: encodeURIComponent(JSON.stringify(profileData)),
+      },
+    })
+  );
 
   const {
     username,
@@ -149,16 +161,7 @@ export default function EditProfileComponent({
             return (
               <Pressable
                 key={key}
-                onPress={() =>
-                  router.push({
-                    pathname: Routes.EditFieldForm,
-                    params: {
-                      key,
-                      size,
-                      data: encodeURIComponent(JSON.stringify(profileData)),
-                    },
-                  })
-                }
+                onPress={handleEdit}
                 className="border-b"
                 style={[
                   styles.fieldTab,

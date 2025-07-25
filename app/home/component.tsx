@@ -4,6 +4,7 @@ import { IconSymbol } from "@/components/ui/IconSymbol";
 import { Colors } from "@/constants/Colors";
 import { Routes } from "@/constants/Routes";
 import { useFieldState } from "@/hooks/useFieldState";
+import { usePreventDoubleTap } from "@/hooks/usePreventDoubleTap";
 import { styles } from "@/utility/home/styles";
 import { router } from "expo-router";
 import {
@@ -34,6 +35,7 @@ export default function HomeComponent({
   interactionVersion,
 }: Props) {
   const { activeTab, activeSuggestion, setFieldState } = home;
+  const onPress = usePreventDoubleTap(() => router.push(Routes.Search));
 
   const renderSuggestionBar = () => {
     const filteredSuggestions =
@@ -108,10 +110,7 @@ export default function HomeComponent({
         </View>
 
         <View className="flex-row items-center gap-2">
-          <Pressable
-            testID="search-icon"
-            onPress={() => router.push(Routes.Search)}
-          >
+          <Pressable testID="search-icon" onPress={onPress}>
             <IconSymbol name="magnifyingglass" color={Colors.brand.primary} />
           </Pressable>
         </View>
@@ -122,7 +121,7 @@ export default function HomeComponent({
           data={filteredPosts}
           keyExtractor={(item) => `${item.id}-${interactionVersion}`}
           renderItem={({ item }) => (
-            <View className="p-2">
+            <View className="px-2">
               <PostCard post={item} />
             </View>
           )}
